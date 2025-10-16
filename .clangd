@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - "-I/home/cowie/emsdk/upstream/emscripten/system/include"
+    - "-I/home/cowie/emsdk/upstream/emscripten/system/include/libc"
+    - "-I/home/cowie/emsdk/upstream/emscripten/system/lib/libc/musl/arch/emscripten"
+    - "-I/home/cowie/emsdk/upstream/lib/clang/17/include"
