@@ -106,14 +106,14 @@ namespace shader {
   Shaders shader;
 
   void setup(){
-    Shader shader("./assets/shaders/vertex.vert",
-                  "./assets/shaders/fragment.frag");
+    // Shader shader("./assets/shaders/vertex.vert",
+    //               "./assets/shaders/fragment.frag");
   
     // Shader screenShader("./assets/shaders/screen.vert",
     //                     "./assets/shaders/screen.frag");
   
     shader::shader = {
-        .normal = &shader,
+        // .normal = &shader,
         // .screen = &screenShader,
     };
   
