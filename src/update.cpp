@@ -1,8 +1,9 @@
 #include "../include/update.hpp"
 
 #include <GLES3/gl3.h>
+#include "../include/camera.hpp"
 
-#include <iostream>
 void update(){
-  std::cout << "Test" << std::endl;
+  camera::cameras.normal->rotate();
+  camera::cameras.normal->move();
 }

@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include <memory>
 
 class Shader {
 public:
@@ -22,11 +23,10 @@ public:
 
 namespace shader {
   struct Shaders {
-    Shader *normal;
-    Shader *screen;
+    std::unique_ptr<Shader> normal;
+    std::unique_ptr<Shader> screen;
   };
-  
-  
+
   void setup();
   
   extern Shaders shader;

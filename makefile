@@ -18,13 +18,14 @@ SHELL_FILE := index.html
 SRC_FILES   := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(LIB_DIR)/*.cpp)
 OBJ_FILES   := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(SRC_FILES)))
 
+PRELOAD_FLAG := --preload-file $(ASSETS_DIR)@/assets
 
-all: $(BIN_DIR)/$(TARGET) $(ASSETS_BIN_DIR)
+all: $(BIN_DIR)/$(TARGET)
 
 $(BIN_DIR)/$(TARGET): $(OBJ_FILES)
 	@echo "Linking"
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(OBJ_FILES) $(CXXFLAGS) $(EMFLAGS) --shell-file $(SHELL_FILE) -o $@
+	$(CXX) $(OBJ_FILES) $(CXXFLAGS) $(EMFLAGS) $(PRELOAD_FLAG) --shell-file $(SHELL_FILE) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "Compiling $<"
@@ -36,14 +37,14 @@ $(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(ASSETS_BIN_DIR):
-	@echo "Copying Assets"
-	@mkdir -p $(ASSETS_BIN_DIR)
-	@cp -r $(ASSETS_DIR)/* $(ASSETS_BIN_DIR)/
-
+assets:
+	@echo "Rebuilding assets"
+	@mkdir -p $(BIN_DIR)
+	@rm -f $(BIN_DIR)/$(TARGET) $(BIN_DIR)/$(TARGET:.html=.data) $(BIN_DIR)/$(TARGET:.html=.wasm)
+	$(CXX) $(OBJ_FILES) $(CXXFLAGS) $(EMFLAGS) $(PRELOAD_FLAG) --shell-file $(SHELL_FILE) -o $(BIN_DIR)/$(TARGET)
 
 clean:
 	@echo "Cleaning"
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean serve
+.PHONY: all clean assets

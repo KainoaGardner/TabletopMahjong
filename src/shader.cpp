@@ -1,10 +1,12 @@
 #include "../include/shader.hpp"
 
 #include <GLES3/gl3.h>
-#include "../include/glm/gtc/type_ptr.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include <vector>
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   std::string vertexSourceCode;
@@ -36,6 +38,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   const char *vertexShaderSourceCode = vertexSourceCode.c_str();
   const char *fragmentShaderSourceCode = fragmentSourceCode.c_str();
 
+
   unsigned int vertexShader, fragmentShader;
   int status;
   char infoLog[512];
@@ -61,21 +64,33 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   }
 
   program = glCreateProgram();
+
   glAttachShader(program, vertexShader);
   glAttachShader(program, fragmentShader);
-  glLinkProgram(program);
 
-  glGetProgramiv(program, GL_LINK_STATUS, &status);
-  if (!status) {
-    glGetProgramInfoLog(program, 512, NULL, infoLog);
-    std::cout << "ERROR:Program Link Failed\n" << infoLog << std::endl;
+  glLinkProgram(program);
+  glValidateProgram(program);
+
+  int linkStatus = 0;
+  glGetProgramiv(program, GL_INFO_LOG_LENGTH, &linkStatus);
+  if (!linkStatus) {
+    int logLength = 0;
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+      std::vector<char> infoLog(logLength);
+      glGetProgramInfoLog(program, logLength, NULL, infoLog.data());
+      std::cout << "ERROR:Program Link Failed\n" << infoLog.data() << std::endl;
+    }
   }
+
 
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 };
 
-void Shader::use() { glUseProgram(program); };
+void Shader::use() { 
+  glUseProgram(program);
+};
 
 void Shader::setFloat(const std::string &name, float value) const {
   int uniformLocation = glGetUniformLocation(program, name.c_str());
@@ -106,17 +121,7 @@ namespace shader {
   Shaders shader;
 
   void setup(){
-    // Shader shader("./assets/shaders/vertex.vert",
-    //               "./assets/shaders/fragment.frag");
-  
-    // Shader screenShader("./assets/shaders/screen.vert",
-    //                     "./assets/shaders/screen.frag");
-  
-    shader::shader = {
-        // .normal = &shader,
-        // .screen = &screenShader,
-    };
-  
+    shader.normal = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
+    shader.screen = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
   }
-
 }
