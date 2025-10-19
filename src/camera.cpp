@@ -1,7 +1,9 @@
 #include "../include/camera.hpp"
 #include "../include/config.hpp"
+#include "../include/input.hpp"
 
 #include <glm/gtc/quaternion.hpp>
+
 
 Camera::Camera(
   glm::vec3 positionIn,
@@ -10,7 +12,8 @@ Camera::Camera(
   float rollIn,
   float fovIn,
   float speedIn,
-  float sensitivityIn){
+  float sensitivityIn,
+  float zoomSpeedIn){
 
   position = positionIn;
   yaw = yawIn;
@@ -19,7 +22,7 @@ Camera::Camera(
   fov = fovIn;
   speed = speedIn;
   sensitivity = sensitivityIn;
-
+  zoomSpeed = zoomSpeedIn;
   clampPitch();
   updateVectors();
 }
@@ -60,15 +63,55 @@ void Camera::updateVectors() {
 }
 
 void Camera::rotate(){
+  if (input::mouse.pointerLock){
+    yaw -= input::mouse.dx * sensitivity;
+    pitch -= input::mouse.dy * sensitivity;
+  }
 
   clampPitch();
   updateVectors();
 }
 
 void Camera::zoom(){
+  if (input::actionPressed[input::zoomIn]){
+    fov += zoomSpeed;
+  }
+  if (input::actionPressed[input::zoomOut]){
+    fov -= zoomSpeed;
+  }
+
+  if (fov < camera::minFov){
+    fov = camera::minFov;
+  }
+  if (fov > camera::maxFov){
+    fov = camera::maxFov;
+  }
 }
 
 void Camera::move(){
+  if (input::actionPressed[input::forward]){
+    position += speed * front;
+  }
+
+  if (input::actionPressed[input::backward]){
+    position -= speed * front;
+  }
+
+  if (input::actionPressed[input::right]){
+    position += speed * right;
+  }
+
+  if (input::actionPressed[input::left]){
+    position -= speed * right;
+  }
+
+  if (input::actionPressed[input::up]){
+    position += speed * up;
+  }
+
+  if (input::actionPressed[input::down]){
+    position -= speed * up;
+  }
 }
 
 
@@ -77,12 +120,14 @@ namespace camera {
 
   void setup(){
     glm::vec3 position = glm::vec3(0.0f,0.0f,3.0f);
-    cameras.normal = std::make_unique<Camera>(position,
-                                              0.0f,
-                                              0.0f,
-                                              0.0f,
-                                              45.0f,
-                                              0.01f,
-                                              0.1f);
+    cameras.normal = std::make_unique<Camera>(
+      position,
+      yaw,
+      pitch,
+      roll,
+      fov,
+      speed,
+      sensitivity,
+      zoomSpeed);
   }
 }

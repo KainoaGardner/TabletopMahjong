@@ -1,5 +1,6 @@
 #include <GLES3/gl3.h>
-#include "emscripten/html5_webgl.h"
+
+#include <emscripten/html5_webgl.h>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 
@@ -11,17 +12,16 @@
 #include "../include/geometry.hpp"
 #include "../include/framebuffer.hpp"
 #include "../include/camera.hpp"
+#include "../include/input.hpp"
+#include "../include/model.hpp"
 
 #include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-
 
 void mainLoop();
 
-// glm::vec3 pos(0.0f);
 float x = 0.0f;
 float y = 0.0f;
 float z = 0.0f;
@@ -50,13 +50,14 @@ int main(){
 
   emscripten_set_canvas_element_size("#canvas", canvasWidth,canvasHeight);
 
+  model::loadGLB("../assets/models/chun.glb");
 
   auto now = std::chrono::system_clock::now();
   auto duration = now.time_since_epoch();
   long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
   config::gameConfig.lastUpdateTime = currentTime;
 
-
+  input::setup();
   shader::setup();
   geometry::setup();
   framebuffer::setup();
