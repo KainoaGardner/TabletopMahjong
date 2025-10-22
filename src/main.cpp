@@ -50,8 +50,6 @@ int main(){
 
   emscripten_set_canvas_element_size("#canvas", canvasWidth,canvasHeight);
 
-  model::loadGLB("../assets/models/chun.glb");
-
   auto now = std::chrono::system_clock::now();
   auto duration = now.time_since_epoch();
   long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
@@ -62,6 +60,7 @@ int main(){
   geometry::setup();
   framebuffer::setup();
   camera::setup();
+  model::setup();
 
   glViewport(0, 0, canvasWidth,canvasHeight);
   emscripten_set_main_loop(mainLoop, 0, true);
@@ -90,21 +89,33 @@ void mainLoop(){
   glm::mat4 view = camera::cameras.normal->getViewMatrix();
   glm::mat4 projection = camera::cameras.normal->getProjectionMatrix();
 
-  shader::shader.normal->use();
-  glBindVertexArray(geometry::geometry.cube.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry::geometry.cube.ebo);
-  glm::mat4 model = glm::mat4(1.0f);
 
+  shader::shader.model->use();
+  glm::mat4 model = glm::mat4(1.0f);
   glm::vec3 posTest = glm::vec3(x,y,z);
   model = glm::translate(model, posTest);
-  glm::vec3 size = glm::vec3(1.0f);
+  glm::vec3 size = glm::vec3(0.1f);
   model = glm::scale(model, size);
+  shader::shader.model->setMatrix4fv("uModel", model);
+  shader::shader.model->setMatrix4fv("uView", view);
+  shader::shader.model->setMatrix4fv("uProjection", projection);
+  model::model.chun->draw();
 
-  shader::shader.normal->setMatrix4fv("uModel", model);
-  shader::shader.normal->setMatrix4fv("uView", view);
-  shader::shader.normal->setMatrix4fv("uProjection", projection);
-
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  // shader::shader.normal->use();
+  // glBindVertexArray(geometry::geometry.cube.vao);
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry::geometry.cube.ebo);
+  // glm::mat4 model = glm::mat4(1.0f);
+  //
+  // glm::vec3 posTest = glm::vec3(x,y,z);
+  // model = glm::translate(model, posTest);
+  // glm::vec3 size = glm::vec3(1.0f);
+  // model = glm::scale(model, size);
+  //
+  // shader::shader.normal->setMatrix4fv("uModel", model);
+  // shader::shader.normal->setMatrix4fv("uView", view);
+  // shader::shader.normal->setMatrix4fv("uProjection", projection);
+  //
+  // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

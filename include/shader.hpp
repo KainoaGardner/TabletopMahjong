@@ -25,6 +25,7 @@ namespace shader {
   struct Shaders {
     std::unique_ptr<Shader> normal;
     std::unique_ptr<Shader> screen;
+    std::unique_ptr<Shader> model;
   };
 
   void setup();
