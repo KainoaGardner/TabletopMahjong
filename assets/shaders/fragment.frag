@@ -5,10 +5,9 @@ out vec4 fragColor;
 
 in vec2 vTexCoord;
 
-// uniform float uTime;
-// uniform sampler2D uTexture0;
+uniform sampler2D uDiff;
 
 void main() {
-    vec4 color = vec4(1.0);
-    fragColor = color;
+    vec3 color = texture(uDiff, vTexCoord).rgb;
+    fragColor = vec4(color,1.0);
 }

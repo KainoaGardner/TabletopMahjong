@@ -17,10 +17,12 @@ struct GameConfig {
   const unsigned int fps = 60.0;
   const float logicIntervalTime = 1.0f / fps;
   long long lastUpdateTime = 0;
-  // unsigned int width = 1280;
-  // unsigned int height = 720;
-  unsigned int width = 960;
-  unsigned int height = 540;
+  // unsigned int width = 1920;
+  // unsigned int height = 1080;
+  unsigned int width = 1280;
+  unsigned int height = 720;
+  // unsigned int width = 960;
+  // unsigned int height = 540;
 
   const float nearPlane = 0.1f;
   const float farPlane = 10000.0f;

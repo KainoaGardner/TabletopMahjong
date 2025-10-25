@@ -106,11 +106,11 @@ void Camera::move(){
   }
 
   if (input::actionPressed[input::up]){
-    position += speed * up;
+    position += speed * global::worldUp;
   }
 
   if (input::actionPressed[input::down]){
-    position -= speed * up;
+    position -= speed * global::worldUp;
   }
 }
 

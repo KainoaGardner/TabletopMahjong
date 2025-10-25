@@ -11,7 +11,8 @@ namespace model {
   Models model;
 
   void setup(){
-    model.chun = std::make_unique<Model>("../assets/models/chun.glb");
+    model.chun = std::make_unique<Model>("../assets/models/H7.glb");
+    model.dice = std::make_unique<Model>("../assets/models/dice.glb");
   }
 }
 
@@ -171,5 +172,4 @@ void Model::draw() const {
 
   glBindVertexArray(0);
 }
-
 
