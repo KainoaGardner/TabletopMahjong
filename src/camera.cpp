@@ -119,7 +119,7 @@ namespace camera {
   Cameras cameras;
 
   void setup(){
-    glm::vec3 position = glm::vec3(0.0f,0.0f,3.0f);
+    glm::vec3 position = glm::vec3(0.0f,0.35f,0.60f);
     cameras.normal = std::make_unique<Camera>(
       position,
       yaw,

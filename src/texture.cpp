@@ -43,7 +43,6 @@ GLuint loadTexture(const char *path) {
   }
 
 
-  std::cout << textureID << std::endl;
 
   return textureID;
 }

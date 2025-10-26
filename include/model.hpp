@@ -6,6 +6,7 @@
 #include <memory>
 
 #include <GLES3/gl3.h>
+#include <glm/glm.hpp>
 
 #include "../include/tiny_gltf.h"
 
@@ -25,7 +26,17 @@ struct Mesh {
   GLuint textureIndex;
 };
 
+
+const glm::vec3 tableSideShortScale = glm::vec3(0.69f, 0.03f, 0.03f);
+const glm::vec3 tableSideLongScale = glm::vec3(0.75f, 0.03f, 0.03f);
+const glm::vec3 matScale = glm::vec3(0.69f, 0.005f, 0.69f);
+const glm::vec3 diceScale = glm::vec3(0.016f);
+
+const float tileScaleFactor = 1.14;
+const glm::vec3 tileScale = glm::vec3(0.0245f, 0.0152f, 0.033f) * tileScaleFactor;
+
 } // namespace model
+
 
 
 class Model {
@@ -60,22 +71,4 @@ extern Models model;
 #endif
 
 
-//MODELS SIZE
-//TILES --
-//X 0.0245
-//Y 0.0152
-//Z 0.0330
 
-//size factor c = 1.14
-
-//Dice --
-//X 0.016
-//Y 0.016
-//Z 0.016
-
-//Mat size
-//X 0.69
-//Y 0.005
-//Z 0.69
-
-//should be x 0.028

@@ -10,6 +10,7 @@ namespace global {
   const glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
   const glm::vec3 worldUp    = glm::vec3(0.0f, 1.0f, 0.0f);
   const glm::vec3 worldRight = glm::vec3(1.0f, 0.0f, 0.0f);
+
 } // namespace global
 
 namespace config {

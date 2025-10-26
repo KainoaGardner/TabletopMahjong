@@ -3,9 +3,10 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "../include/model.hpp"
-#include <iostream>
 #include "../include/shader.hpp"
+#include "../include/glExtensions.hpp"
 
+#include <iostream>
 
 namespace model {
   Models model;
@@ -146,15 +147,27 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
   GLuint tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  GLenum format = image.component == 3 ? GL_RED : GL_RGBA;
+  GLenum format = GL_RGBA;
+  if (image.component == 3){
+    format = GL_RGB;
+  }else if (image.component == 1){
+    format = GL_RED;
+  }
 
   glTexImage2D(GL_TEXTURE_2D, 0, format, image.width, image.height, 0, format, GL_UNSIGNED_BYTE, image.image.data());
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  const char* ext = (const char*)glGetString(GL_EXTENSIONS);
+  if (ext && strstr(ext, "GL_EXT_texture_filter_anisotropic")){
+    GLfloat largest = 1.0f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, largest);
+  }
 
   return tex;
 }
