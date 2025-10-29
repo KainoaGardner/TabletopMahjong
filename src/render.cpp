@@ -8,6 +8,7 @@
 #include "../include/model.hpp"
 #include "../include/config.hpp"
 #include "../include/camera.hpp"
+#include "../include/tile.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -34,17 +35,59 @@ namespace render {
   }
 
   void tiles(const glm::mat4& view, const glm::mat4& projection){
-    shader::shader.model->use();
-    glm::mat4 model = glm::mat4(1.0f);
+    // shader::shader.model->use();
+    // glm::mat4 model = glm::mat4(1.0f);
+    //
+    // glm::vec3 pos = glm::vec3(0.0f, model::tileScale.y / 2.0f, 0.0f);
+    // glm::vec3 tileScale = glm::vec3(1.14);
+    // model = glm::translate(model, pos);
+    // model = glm::scale(model, tileScale);
+    // shader::shader.model->setMatrix4fv("uModel", model);
+    // shader::shader.model->setMatrix4fv("uView", view);
+    // shader::shader.model->setMatrix4fv("uProjection", projection);
+    // model::model.chun->draw();
+    //
+    // model = glm::mat4(1.0f);
+    //
+    // pos = glm::vec3(0.0f, model::tileScale.z / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
+    //
+    // model = glm::translate(model, pos);
+    // model = glm::rotate(model,glm::radians(90.0f),global::worldRight);
+    // model = glm::scale(model, tileScale);
+    // shader::shader.model->setMatrix4fv("uModel", model);
+    // shader::shader.model->setMatrix4fv("uView", view);
+    // shader::shader.model->setMatrix4fv("uProjection", projection);
+    // model::model.chun->draw();
 
-    glm::vec3 pos = glm::vec3(0.0f, model::tileScale.y / 2.0f, 0.0f);
-    glm::vec3 tileScale = glm::vec3(1.14);
-    model = glm::translate(model, pos);
-    model = glm::scale(model, tileScale);
-    shader::shader.model->setMatrix4fv("uModel", model);
-    shader::shader.model->setMatrix4fv("uView", view);
-    shader::shader.model->setMatrix4fv("uProjection", projection);
-    model::model.chun->draw();
+  //   for (const Tile& tile : tile::tiles){
+  //     shader::shader.model->use();
+  //     glm::mat4 model = glm::mat4(1.0f);
+  // 
+  //     glm::vec3 pos = glm::vec3(0.0f, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
+  //     glm::vec3 tileScale = glm::vec3(1.14);
+  //     model = glm::translate(model, pos);
+  //     model = glm::scale(model, tileScale);
+  //     shader::shader.model->setMatrix4fv("uModel", model);
+  //     shader::shader.model->setMatrix4fv("uView", view);
+  //     shader::shader.model->setMatrix4fv("uProjection", projection);
+  //     tile.draw();
+  //   }
+
+    int i = 0;
+    for (const Tile& tile : tile::tiles){
+      shader::shader.model->use();
+      glm::mat4 model = glm::mat4(1.0f);
+  
+      glm::vec3 pos = glm::vec3(model::tileScale.x * i++, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
+      glm::vec3 tileScale = glm::vec3(1.14);
+      model = glm::translate(model, pos);
+      model = glm::scale(model, tileScale);
+      shader::shader.model->setMatrix4fv("uModel", model);
+      shader::shader.model->setMatrix4fv("uView", view);
+      shader::shader.model->setMatrix4fv("uProjection", projection);
+      tile.draw();
+    }
+
   }
 
   void dice(const glm::mat4& view, const glm::mat4& projection){

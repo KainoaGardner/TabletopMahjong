@@ -34,7 +34,7 @@ const glm::vec3 diceScale = glm::vec3(0.016f);
 
 const float tileScaleFactor = 1.14;
 const glm::vec3 tileScale = glm::vec3(0.0245f, 0.0152f, 0.033f) * tileScaleFactor;
-
+const glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.1 ,0.1f);
 } // namespace model
 
 
@@ -45,9 +45,8 @@ public:
   ~Model();
 
   void draw() const;
-
-private:
   std::vector<model::Mesh> meshes;
+private:
 
   void loadModel(const std::string& path);
   void loadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh);
@@ -57,7 +56,7 @@ private:
 
 namespace model {
 struct Models {
-  std::unique_ptr<Model> chun;
+  std::unique_ptr<Model> tile;
 
   std::unique_ptr<Model> dice;
 };

@@ -4,18 +4,10 @@
 
 #include "../include/model.hpp"
 #include "../include/shader.hpp"
-#include "../include/glExtensions.hpp"
+#include "../include/glExtension.hpp"
 
 #include <iostream>
 
-namespace model {
-  Models model;
-
-  void setup(){
-    model.chun = std::make_unique<Model>("../assets/models/H7.glb");
-    model.dice = std::make_unique<Model>("../assets/models/dice.glb");
-  }
-}
 
 Model::Model(const std::string& path){
   loadModel(path);
@@ -157,8 +149,8 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
   glTexImage2D(GL_TEXTURE_2D, 0, format, image.width, image.height, 0, format, GL_UNSIGNED_BYTE, image.image.data());
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -175,14 +167,24 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
 void Model::draw() const {
   shader::shader.model->use();
 
+  shader::shader.model->setVec2f("uTexOffset", glm::vec2(0.0f));
   for (const auto& mesh : meshes) {
     glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader::shader.screen->setInt("uDiffuse0",0);
+    shader::shader.model->setInt("uDiffuse0",0);
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
   }
 
   glBindVertexArray(0);
+}
+
+namespace model {
+  Models model;
+
+  void setup(){
+    model.tile = std::make_unique<Model>("../assets/models/tile.glb");
+    model.dice = std::make_unique<Model>("../assets/models/dice.glb");
+  }
 }
 

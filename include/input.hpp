@@ -18,6 +18,7 @@ namespace input {
     freeLook,
     zoomIn,
     zoomOut,
+    perspective,
   };
 
 extern std::unordered_map<std::string, actions> keyToAction;

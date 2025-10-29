@@ -4,22 +4,29 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-
-
 namespace camera {
   const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
   const glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
   const glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
 
   const float yaw = 0.0f;
-  const float pitch = -35.0f;
+  const float pitch = -30.0f;
   const float roll = 0.0f;
   const float fov = 45.0f;
   const float speed = 0.01f;
   const float sensitivity = 0.1f;
+  const float orthoSensRatio = 0.005f;
   const float zoomSpeed = 1.0f;
 
-  const float minFov = 15.0f;
+  const float orthoZoomRatio = 0.006f;
+
+  const glm::vec3 perspectivePos = glm::vec3(0.0f,0.4f,0.6f);
+  const glm::vec3 orthoPos = glm::vec3(0.0f,0.3f,0.3f);
+
+  const float perspectivePitch = -40.0f;
+  const float orthoPitch = -45.0f;
+
+  const float minFov = 20.0f;
   const float maxFov = 45.0f;
 } 
 
@@ -39,6 +46,8 @@ public:
   float speed;
   float sensitivity;
   float zoomSpeed;
+
+  bool ortho = false;
 
   glm::vec3 front = camera::cameraFront;
   glm::vec3 up = camera::cameraUp;

@@ -14,7 +14,8 @@
 #include "../include/input.hpp"
 #include "../include/model.hpp"
 #include "../include/texture.hpp"
-#include "../include/glExtensions.hpp"
+#include "../include/glExtension.hpp"
+#include "../include/tile.hpp"
 
 #include <chrono>
 #include <glm/glm.hpp>
@@ -60,6 +61,7 @@ int main(){
   framebuffer::setup();
   camera::setup();
   model::setup();
+  tile::setup(0);
 
   glViewport(0, 0, canvasWidth,canvasHeight);
   emscripten_set_main_loop(mainLoop, 0, true);

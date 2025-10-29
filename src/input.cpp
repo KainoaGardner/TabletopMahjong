@@ -1,11 +1,7 @@
 #include "../include/input.hpp"
-#include "emscripten/html5.h"
-
 #include "../include/emjs.hpp"
-#include "../include/config.hpp"
 
 #include <chrono>
-#include <iostream>
 
 namespace input {
 
@@ -20,6 +16,7 @@ std::unordered_map<std::string, actions> keyToAction = {
   {"Mouse2", freeLook},
   {"MouseWheelUp", zoomIn},
   {"MouseWheelDown", zoomOut},
+  {"KeyP", perspective},
 };
 
 std::unordered_map<actions, bool> actionPressed = {

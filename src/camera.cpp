@@ -4,7 +4,6 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-
 Camera::Camera(
   glm::vec3 positionIn,
   float yawIn,
@@ -32,11 +31,25 @@ glm::mat4 Camera::getViewMatrix() const {
 }
 
 glm::mat4 Camera::getProjectionMatrix() const {
-  return glm::perspective(
-    glm::radians(fov),
-    (float)config::gameConfig.width / (float)config::gameConfig.height,
-    config::gameConfig.nearPlane,
-    config::gameConfig.farPlane);
+  if (ortho){
+    float aspect = (float)config::gameConfig.width / (float)config::gameConfig.height;
+    float zoom = fov * camera::orthoZoomRatio;
+
+    return glm::ortho(
+      -zoom * aspect,
+      zoom * aspect,
+      -zoom,
+      zoom,
+      config::gameConfig.nearPlane,
+      config::gameConfig.farPlane);
+
+  }else {
+    return glm::perspective(
+      glm::radians(fov),
+      (float)config::gameConfig.width / (float)config::gameConfig.height,
+      config::gameConfig.nearPlane,
+      config::gameConfig.farPlane);
+  }
 }
 
 
@@ -63,9 +76,20 @@ void Camera::updateVectors() {
 }
 
 void Camera::rotate(){
-  if (input::mouse.pointerLock){
-    yaw -= input::mouse.dx * sensitivity;
-    pitch -= input::mouse.dy * sensitivity;
+  if (input::actionPressed[input::freeLook]){
+    if (!ortho){
+      yaw -= input::mouse.dx * sensitivity;
+      pitch -= input::mouse.dy * sensitivity;
+    }
+
+  }else {
+    if (ortho){
+      pitch = camera::orthoPitch;
+    }else {
+      pitch = camera::perspectivePitch;
+    }
+    yaw = camera::yaw;
+    fov = camera::fov;
   }
 
   clampPitch();
@@ -73,6 +97,8 @@ void Camera::rotate(){
 }
 
 void Camera::zoom(){
+  if (!input::actionPressed[input::freeLook]) return;
+
   if (input::actionPressed[input::zoomIn]){
     fov += zoomSpeed;
   }
@@ -86,6 +112,8 @@ void Camera::zoom(){
   if (fov > camera::maxFov){
     fov = camera::maxFov;
   }
+
+
 }
 
 void Camera::move(){
@@ -112,6 +140,23 @@ void Camera::move(){
   if (input::actionPressed[input::down]){
     position -= speed * global::worldUp;
   }
+
+  if (input::actionPressed[input::perspective]){
+    ortho = !ortho;
+    input::actionPressed[input::perspective] = false;
+  }
+
+  if (ortho){
+    if (input::actionPressed[input::freeLook]){
+      position.x -= input::mouse.dx * sensitivity * camera::orthoSensRatio;
+      position.z -= input::mouse.dy * sensitivity * camera::orthoSensRatio;
+
+    }else {
+      position = camera::orthoPos;
+    }
+  }else {
+    position = camera::perspectivePos;
+  }
 }
 
 
@@ -119,7 +164,7 @@ namespace camera {
   Cameras cameras;
 
   void setup(){
-    glm::vec3 position = glm::vec3(0.0f,0.35f,0.60f);
+    glm::vec3 position = glm::vec3(0.0f,0.35f,0.50f);
     cameras.normal = std::make_unique<Camera>(
       position,
       yaw,
