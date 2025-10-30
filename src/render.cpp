@@ -78,9 +78,9 @@ namespace render {
       shader::shader.model->use();
       glm::mat4 model = glm::mat4(1.0f);
   
-      glm::vec3 pos = glm::vec3(model::tileScale.x * i++, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
+      // glm::vec3 pos = glm::vec3(model::tileScale.x * i++, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
       glm::vec3 tileScale = glm::vec3(1.14);
-      model = glm::translate(model, pos);
+      model = glm::translate(model, tile.position);
       model = glm::scale(model, tileScale);
       shader::shader.model->setMatrix4fv("uModel", model);
       shader::shader.model->setMatrix4fv("uView", view);

@@ -46,9 +46,10 @@ std::unordered_map<int, glm::vec2> tileUV = {
 
 }
 
-Tile::Tile(unsigned int tileIn, const Model* modelIn){
+Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn){
   tile = tileIn;
   model = modelIn;
+  position = positionIn;
 }
 
 void Tile::draw() const {
@@ -68,9 +69,9 @@ void Tile::draw() const {
       if (it != tile::tileUV.end()){
         uvPos = it->second;
 
-        glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.10075 ,0.1f);
-        // uvPos *= model::tileMapRatio;
+        glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.101f, 0.1f);
         uvPos *= tileMapRatio;
+        // uvPos *= model::tileMapRatio;
       }
       shader::shader.model->setVec2f("uTexOffset", uvPos);
     }else {
@@ -88,13 +89,80 @@ std::vector<Tile> tiles;
 
 void setup(int type){
   switch(type){
-    default:
-      for (int i = 0; i < 37; ++i){
-        tiles.emplace_back(i, model::model.tile.get());
-      }
+    case FourP:
+      fourPSetup();
+      break;
+    case ThreeP:
+      threePSetup();
+      break;
 
-      // tiles.emplace_back(Chun, model::model.tile.get());
+    default:
     break;
+  }
+
+}
+
+void fourPSetup(){
+  glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
+                                 model::tileScale.y / 2.0f,
+                                 -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+
+  for (int i = Man1; i <= Chun; ++i){
+    for (int j = 0; j < 4; ++j){
+      int c = (i * 4 + j) % 17;
+      int r = (i * 4 + j) / 17;
+
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      if (j == 3 && (i == Man5 || i == Sou5 || i == Pin5)){
+        if (i == Man5){
+          tiles.emplace_back(Man5A, model::model.tile.get(),pos);
+        }else if (i == Sou5){
+          tiles.emplace_back(Sou5A, model::model.tile.get(),pos);
+        }else{
+          tiles.emplace_back(Pin5A, model::model.tile.get(),pos);
+        }
+      }else{
+        tiles.emplace_back(i, model::model.tile.get(),pos);
+      }
+    }
+  }
+}
+
+void threePSetup(){
+  glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
+                                 model::tileScale.y / 2.0f,
+                                 -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+
+  for (int i = 0; i < 4; ++i){
+      int c = (i) % 18;
+      int r = (i) / 18;
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      tiles.emplace_back(Man1, model::model.tile.get(),pos);
+  }
+  for (int i = 0; i < 4; ++i){
+      int c = (4 + i) % 18;
+      int r = (4 + i) / 18;
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      tiles.emplace_back(Man9, model::model.tile.get(),pos);
+  }
+
+  for (int i = Sou1; i <= Chun; ++i){
+    for (int j = 0; j < 4; ++j){
+      int c = ((i) * 4 + j - 28) % 18;
+      int r = ((i) * 4 + j - 28) / 18;
+
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+
+      if (j == 3 && (i == Sou5 || i == Pin5)){
+        if (i == Sou5){
+          tiles.emplace_back(Sou5A, model::model.tile.get(),pos);
+        }else{
+          tiles.emplace_back(Pin5A, model::model.tile.get(),pos);
+        }
+      }else{
+        tiles.emplace_back(i, model::model.tile.get(),pos);
+      }
+    }
   }
 
 }

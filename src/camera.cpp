@@ -157,6 +157,7 @@ void Camera::move(){
   }else {
     position = camera::perspectivePos;
   }
+
 }
 
 

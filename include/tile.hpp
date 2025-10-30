@@ -47,13 +47,20 @@ namespace tile {
     Pin5A,
   };
 
+  enum TileSet {
+    FourP,
+    ThreeP,
+  };
+
+
 extern std::unordered_map<int, glm::vec2> tileUV;
 }
 
 class Tile {
 public:
-  Tile(unsigned int tileIn, const Model* modelIn);
+  Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn);
 
+  glm::vec3 position;
   void draw() const;
 
 private:
@@ -66,6 +73,8 @@ namespace tile {
 extern std::vector<Tile> tiles;
 void setup(int type);
 
+void fourPSetup();
+void threePSetup();
 }
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+#include "../include/model.hpp"
 
 namespace camera {
   const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -20,7 +21,7 @@ namespace camera {
 
   const float orthoZoomRatio = 0.006f;
 
-  const glm::vec3 perspectivePos = glm::vec3(0.0f,0.4f,0.6f);
+  const glm::vec3 perspectivePos = glm::vec3(0.0f,0.4f,model::matScale.z * 0.7);
   const glm::vec3 orthoPos = glm::vec3(0.0f,0.3f,0.3f);
 
   const float perspectivePitch = -40.0f;

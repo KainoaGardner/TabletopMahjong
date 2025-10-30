@@ -27,9 +27,10 @@ struct Mesh {
 };
 
 
-const glm::vec3 tableSideShortScale = glm::vec3(0.69f, 0.03f, 0.03f);
-const glm::vec3 tableSideLongScale = glm::vec3(0.75f, 0.03f, 0.03f);
-const glm::vec3 matScale = glm::vec3(0.69f, 0.005f, 0.69f);
+
+const glm::vec3 matScale = glm::vec3(0.89f, 0.005f, 0.89f);
+const glm::vec3 tableSideShortScale = glm::vec3(matScale.x, 0.03f, 0.03f);
+const glm::vec3 tableSideLongScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, 0.03f, 0.03f);
 const glm::vec3 diceScale = glm::vec3(0.016f);
 
 const float tileScaleFactor = 1.14;

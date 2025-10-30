@@ -61,7 +61,7 @@ int main(){
   framebuffer::setup();
   camera::setup();
   model::setup();
-  tile::setup(0);
+  tile::setup(tile::FourP);
 
   glViewport(0, 0, canvasWidth,canvasHeight);
   emscripten_set_main_loop(mainLoop, 0, true);
