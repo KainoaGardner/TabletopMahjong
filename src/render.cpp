@@ -14,7 +14,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 namespace render {
   void main(){
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer::framebuffers.screen.fbo);
@@ -35,52 +34,14 @@ namespace render {
   }
 
   void tiles(const glm::mat4& view, const glm::mat4& projection){
-    // shader::shader.model->use();
-    // glm::mat4 model = glm::mat4(1.0f);
-    //
-    // glm::vec3 pos = glm::vec3(0.0f, model::tileScale.y / 2.0f, 0.0f);
-    // glm::vec3 tileScale = glm::vec3(1.14);
-    // model = glm::translate(model, pos);
-    // model = glm::scale(model, tileScale);
-    // shader::shader.model->setMatrix4fv("uModel", model);
-    // shader::shader.model->setMatrix4fv("uView", view);
-    // shader::shader.model->setMatrix4fv("uProjection", projection);
-    // model::model.chun->draw();
-    //
-    // model = glm::mat4(1.0f);
-    //
-    // pos = glm::vec3(0.0f, model::tileScale.z / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
-    //
-    // model = glm::translate(model, pos);
-    // model = glm::rotate(model,glm::radians(90.0f),global::worldRight);
-    // model = glm::scale(model, tileScale);
-    // shader::shader.model->setMatrix4fv("uModel", model);
-    // shader::shader.model->setMatrix4fv("uView", view);
-    // shader::shader.model->setMatrix4fv("uProjection", projection);
-    // model::model.chun->draw();
-
-  //   for (const Tile& tile : tile::tiles){
-  //     shader::shader.model->use();
-  //     glm::mat4 model = glm::mat4(1.0f);
-  // 
-  //     glm::vec3 pos = glm::vec3(0.0f, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
-  //     glm::vec3 tileScale = glm::vec3(1.14);
-  //     model = glm::translate(model, pos);
-  //     model = glm::scale(model, tileScale);
-  //     shader::shader.model->setMatrix4fv("uModel", model);
-  //     shader::shader.model->setMatrix4fv("uView", view);
-  //     shader::shader.model->setMatrix4fv("uProjection", projection);
-  //     tile.draw();
-  //   }
-
     int i = 0;
     for (const Tile& tile : tile::tiles){
       shader::shader.model->use();
       glm::mat4 model = glm::mat4(1.0f);
-  
-      // glm::vec3 pos = glm::vec3(model::tileScale.x * i++, model::tileScale.y / 2.0f, model::matScale.z / 2.0f - model::matScale.z / 12.0f);
+
       glm::vec3 tileScale = glm::vec3(1.14);
       model = glm::translate(model, tile.position);
+      model *= glm::mat4_cast(tile.orientation);
       model = glm::scale(model, tileScale);
       shader::shader.model->setMatrix4fv("uModel", model);
       shader::shader.model->setMatrix4fv("uView", view);
@@ -94,7 +55,7 @@ namespace render {
     shader::shader.model->use();
     glm::mat4 model = glm::mat4(1.0f);
 
-    model = glm::translate(model, glm::vec3(0.1f, model::diceScale.y / 2.0f,0.0f));
+    model = glm::translate(model, glm::vec3(0.0f, model::diceScale.y / 2.0f,0.0f));
     shader::shader.model->setMatrix4fv("uModel", model);
     model::model.dice->draw();
   }
@@ -111,8 +72,7 @@ namespace render {
     shader::shader.normal->setInt("uDiff",0);
 
     model = glm::mat4(1.0f);
-    glm::vec3 size = glm::vec3(0.69f);
-    model = glm::scale(model, size);
+    model = glm::scale(model, model::matScale);
     model = glm::translate(model, glm::vec3(0.0f,-0.5f,0.0f));
     model = glm::rotate(model,glm::radians(90.0f),global::worldRight);
 

@@ -4,6 +4,9 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include "../include/model.hpp"
 
 namespace tile {
@@ -58,9 +61,10 @@ extern std::unordered_map<int, glm::vec2> tileUV;
 
 class Tile {
 public:
-  Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn);
+  Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn);
 
   glm::vec3 position;
+  glm::quat orientation;
   void draw() const;
 
 private:
@@ -75,6 +79,12 @@ void setup(int type);
 
 void fourPSetup();
 void threePSetup();
+
+void shuffleTiles();
+void flipTiles();
+void makeWalls();
+void dealHands(int roll);
+void makeDeadWall(int roll);
 }
 
 #endif

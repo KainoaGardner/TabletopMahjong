@@ -16,6 +16,8 @@
 #include "../include/texture.hpp"
 #include "../include/glExtension.hpp"
 #include "../include/tile.hpp"
+#include "../include/game.hpp"
+#include "../include/dice.hpp"
 
 #include <chrono>
 #include <glm/glm.hpp>
@@ -59,9 +61,16 @@ int main(){
   shader::setup();
   geometry::setup();
   framebuffer::setup();
+  game::setup();
   camera::setup();
+  dice::setup();
   model::setup();
   tile::setup(tile::FourP);
+
+  int roll = dice::getDiceRoll() + dice::getDiceRoll();
+  tile::makeWalls();
+  tile::dealHands(roll);
+  tile::makeDeadWall(roll);
 
   glViewport(0, 0, canvasWidth,canvasHeight);
   emscripten_set_main_loop(mainLoop, 0, true);

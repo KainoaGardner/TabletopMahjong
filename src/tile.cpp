@@ -1,6 +1,13 @@
 #include "../include/tile.hpp"
 #include "../include/model.hpp"
 #include "../include/shader.hpp"
+#include "../include/game.hpp"
+
+#include <cmath>
+#include <glm/ext/scalar_constants.hpp>
+#include <random>
+#include <algorithm>
+
 #include <iostream>
 
 namespace tile {
@@ -46,10 +53,11 @@ std::unordered_map<int, glm::vec2> tileUV = {
 
 }
 
-Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn){
+Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn){
   tile = tileIn;
   model = modelIn;
   position = positionIn;
+  orientation = orientationIn;
 }
 
 void Tile::draw() const {
@@ -100,12 +108,15 @@ void setup(int type){
     break;
   }
 
+  makeWalls();
 }
 
 void fourPSetup(){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+
+  glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   for (int i = Man1; i <= Chun; ++i){
     for (int j = 0; j < 4; ++j){
@@ -115,14 +126,14 @@ void fourPSetup(){
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
       if (j == 3 && (i == Man5 || i == Sou5 || i == Pin5)){
         if (i == Man5){
-          tiles.emplace_back(Man5A, model::model.tile.get(),pos);
+          tiles.emplace_back(Man5A, model::model.tile.get(), pos, orientation);
         }else if (i == Sou5){
-          tiles.emplace_back(Sou5A, model::model.tile.get(),pos);
+          tiles.emplace_back(Sou5A, model::model.tile.get(), pos, orientation);
         }else{
-          tiles.emplace_back(Pin5A, model::model.tile.get(),pos);
+          tiles.emplace_back(Pin5A, model::model.tile.get(), pos, orientation);
         }
       }else{
-        tiles.emplace_back(i, model::model.tile.get(),pos);
+        tiles.emplace_back(i, model::model.tile.get(), pos, orientation);
       }
     }
   }
@@ -132,18 +143,19 @@ void threePSetup(){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+  glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   for (int i = 0; i < 4; ++i){
       int c = (i) % 18;
       int r = (i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man1, model::model.tile.get(),pos);
+      tiles.emplace_back(Man1, model::model.tile.get(), pos, orientation);
   }
   for (int i = 0; i < 4; ++i){
       int c = (4 + i) % 18;
       int r = (4 + i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man9, model::model.tile.get(),pos);
+      tiles.emplace_back(Man9, model::model.tile.get(), pos, orientation);
   }
 
   for (int i = Sou1; i <= Chun; ++i){
@@ -155,16 +167,269 @@ void threePSetup(){
 
       if (j == 3 && (i == Sou5 || i == Pin5)){
         if (i == Sou5){
-          tiles.emplace_back(Sou5A, model::model.tile.get(),pos);
+          tiles.emplace_back(Sou5A, model::model.tile.get(), pos, orientation);
         }else{
-          tiles.emplace_back(Pin5A, model::model.tile.get(),pos);
+          tiles.emplace_back(Pin5A, model::model.tile.get(), pos, orientation);
         }
       }else{
-        tiles.emplace_back(i, model::model.tile.get(),pos);
+        tiles.emplace_back(i, model::model.tile.get(), pos, orientation);
       }
     }
   }
+}
 
+
+void shuffleTiles(){
+  std::random_device rand;
+  std::default_random_engine gen(rand());
+  std::shuffle(tiles.begin(), tiles.end(), gen);
+}
+
+void flipTiles() {
+  glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+  for (Tile& tile : tile::tiles){
+    tile.orientation = orientation;
+  }
+}
+
+void makeWalls() {
+  flipTiles();
+  shuffleTiles();
+
+  int tileWidth;
+  if (tiles.size() == 108){
+    tileWidth = 18;
+  }else {
+    tileWidth = 17;
+  }
+
+
+  float r = model::matScale.z / 2.0f - 4.0f * model::tileScale.z;
+  float startY = model::tileScale.y / 2.0f;
+  float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
+
+  int i = 0;
+  for (Tile& tile : tile::tiles){
+    int x = (i % (tileWidth * 2)) / 2;
+    int y = i % 2;
+    int z = i / (tileWidth * 2);
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY + model::tileScale.y * y;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    tile.position = pos;
+
+    glm::quat orientation = glm::quat(glm::vec3(glm::radians(180.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+    tile.orientation = orientation;
+
+    i++;
+  }
+
+}
+
+void dealHands(int roll){
+  int tileWidth;
+  if (tiles.size() == 108){
+    tileWidth = 18;
+  }else {
+    tileWidth = 17;
+  }
+
+  int wall = (roll + game::game->oya) % 4;
+  wall -= 1;
+  if (wall < 0) {
+    wall += 4;
+  }
+
+  int index = (wall + 1) * tileWidth * 2 - 1;
+  index -= roll * 2;
+
+
+  float r = model::matScale.z / 2.0f - 1.5f * model::tileScale.z;
+  float startY = model::tileScale.z / 2.0f;
+  float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
+
+  for (int i = 0; i < game::game->playerCount * 4 * 3; i++){
+    Tile& tile = tiles[index];
+
+    int y = i / (game::game->playerCount * 4);
+    int x = i % 4 + y * 4;
+    int z = ((i / 4) + game::game->oya) % 4;
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    tile.position = pos;
+
+    glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+    tile.orientation = orientation;
+
+    index -= 1;
+    if (index < 0){
+      index += tiles.size();
+    }
+  }
+
+  for (int i = 0; i < 4; i++){
+    Tile& tile = tiles[index];
+
+    int y = 3;
+    int x = y * 4;
+    int z = (i + game::game->oya) % 4;
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    tile.position = pos;
+
+    glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+    tile.orientation = orientation;
+
+
+    index -= 1;
+    if (index < 0){
+      index += tiles.size();
+    }
+  }
+
+  Tile& tile = tiles[index];
+  int x = 3 * 4 + 1;
+  int z = game::game->oya;
+
+  glm::vec3 pos = glm::vec3(0.0f);
+  pos.y = startY;
+
+  int xMove = std::cos(glm::radians(90.0f * z));
+  int zMove = -std::sin(glm::radians(90.0f * z));
+  pos.x = r * xMove; 
+  pos.z = r * zMove;
+
+  pos.x += offset * zMove; 
+  pos.z += -offset * xMove;
+
+  pos.x += x * model::tileScale.x * zMove + zMove * (model::tileScale.x / 2.0f); 
+  pos.z -= x * model::tileScale.x * xMove + xMove * (model::tileScale.x / 2.0f);
+
+  tile.position = pos;
+
+  glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+  tile.orientation = orientation;
+
+}
+
+
+void makeDeadWall(int roll){
+  int tileWidth;
+  int doraRow;
+  int wallLength = 7;
+  if (tiles.size() == 108){
+    tileWidth = 18;
+    doraRow = 5;
+  }else {
+    tileWidth = 17;
+    doraRow = 3;
+  }
+
+  int wall = (roll + game::game->oya) % 4;
+  wall -= 1;
+  if (wall < 0) {
+    wall += 4;
+  }
+
+  int index = (wall + 1) * tileWidth * 2;
+  index -= roll * 2;
+
+  float r = model::matScale.z / 2.0f - 4.0f * model::tileScale.z;
+  float startY = model::tileScale.y / 2.0f;
+  float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
+
+  int endIndex = (index + 13) % tiles.size();
+  if (endIndex / (tileWidth * 2) != index / (tileWidth * 2)){
+    for (int i = 0; i < 14; ++i){
+      int index = endIndex - i;
+      if (index < 0){
+        index += tiles.size();
+      }
+
+      Tile& tile = tiles[index];
+      tile.position.y += 0.1f;
+
+      int x = i / 2;
+      int y = (i + 1) % 2;
+      int z = wall;
+
+      glm::vec3 pos = glm::vec3(0.0f);
+      pos.y = startY + model::tileScale.y * y;
+
+      int xMove = std::cos(glm::radians(90.0f * z));
+      int zMove = -std::sin(glm::radians(90.0f * z));
+      pos.x = r * xMove; 
+      pos.z = r * zMove;
+
+      pos.x -= offset * zMove; 
+      pos.z += offset * xMove;
+
+      pos.x -= x * model::tileScale.x * zMove; 
+      pos.z += x * model::tileScale.x * xMove;
+
+      tile.position = pos;
+
+      glm::quat orientation = glm::quat(glm::vec3(glm::radians(180.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+      tile.orientation = orientation;
+    }
+  }else if (roll != 7){
+    for (int i = 0; i < 14; ++i){
+      Tile& tile = tiles[index + i];
+
+      int z = wall;
+      int y = i % 2;
+
+      int xMove = std::cos(glm::radians(90.0f * z));
+      int zMove = -std::sin(glm::radians(90.0f * z));
+
+      tile.position.x -= model::tileScale.x * zMove; 
+      tile.position.z += model::tileScale.x * xMove;
+    }
+
+  }
+
+  Tile& doraInd = tiles[(index + doraRow * 2 - 1) % tiles.size()];
+  glm::quat orientation = glm::quat(glm::vec3(0.0f, glm::radians(90.0f * (wall + 1)), 0.0f));
+  doraInd.orientation = orientation;
 }
 
 }

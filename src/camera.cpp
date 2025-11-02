@@ -86,10 +86,14 @@ void Camera::rotate(){
     if (ortho){
       pitch = camera::orthoPitch;
     }else {
-      pitch = camera::perspectivePitch;
+      if (!freeCam){
+        pitch = camera::perspectivePitch;
+      }
     }
-    yaw = camera::yaw;
-    fov = camera::fov;
+    if (!freeCam){
+      yaw = camera::yaw;
+      fov = camera::fov;
+    }
   }
 
   clampPitch();
@@ -117,6 +121,11 @@ void Camera::zoom(){
 }
 
 void Camera::move(){
+  if (input::actionPressed[input::freeCam]){
+    freeCam = !freeCam;
+    input::actionPressed[input::freeCam] = false;
+  }
+
   if (input::actionPressed[input::forward]){
     position += speed * front;
   }
@@ -155,7 +164,9 @@ void Camera::move(){
       position = camera::orthoPos;
     }
   }else {
-    position = camera::perspectivePos;
+    if (!freeCam){
+      position = camera::perspectivePos;
+    }
   }
 
 }
@@ -165,9 +176,8 @@ namespace camera {
   Cameras cameras;
 
   void setup(){
-    glm::vec3 position = glm::vec3(0.0f,0.35f,0.50f);
     cameras.normal = std::make_unique<Camera>(
-      position,
+      perspectivePos,
       yaw,
       pitch,
       roll,

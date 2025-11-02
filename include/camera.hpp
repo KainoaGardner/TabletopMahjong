@@ -21,10 +21,10 @@ namespace camera {
 
   const float orthoZoomRatio = 0.006f;
 
-  const glm::vec3 perspectivePos = glm::vec3(0.0f,0.4f,model::matScale.z * 0.7);
+  const glm::vec3 perspectivePos = glm::vec3(0.0f, model::matScale.z * 0.4,model::matScale.z * 0.9);
   const glm::vec3 orthoPos = glm::vec3(0.0f,0.3f,0.3f);
 
-  const float perspectivePitch = -40.0f;
+  const float perspectivePitch = -30.0f;
   const float orthoPitch = -45.0f;
 
   const float minFov = 20.0f;
@@ -53,6 +53,8 @@ public:
   glm::vec3 front = camera::cameraFront;
   glm::vec3 up = camera::cameraUp;
   glm::vec3 right = camera::cameraRight;
+
+  bool freeCam = false;
 
   // void update();
 
