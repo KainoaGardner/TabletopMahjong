@@ -5,9 +5,8 @@
 #include "../include/input.hpp"
 
 void update(){
-  camera::cameras.normal->rotate();
-  camera::cameras.normal->move();
-  camera::cameras.normal->zoom();
+  camera::switchCamera();
+  camera::cameras[camera::curr]->update();
 
   input::updateMouse();
 }

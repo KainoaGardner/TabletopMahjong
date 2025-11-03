@@ -124,5 +124,6 @@ namespace shader {
     shader.normal = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
     shader.screen = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
     shader.model = std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
+    shader.cubemap = std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
   }
 }

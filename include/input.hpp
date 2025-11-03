@@ -20,6 +20,14 @@ namespace input {
     zoomIn,
     zoomOut,
     perspective,
+    topCamera,
+    mainCamera,
+    pointCamera,
+
+    camera1,
+    camera2,
+    camera3,
+    camera4,
   };
 
 extern std::unordered_map<std::string, actions> keyToAction;

@@ -26,6 +26,7 @@ namespace shader {
     std::unique_ptr<Shader> normal;
     std::unique_ptr<Shader> screen;
     std::unique_ptr<Shader> model;
+    std::unique_ptr<Shader> cubemap;
   };
 
   void setup();

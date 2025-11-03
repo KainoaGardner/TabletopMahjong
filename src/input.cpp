@@ -18,6 +18,15 @@ std::unordered_map<std::string, actions> keyToAction = {
   {"MouseWheelUp", zoomIn},
   {"MouseWheelDown", zoomOut},
   {"KeyP", perspective},
+  {"Digit1", mainCamera},
+  {"Digit2", pointCamera},
+  {"Digit3", topCamera},
+
+  //remove later
+  {"Digit6", camera1},
+  {"Digit7", camera2},
+  {"Digit8", camera3},
+  {"Digit9", camera4},
 };
 
 std::unordered_map<actions, bool> actionPressed = {

@@ -9,6 +9,7 @@ public:
 
   int oya = 0;
   int playerCount = 4;
+  int seat = 0;
 private:
 };
 

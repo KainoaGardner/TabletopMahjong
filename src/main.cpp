@@ -66,6 +66,7 @@ int main(){
   dice::setup();
   model::setup();
   tile::setup(tile::FourP);
+  // tile::setup(tile::ThreeP);
 
   int roll = dice::getDiceRoll() + dice::getDiceRoll();
   tile::makeWalls();

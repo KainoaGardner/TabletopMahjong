@@ -108,7 +108,6 @@ void setup(int type){
     break;
   }
 
-  makeWalls();
 }
 
 void fourPSetup(){
@@ -241,16 +240,22 @@ void makeWalls() {
 
 void dealHands(int roll){
   int tileWidth;
+  int hands;
+  int walls;
   if (tiles.size() == 108){
     tileWidth = 18;
+    hands = 3;
+    walls = 3;
   }else {
     tileWidth = 17;
+    hands = 4;
+    walls = 4;
   }
 
-  int wall = (roll + game::game->oya) % 4;
+  int wall = (roll + game::game->oya) % walls;
   wall -= 1;
   if (wall < 0) {
-    wall += 4;
+    wall += walls;
   }
 
   int index = (wall + 1) * tileWidth * 2 - 1;
@@ -261,12 +266,12 @@ void dealHands(int roll){
   float startY = model::tileScale.z / 2.0f;
   float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
 
-  for (int i = 0; i < game::game->playerCount * 4 * 3; i++){
+  for (int i = 0; i < walls * 4 * 3; i++){
     Tile& tile = tiles[index];
 
-    int y = i / (game::game->playerCount * 4);
+    int y = i / (walls * 4);
     int x = i % 4 + y * 4;
-    int z = ((i / 4) + game::game->oya) % 4;
+    int z = ((i / 4) + game::game->oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -298,7 +303,7 @@ void dealHands(int roll){
 
     int y = 3;
     int x = y * 4;
-    int z = (i + game::game->oya) % 4;
+    int z = (i + game::game->oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -355,19 +360,22 @@ void dealHands(int roll){
 void makeDeadWall(int roll){
   int tileWidth;
   int doraRow;
+  int walls;
   int wallLength = 7;
   if (tiles.size() == 108){
     tileWidth = 18;
     doraRow = 5;
+    walls = 3;
   }else {
     tileWidth = 17;
     doraRow = 3;
+    walls = 4;
   }
 
-  int wall = (roll + game::game->oya) % 4;
+  int wall = (roll + game::game->oya) % walls;
   wall -= 1;
   if (wall < 0) {
-    wall += 4;
+    wall += walls;
   }
 
   int index = (wall + 1) * tileWidth * 2;
@@ -386,7 +394,6 @@ void makeDeadWall(int roll){
       }
 
       Tile& tile = tiles[index];
-      tile.position.y += 0.1f;
 
       int x = i / 2;
       int y = (i + 1) % 2;

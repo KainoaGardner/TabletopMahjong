@@ -14,6 +14,7 @@ struct Textures {
   Texture mat;
   Texture test;
   Texture tableSide;
+  Texture room1;
 };
 
 GLuint loadTexture(const char *path);

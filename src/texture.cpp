@@ -92,9 +92,49 @@ GLuint loadCubemap(const std::vector<std::string>& textures) {
     GLuint testTexture = loadTexture("../assets/textures/test.png");
     GLuint woodTexture = loadTexture("../assets/textures/table/woodDiff.jpg");
 
+    std::vector<std::string> dallasWTextures = {
+      "../assets/textures/cubemaps/dallasW/posx.jpg",
+      "../assets/textures/cubemaps/dallasW/negx.jpg",
+      "../assets/textures/cubemaps/dallasW/posy.jpg",
+      "../assets/textures/cubemaps/dallasW/negy.jpg",
+      "../assets/textures/cubemaps/dallasW/posz.jpg",
+      "../assets/textures/cubemaps/dallasW/negz.jpg",
+    };
+
+    std::vector<std::string> marriottWTextures = {
+      "../assets/textures/cubemaps/marriottW/posx.jpg",
+      "../assets/textures/cubemaps/marriottW/negx.jpg",
+      "../assets/textures/cubemaps/marriottW/posy.jpg",
+      "../assets/textures/cubemaps/marriottW/negy.jpg",
+      "../assets/textures/cubemaps/marriottW/posz.jpg",
+      "../assets/textures/cubemaps/marriottW/negz.jpg",
+    };
+
+    std::vector<std::string> sky4Textures = {
+      "../assets/textures/cubemaps/sky4/posx.png",
+      "../assets/textures/cubemaps/sky4/negx.png",
+      "../assets/textures/cubemaps/sky4/posy.png",
+      "../assets/textures/cubemaps/sky4/negy.png",
+      "../assets/textures/cubemaps/sky4/negz.png",
+      "../assets/textures/cubemaps/sky4/posz.png",
+    };
+
+    std::vector<std::string> yokohamaTextures = {
+      "../assets/textures/cubemaps/yokohama/posx.jpg",
+      "../assets/textures/cubemaps/yokohama/negx.jpg",
+      "../assets/textures/cubemaps/yokohama/posy.jpg",
+      "../assets/textures/cubemaps/yokohama/negy.jpg",
+      "../assets/textures/cubemaps/yokohama/posz.jpg",
+      "../assets/textures/cubemaps/yokohama/negz.jpg",
+    };
+
+
+    GLuint room1Texture = loadCubemap(sky4Textures);
+
     texture.mat.texture = matTexture;
     texture.test.texture = testTexture;
     texture.tableSide.texture = woodTexture;
+    texture.room1.texture = room1Texture;
 
   }
 }

@@ -11,6 +11,7 @@ namespace render {
   void dice(const glm::mat4& view, const glm::mat4& projection);
   void table(const glm::mat4& view, const glm::mat4& projection);
   void mat(const glm::mat4& view, const glm::mat4& projection);
+  void cubemap(const glm::mat4& view, const glm::mat4& projection);
 
   void screen();
 }
