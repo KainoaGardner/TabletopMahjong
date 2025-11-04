@@ -14,7 +14,7 @@ namespace camera {
   const float pitch = -30.0f;
   const float roll = 0.0f;
   const float fov = 45.0f;
-  const float speed = 0.01f;
+  const float speed = 90.0f / 60.0f;
   const float sensitivity = 0.1f;
   const float orthoSensRatio = 0.005f;
   const float zoomSpeed = 1.0f;
@@ -73,12 +73,12 @@ private:
   float zoomSpeed;
 
   bool freeCam = false;
-  // bool ortho = false;
 
   void clampPitch();
   void updateVectors();
 
   void rotate();
+  void revertRotate();
   void zoom();
   void move();
 };

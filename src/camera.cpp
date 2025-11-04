@@ -6,6 +6,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
+
+#include <iostream>
+
 Camera::Camera(
   glm::vec3 positionIn,
   float yawIn,
@@ -38,31 +41,24 @@ glm::mat4 Camera::getViewMatrix() const {
 }
 
 glm::mat4 Camera::getProjectionMatrix() const {
-  // if (ortho){
-  //   float aspect = (float)config::gameConfig.width / (float)config::gameConfig.height;
-  //   float zoom = fov * camera::orthoZoomRatio;
-  //
-  //   return glm::ortho(
-  //     -zoom * aspect,
-  //     zoom * aspect,
-  //     -zoom,
-  //     zoom,
-  //     config::gameConfig.nearPlane,
-  //     config::gameConfig.farPlane);
-  //
-  // }else {
-    return glm::perspective(
-      glm::radians(fov),
-      (float)config::gameConfig.width / (float)config::gameConfig.height,
-      config::gameConfig.nearPlane,
-      config::gameConfig.farPlane);
-  // }
+  return glm::perspective(
+    glm::radians(fov),
+    (float)config::gameConfig.width / (float)config::gameConfig.height,
+    config::gameConfig.nearPlane,
+    config::gameConfig.farPlane);
 }
 
 
 void Camera::clampPitch() {
-  if (pitch > 89.9f) { pitch = 89.9f; }
-  if (pitch < -89.9f) { pitch = -89.9f; }
+  float pitchDif = pitch - startPitch;
+
+  if (pitchDif > 89.9f) {
+    pitch = startPitch + 89.9f; 
+  }
+
+  if (pitchDif < -89.9f) { 
+    pitch = startPitch - 89.9f; 
+  }
 }
 
 void Camera::updateVectors() {
@@ -87,18 +83,54 @@ void Camera::rotate(){
     yaw -= input::mouse.dx * sensitivity;
     pitch -= input::mouse.dy * sensitivity;
   }else {
-    pitch = startPitch;
-    yaw = startYaw;
-    // fov = startFov;
+    // pitch = startPitch;
+    // yaw = startYaw;
   }
 
   clampPitch();
+  revertRotate();
   updateVectors();
 }
 
-void Camera::zoom(){
-  // if (!input::actionPressed[input::freeLook]) return;
+void Camera::revertRotate(){
+  if (input::actionPressed[input::freeLook]) return; 
 
+
+  float yawDiff = yaw - startYaw;
+  float pitchDiff = pitch - startPitch;
+
+  float yawDist = std::abs(yawDiff);
+  float pitchDist = std::abs(pitchDiff);
+
+  float maxDist = std::max(yawDist, pitchDist);
+
+  if (maxDist < 0.001f) {
+    yaw = startYaw;
+    pitch = startPitch;
+    return;
+  }
+
+  float yawSpeed = speed * (yawDist / maxDist);
+  float pitchSpeed = speed * (pitchDist / maxDist);
+
+  if (yawDiff >= yawSpeed){
+    yaw -= yawSpeed;
+  }else if (yawDiff <= -yawSpeed){
+    yaw += yawSpeed;
+  }else{
+    yaw = startYaw;
+  }
+
+  if (pitchDiff >= pitchSpeed){
+    pitch -= pitchSpeed;
+  }else if (pitchDiff <= -pitchSpeed){
+    pitch += pitchSpeed;
+  }else{
+    pitch = startPitch;
+  }
+}
+
+void Camera::zoom(){
   if (input::actionPressed[input::zoomIn]){
     fov += zoomSpeed;
   }
@@ -115,67 +147,6 @@ void Camera::zoom(){
 }
 
 void Camera::move(){
-  // if (input::actionPressed[input::freeCam]){
-  //   freeCam = !freeCam;
-  //   input::actionPressed[input::freeCam] = false;
-  // }
-  //
-  // if (input::actionPressed[input::forward]){
-  //   position += speed * front;
-  // }
-  //
-  // if (input::actionPressed[input::backward]){
-  //   position -= speed * front;
-  // }
-  //
-  // if (input::actionPressed[input::right]){
-  //   position += speed * right;
-  // }
-  //
-  // if (input::actionPressed[input::left]){
-  //   position -= speed * right;
-  // }
-  //
-  // if (input::actionPressed[input::up]){
-  //   position += speed * global::worldUp;
-  // }
-  //
-  // if (input::actionPressed[input::down]){
-  //   position -= speed * global::worldUp;
-  // }
-
-  // if (input::actionPressed[input::perspective]){
-  //   ortho = !ortho;
-  //   if (ortho){
-  //     position = camera::orthoPos;
-  //     pitch = camera::orthoPitch;
-  //   }else{
-  //     position = camera::perspectivePos;
-  //     pitch = camera::perspectivePitch;
-  //   }
-  //
-  //   fov = camera::fov;
-  //   yaw = camera::yaw;
-  //
-  //   input::actionPressed[input::perspective] = false;
-  // }
-  //
-  // if (ortho){
-  //   if (input::actionPressed[input::freeLook]){
-  //     position.x -= input::mouse.dx * sensitivity * camera::orthoSensRatio;
-  //     position.z -= input::mouse.dy * sensitivity * camera::orthoSensRatio;
-  //
-  //   }else {
-  //     position = camera::orthoPos;
-  //   }
-  // }else {
-  //   if (!freeCam){
-  //     position = camera::perspectivePos;
-  //   }
-  // }
-  
-
-  // position = startPosition;
 }
 
 void Camera::update(){

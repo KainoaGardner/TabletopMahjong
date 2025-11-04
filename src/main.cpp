@@ -16,7 +16,7 @@
 #include "../include/texture.hpp"
 #include "../include/glExtension.hpp"
 #include "../include/tile.hpp"
-#include "../include/game.hpp"
+#include "../include/gameState.hpp"
 #include "../include/dice.hpp"
 
 #include <chrono>
@@ -24,8 +24,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void mainLoop();
+#include <iostream>
 
+void mainLoop();
 
 int main(){
   EmscriptenWebGLContextAttributes attr;
@@ -49,11 +50,6 @@ int main(){
   int canvasHeight = config::gameConfig.height;
 
   emscripten_set_canvas_element_size("#canvas", canvasWidth,canvasHeight);
-
-  auto now = std::chrono::system_clock::now();
-  auto duration = now.time_since_epoch();
-  long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-  config::gameConfig.lastUpdateTime = currentTime;
 
   glExtensions::setup();
   texture::setup();
@@ -84,12 +80,21 @@ void mainLoop(){
   auto duration = now.time_since_epoch();
   long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-  // std::cout << currentTime - config::gameConfig.lastUpdateTime << std::endl;
-  // if (currentTime - config::gameConfig.lastUpdateTime >= config::gameConfig.logicIntervalTime) {
-  //   update();
-  //   config::gameConfig.lastUpdateTime += config::gameConfig.logicIntervalTime;
-  // }
+  if (config::gameConfig.lastUpdateTime == 0){
+    config::gameConfig.lastUpdateTime = currentTime;
+  }
 
-  update();
+  long long timeDif = currentTime - config::gameConfig.lastUpdateTime;
+  if (timeDif > 250) timeDif = 250;
+
+  config::gameConfig.lastUpdateTime = currentTime;
+  config::gameConfig.excessTime += timeDif;
+
+  while (config::gameConfig.excessTime >= config::gameConfig.logicIntervalTime) {
+    update();
+    config::gameConfig.excessTime -= config::gameConfig.logicIntervalTime;
+  }
+  
+
   render::main();
 }

@@ -16,9 +16,12 @@ namespace global {
 
 namespace config {
 struct GameConfig {
-  const unsigned int fps = 60.0;
-  const float logicIntervalTime = 1.0f / fps;
+  const unsigned int fps = 60;
+  const float logicIntervalTime = 1000.0f / fps;
+
   long long lastUpdateTime = 0;
+  double excessTime = 0.0;
+
   // unsigned int width = 1920;
   // unsigned int height = 1080;
   unsigned int width = 1366;
@@ -34,13 +37,10 @@ struct GameConfig {
   const float nearPlane = 0.1f;
   const float farPlane = 10000.0f;
 
+  int oya = 0;
+  int playerCount = 4;
+  int seat = 0;
 };
-
-// struct DisplayContext {
-//   glm::mat4 projection;
-//   glm::mat4 view;
-//   glm::mat4 textProjection;
-// };
 
 
 extern GameConfig gameConfig;

@@ -1,14 +1,13 @@
 #include "../include/tile.hpp"
 #include "../include/model.hpp"
 #include "../include/shader.hpp"
-#include "../include/game.hpp"
+#include "../include/config.hpp"
 
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>
 #include <random>
 #include <algorithm>
 
-#include <iostream>
 
 namespace tile {
 std::unordered_map<int, glm::vec2> tileUV = {
@@ -252,7 +251,7 @@ void dealHands(int roll){
     walls = 4;
   }
 
-  int wall = (roll + game::game->oya) % walls;
+  int wall = (roll + config::gameConfig.oya) % walls;
   wall -= 1;
   if (wall < 0) {
     wall += walls;
@@ -271,7 +270,7 @@ void dealHands(int roll){
 
     int y = i / (walls * 4);
     int x = i % 4 + y * 4;
-    int z = ((i / 4) + game::game->oya) % walls;
+    int z = ((i / 4) + config::gameConfig.oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -303,7 +302,7 @@ void dealHands(int roll){
 
     int y = 3;
     int x = y * 4;
-    int z = (i + game::game->oya) % walls;
+    int z = (i + config::gameConfig.oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -333,7 +332,7 @@ void dealHands(int roll){
 
   Tile& tile = tiles[index];
   int x = 3 * 4 + 1;
-  int z = game::game->oya;
+  int z = config::gameConfig.oya;
 
   glm::vec3 pos = glm::vec3(0.0f);
   pos.y = startY;
@@ -372,7 +371,7 @@ void makeDeadWall(int roll){
     walls = 4;
   }
 
-  int wall = (roll + game::game->oya) % walls;
+  int wall = (roll + config::gameConfig.oya) % walls;
   wall -= 1;
   if (wall < 0) {
     wall += walls;

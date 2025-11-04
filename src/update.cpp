@@ -5,6 +5,7 @@
 #include "../include/input.hpp"
 
 void update(){
+
   camera::switchCamera();
   camera::cameras[camera::curr]->update();
 
