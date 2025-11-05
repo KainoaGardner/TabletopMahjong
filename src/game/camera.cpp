@@ -1,7 +1,7 @@
 #include "../include/camera.hpp"
 #include "../include/config.hpp"
 #include "../include/input.hpp"
-#include "../include/game.hpp"
+// #include "../include/game.hpp"
 
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
@@ -169,10 +169,10 @@ void setup(){
 
 void switchCamera(){
   if (input::actionPressed[input::mainCamera]){
-    curr = game::game->seat;
+    curr = config::gameConfig.seat;
     input::actionPressed[input::mainCamera] = false;
   }else if (input::actionPressed[input::pointCamera]){
-    curr = game::game->seat;
+    curr = config::gameConfig.seat;
     input::actionPressed[input::pointCamera] = false;
   }else if (input::actionPressed[input::topCamera]){
     curr = 4;

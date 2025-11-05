@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 #include <string>
-#include <memory>
 
 class Shader {
 public:
@@ -20,20 +19,5 @@ public:
 
   void setMatrix4fv(const std::string &name, glm::mat4 value) const;
 };
-
-namespace shader {
-  struct Shaders {
-    std::unique_ptr<Shader> normal;
-    std::unique_ptr<Shader> screen;
-    std::unique_ptr<Shader> model;
-    std::unique_ptr<Shader> cubemap;
-  };
-
-  void setup();
-  
-  extern Shaders shader;
-} // namespace shader
-
-
 
 #endif

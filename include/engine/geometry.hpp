@@ -3,6 +3,12 @@
 
 #include <GLES3/gl3.h>
 
+struct Geometry {
+  GLuint vao;
+  GLuint vbo;
+  GLuint ebo;
+};
+
 namespace geometry {
   extern float PLANE_VERTICES[20];
 
@@ -13,30 +19,10 @@ namespace geometry {
   extern unsigned int CUBE_INDICES[36];
   extern unsigned int SCREEN_INDICES[6];
 
-
-  struct Geometry {
-    GLuint vao;
-    GLuint vbo;
-    GLuint ebo;
-  };
-
-  struct Geometries {
-    Geometry plane;
-    Geometry cube;
-    Geometry cubemap;
-    Geometry screen;
-  };
-
   Geometry createPlane();
   Geometry createCube();
   Geometry createCubemap();
   Geometry createScreen();
-
-  void setup();
-
-
-extern Geometries geometry;
-} // namespace geometry
-
+} 
 
 #endif

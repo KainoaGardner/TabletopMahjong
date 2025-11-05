@@ -15,8 +15,9 @@ CXXFLAGS := -O2 -std=c++17 -Wall -I$(INC_DIR) -I$(LIB_DIR)
 EMFLAGS := -s USE_WEBGL2=1 -s FULL_ES3=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy
 
 SHELL_FILE := index.html
-SRC_FILES   := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(LIB_DIR)/*.cpp)
-OBJ_FILES   := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(SRC_FILES)))
+# SRC_FILES   := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(LIB_DIR)/*.cpp)
+SRC_FILES   := $(shell find $(SRC_DIR) $(LIB_DIR) -name '*.cpp')
+OBJ_FILES   := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
 
 PRELOAD_FLAG := --preload-file $(ASSETS_DIR)@/assets
 
@@ -27,12 +28,7 @@ $(BIN_DIR)/$(TARGET): $(OBJ_FILES)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(OBJ_FILES) $(CXXFLAGS) $(EMFLAGS) $(PRELOAD_FLAG) --shell-file $(SHELL_FILE) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling $<"
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(LIB_DIR)/%.cpp
+$(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling $<"
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

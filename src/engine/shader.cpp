@@ -1,4 +1,4 @@
-#include "../include/shader.hpp"
+#include "engine/shader.hpp"
 
 #include <GLES3/gl3.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -117,13 +117,4 @@ void Shader::setVec2f(const std::string &name, glm::vec2 value) const {
   glUniform2fv(uniformLocation, 1, glm::value_ptr(value));
 }
 
-namespace shader {
-  Shaders shader;
 
-  void setup(){
-    shader.normal = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
-    shader.screen = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
-    shader.model = std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
-    shader.cubemap = std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
-  }
-}

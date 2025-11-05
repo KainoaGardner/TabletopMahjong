@@ -57,7 +57,7 @@ int main(){
   shader::setup();
   geometry::setup();
   framebuffer::setup();
-  game::setup();
+  gameState::setup();
   camera::setup();
   dice::setup();
   model::setup();

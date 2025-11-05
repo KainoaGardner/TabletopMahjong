@@ -1,4 +1,4 @@
-#include "../include/geometry.hpp"
+#include "engine/geometry.hpp"
 
 
 namespace geometry {
@@ -211,25 +211,5 @@ Geometry createCubemap() {
 
   return geometry;
 }
-
-Geometries geometry;
-
-void setup(){
-  Geometry planeGeometry = geometry::createPlane();
-  Geometry cubeGeometry = geometry::createCube();
-  Geometry cubemapGeometry = geometry::createCubemap();
-  Geometry screenGeometry = geometry::createScreen();
-
-  geometry = {
-      .plane = planeGeometry,
-      .cube = cubeGeometry,
-      .cubemap = cubemapGeometry,
-      .screen = screenGeometry,
-  };
 }
-}
-
-
-
-
 
