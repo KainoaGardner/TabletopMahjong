@@ -1,13 +1,12 @@
-#include "../include/camera.hpp"
-#include "../include/config.hpp"
-#include "../include/input.hpp"
-// #include "../include/game.hpp"
+#include "../include/game/camera.hpp"
+#include "../include/engine/config.hpp"
+#include "../include/engine/engineContext.hpp"
+#include "../include/engine/input.hpp"
 
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
 
-#include <iostream>
 
 Camera::Camera(
   glm::vec3 positionIn,
@@ -43,9 +42,9 @@ glm::mat4 Camera::getViewMatrix() const {
 glm::mat4 Camera::getProjectionMatrix() const {
   return glm::perspective(
     glm::radians(fov),
-    (float)config::gameConfig.width / (float)config::gameConfig.height,
-    config::gameConfig.nearPlane,
-    config::gameConfig.farPlane);
+    (float)engineCTX->width / (float)engineCTX->height,
+    global::nearPlane,
+    global::farPlane);
 }
 
 
@@ -78,23 +77,22 @@ void Camera::updateVectors() {
   right = glm::normalize(orientation * camera::cameraRight);
 }
 
-void Camera::rotate(){
-  if (input::actionPressed[input::freeLook]){
-    yaw -= input::mouse.dx * sensitivity;
-    pitch -= input::mouse.dy * sensitivity;
+void Camera::rotate(const Input& input){
+  if (input.pressed(input::actions::freeLook)){
+    yaw -= input.mouse.dx * sensitivity;
+    pitch -= input.mouse.dy * sensitivity;
   }else {
     // pitch = startPitch;
     // yaw = startYaw;
   }
 
   clampPitch();
-  revertRotate();
+  revertRotate(input);
   updateVectors();
 }
 
-void Camera::revertRotate(){
-  if (input::actionPressed[input::freeLook]) return; 
-
+void Camera::revertRotate(const Input& input){
+  if (input.pressed(input::actions::freeLook)) return; 
 
   float yawDiff = yaw - startYaw;
   float pitchDiff = pitch - startPitch;
@@ -130,11 +128,11 @@ void Camera::revertRotate(){
   }
 }
 
-void Camera::zoom(){
-  if (input::actionPressed[input::zoomIn]){
+void Camera::zoom(const Input& input){
+  if (input.pressed(input::actions::zoomIn)){
     fov += zoomSpeed;
   }
-  if (input::actionPressed[input::zoomOut]){
+  if (input.pressed(input::actions::zoomOut)){
     fov -= zoomSpeed;
   }
 
@@ -146,12 +144,12 @@ void Camera::zoom(){
   }
 }
 
-void Camera::move(){
+void Camera::move(const Input& input){
 }
 
-void Camera::update(){
-  rotate();
-  zoom();
+void Camera::update(const Input& input){
+  rotate(input);
+  zoom(input);
 }
 
 namespace camera {
@@ -162,40 +160,4 @@ namespace camera {
     std::make_unique<Camera>(peiPos, yaw + 270.0f, pitch, roll, fov, speed, sensitivity, zoomSpeed),
     std::make_unique<Camera>(topPos, yaw, -90.0f, roll, fov, speed, sensitivity, zoomSpeed),
 };
-
-int curr = 0;
-void setup(){
-}
-
-void switchCamera(){
-  if (input::actionPressed[input::mainCamera]){
-    curr = config::gameConfig.seat;
-    input::actionPressed[input::mainCamera] = false;
-  }else if (input::actionPressed[input::pointCamera]){
-    curr = config::gameConfig.seat;
-    input::actionPressed[input::pointCamera] = false;
-  }else if (input::actionPressed[input::topCamera]){
-    curr = 4;
-    input::actionPressed[input::topCamera] = false;
-  }
-
-  //remove
-  if (input::actionPressed[input::camera1]){
-    curr = 0;
-    input::actionPressed[input::camera1] = false;
-  }else if (input::actionPressed[input::camera2]){
-    curr = 1;
-    input::actionPressed[input::camera2] = false;
-  }else if (input::actionPressed[input::camera3]){
-    curr = 2;
-    input::actionPressed[input::camera3] = false;
-  }else if (input::actionPressed[input::camera4]){
-    curr = 3;
-    input::actionPressed[input::camera4] = false;
-  }
-
-
-}
-
-
 }

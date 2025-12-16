@@ -4,20 +4,17 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 
-#include "../include/config.hpp"
-#include "../include/render.hpp"
-#include "../include/update.hpp"
-#include "../include/shader.hpp"
-#include "../include/geometry.hpp"
-#include "../include/framebuffer.hpp"
-#include "../include/camera.hpp"
-#include "../include/input.hpp"
-#include "../include/model.hpp"
-#include "../include/texture.hpp"
-#include "../include/glExtension.hpp"
-#include "../include/tile.hpp"
-#include "../include/gameState.hpp"
-#include "../include/dice.hpp"
+#include "../include/engine/engineContext.hpp"
+
+#include "../include/engine/config.hpp"
+#include "../include/util/glExtension.hpp"
+
+#include "../include/engine/render.hpp"
+#include "../include/engine/update.hpp"
+// #include "../include/camera.hpp"
+// #include "../include/tile.hpp"
+// #include "../include/gameState.hpp"
+// #include "../include/dice.hpp"
 
 #include <chrono>
 #include <glm/glm.hpp>
@@ -37,7 +34,6 @@ int main(){
   attr.antialias = EM_TRUE;
   attr.majorVersion = 2;
 
-
   EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx;
   ctx = emscripten_webgl_create_context("#canvas", &attr);
   if (ctx <= 0){
@@ -46,30 +42,36 @@ int main(){
   }
   emscripten_webgl_make_context_current(ctx);
 
-  int canvasWidth = config::gameConfig.width;
-  int canvasHeight = config::gameConfig.height;
+  engineContext::SetupConfig setupConfig = {
+    // .width = 1920,
+    // .height = 1080,
+    // .width = 1600,
+    // .height = 900,
+    // .width = 1280,
+    // .height = 720,
+    // .width = 960,
+    // .height = 540,
+    .width = 1366,
+    .height = 768,
+    .fps = 60,
+  };
 
-  emscripten_set_canvas_element_size("#canvas", canvasWidth,canvasHeight);
+  emscripten_set_canvas_element_size("#canvas", setupConfig.width, setupConfig.height);
 
   glExtensions::setup();
-  texture::setup();
-  input::setup();
-  shader::setup();
-  geometry::setup();
-  framebuffer::setup();
-  gameState::setup();
-  camera::setup();
-  dice::setup();
-  model::setup();
-  tile::setup(tile::FourP);
+  engineCTX->setup(setupConfig);
+  // gameState::setup();
+  // camera::setup();
+  // dice::setup();
+
+  // tile::setup(tile::FourP);
   // tile::setup(tile::ThreeP);
+  // int roll = dice::getDiceRoll() + dice::getDiceRoll();
+  // tile::makeWalls();
+  // tile::dealHands(roll);
+  // tile::makeDeadWall(roll);
 
-  int roll = dice::getDiceRoll() + dice::getDiceRoll();
-  tile::makeWalls();
-  tile::dealHands(roll);
-  tile::makeDeadWall(roll);
-
-  glViewport(0, 0, canvasWidth,canvasHeight);
+  glViewport(0, 0, engineCTX->width, engineCTX->height);
   emscripten_set_main_loop(mainLoop, 0, true);
 
   return 0;
@@ -80,21 +82,22 @@ void mainLoop(){
   auto duration = now.time_since_epoch();
   long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-  if (config::gameConfig.lastUpdateTime == 0){
-    config::gameConfig.lastUpdateTime = currentTime;
+  if (engineCTX->lastUpdateTime == 0){
+    engineCTX->lastUpdateTime = currentTime;
   }
 
-  long long timeDif = currentTime - config::gameConfig.lastUpdateTime;
-  if (timeDif > 250) timeDif = 250;
+  long long timeDif = currentTime - engineCTX->lastUpdateTime;
+  if (timeDif > global::maxTimeGap){
+    timeDif = global::maxTimeGap;
+  }
 
-  config::gameConfig.lastUpdateTime = currentTime;
-  config::gameConfig.excessTime += timeDif;
+  engineCTX->lastUpdateTime = currentTime;
+  engineCTX->excessTime += timeDif;
 
-  while (config::gameConfig.excessTime >= config::gameConfig.logicIntervalTime) {
+  while (engineCTX->excessTime >= engineCTX->logicIntervalTime) {
     update();
-    config::gameConfig.excessTime -= config::gameConfig.logicIntervalTime;
+    engineCTX->excessTime -= engineCTX->logicIntervalTime;
   }
   
-
   render::main();
 }

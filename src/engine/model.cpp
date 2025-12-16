@@ -2,9 +2,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "../include/model.hpp"
-#include "../include/shader.hpp"
-#include "../include/glExtension.hpp"
+#include "../include/engine/model.hpp"
+#include "../include/engine/shader.hpp"
+#include "../include/util/glExtension.hpp"
 
 #include <iostream>
 
@@ -164,14 +164,15 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
   return tex;
 }
 
-void Model::draw() const {
-  shader::shader.model->use();
 
-  shader::shader.model->setVec2f("uTexOffset", glm::vec2(0.0f));
+void Model::draw(std::shared_ptr<Shader> shader) const {
+  shader->use();
+
+  shader->setVec2f("uTexOffset", glm::vec2(0.0f));
   for (const auto& mesh : meshes) {
     glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader::shader.model->setInt("uDiffuse0",0);
+    shader->setInt("uDiffuse0",0);
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
   }
@@ -179,12 +180,4 @@ void Model::draw() const {
   glBindVertexArray(0);
 }
 
-namespace model {
-  Models model;
-
-  void setup(){
-    model.tile = std::make_unique<Model>("../assets/models/tile.glb");
-    model.dice = std::make_unique<Model>("../assets/models/dice.glb");
-  }
-}
-
+ 

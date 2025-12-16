@@ -1,11 +1,18 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <memory>
 #include <glm/glm.hpp>
-#include "../include/model.hpp"
+#include "../include/engine/model.hpp"
 
 namespace camera {
+  enum CameraEnum {
+    ton1,
+    nan1,
+    sha1,
+    pei1,
+    top,
+  };
+
   const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
   const glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
   const glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -38,6 +45,7 @@ namespace camera {
   const float maxFov = 45.0f;
 } 
 
+class Input;
 
 class Camera {
 public:
@@ -55,8 +63,7 @@ public:
   glm::vec3 up = camera::cameraUp;
   glm::vec3 right = camera::cameraRight;
 
-
-  void update();
+  void update(const Input& input);
 
   glm::mat4 getViewMatrix() const;
   glm::mat4 getProjectionMatrix() const;
@@ -77,29 +84,10 @@ private:
   void clampPitch();
   void updateVectors();
 
-  void rotate();
-  void revertRotate();
-  void zoom();
-  void move();
+  void rotate(const Input& input);
+  void revertRotate(const Input& input);
+  void zoom(const Input& input);
+  void move(const Input& input);
 };
-
-
-namespace camera {
-enum CameraEnum {
-  ton1,
-  nan1,
-  sha1,
-  pei1,
-  top,
-};
-
-  void setup();
-  void switchCamera();
-
-  extern std::unique_ptr<Camera> cameras[5];
-
-  extern int curr;
-}
-
 
 #endif

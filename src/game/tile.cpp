@@ -1,7 +1,7 @@
-#include "../include/tile.hpp"
-#include "../include/model.hpp"
-#include "../include/shader.hpp"
-#include "../include/config.hpp"
+#include "../include/game/tile.hpp"
+#include "../include/engine/model.hpp"
+#include "../include/engine/shader.hpp"
+#include "../include/engine/config.hpp"
 
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>

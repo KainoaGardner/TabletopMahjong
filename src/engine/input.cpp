@@ -1,49 +1,38 @@
-#include "../include/input.hpp"
-#include "../include/emjs.hpp"
-
+#include "../include/engine/input.hpp"
+#include "../include/util/emjs.hpp"
 #include <chrono>
 
 namespace input {
 
-std::unordered_map<std::string, actions> keyToAction = {
-  {"KeyW", forward},
-  {"KeyS", backward},
-  {"KeyA", left},
-  {"KeyD", right},
-  {"KeyQ", up},
-  {"KeyE", down},
-  {"Mouse0", click},
-  {"Mouse2", freeLook},
-  {"KeyF", freeCam},
-  {"MouseWheelUp", zoomIn},
-  {"MouseWheelDown", zoomOut},
-  {"KeyP", perspective},
-  {"Digit1", mainCamera},
-  {"Digit2", pointCamera},
-  {"Digit3", topCamera},
+std::unordered_map<std::string, actions>keyToAction = {
+    {"KeyW", forward},
+    {"KeyS", backward},
+    {"KeyA", left},
+    {"KeyD", right},
+    {"KeyQ", up},
+    {"KeyE", down},
+    {"Mouse0", click},
+    {"Mouse2", freeLook},
+    {"KeyF", freeCam},
+    {"MouseWheelUp", zoomIn},
+    {"MouseWheelDown", zoomOut},
+    {"KeyP", perspective},
+    {"Digit1", mainCamera},
+    {"Digit2", pointCamera},
+    {"Digit3", topCamera},
 
-  //remove later
-  {"Digit6", camera1},
-  {"Digit7", camera2},
-  {"Digit8", camera3},
-  {"Digit9", camera4},
+    //remove later
+    {"Digit6", camera1},
+    {"Digit7", camera2},
+    {"Digit8", camera3},
+    {"Digit9", camera4},
 };
 
-std::unordered_map<actions, bool> actionPressed = {
-  {forward, false},
-  {backward, false},
-  {left, false},
-  {right, false},     
-  {up, false},
-  {down, false},     
-
-};
-
-EM_BOOL keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userData){
+EM_BOOL Input::keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userData){
   auto it = keyToAction.find(e->code);
   if (eventType == EMSCRIPTEN_EVENT_KEYDOWN){
     if (it != keyToAction.end()){
-      actionPressed[it->second] = true;
+      actionCurr[it->second] = true;
     }
 
     if (it->second == click){
@@ -63,7 +52,7 @@ EM_BOOL keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userD
 
   }else if (eventType == EMSCRIPTEN_EVENT_KEYUP){
     if (it != keyToAction.end()){
-      actionPressed[it->second] = false;
+      actionCurr[it->second] = false;
     }
   }
 
@@ -73,15 +62,11 @@ EM_BOOL keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userD
 
 Mouse mouse;
 
-EM_BOOL mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* userData){
-    double canvasX = e->canvasX;
-    double canvasY = e->canvasY;
-  
+EM_BOOL Input::mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* userData){
     double clientX = e->clientX;
     double clientY = e->clientY;
     double currX = getCanvasMouseX(clientX);
     double currY = getCanvasMouseY(clientY);
-
   
     if (mouse.first){
       mouse.x = currX;
@@ -103,12 +88,12 @@ EM_BOOL mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* us
 }
 
 
-EM_BOOL mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* userData){
+EM_BOOL Input::mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* userData){
   std::string button = "Mouse" + std::to_string(e->button);
   auto it = keyToAction.find(button);
   if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN){
     if (it != keyToAction.end()){
-      actionPressed[it->second] = true;
+      actionCurr[it->second] = true;
 
       if (it->second == click){
         mouse.justClicked = true;
@@ -126,7 +111,7 @@ EM_BOOL mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* 
     }
   }else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP){
     if (it != keyToAction.end()){
-      actionPressed[it->second] = false;
+      actionCurr[it->second] = false;
     }
   }
 
@@ -134,7 +119,7 @@ EM_BOOL mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* 
 }
 
 
-EM_BOOL mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, void* userData){
+EM_BOOL Input::mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, void* userData){
   std::string wheel;
 
   if (e->deltaY > 0){
@@ -145,19 +130,19 @@ EM_BOOL mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, void* u
 
   auto it = keyToAction.find(wheel);
   if (it != keyToAction.end()){
-    actionPressed[it->second] = true;
+    actionCurr[it->second] = true;
   }
 
   return EM_TRUE;
 }
 
-void updateMouse(){
+void Mouse::update(std::unordered_map<actions, bool> actionCurr){
   if (mouse.pointerLock){
     mouse.dx = 0.0;
     mouse.dy = 0.0;
   }
 
-  if (actionPressed[freeLook]){
+  if (actionCurr[freeLook]){
     mouse.pointerLock = true;
     hideMouse();
   }else {
@@ -169,24 +154,63 @@ void updateMouse(){
     mouse.justClicked = false;
   }
 
-  if (actionPressed[zoomIn]){
-    actionPressed[zoomIn] = false;
+  if (actionCurr[zoomIn]){
+    actionCurr[zoomIn] = false;
   }
-  if (actionPressed[zoomOut]){
-    actionPressed[zoomOut] = false;
+  if (actionCurr[zoomOut]){
+    actionCurr[zoomOut] = false;
   }
 
 }
 
-void setup(){
+bool Input::pressed(input::actions a) const{
+  return actionCurr[a];
+}
+
+bool Input::justPressed(input::actions a) const{
+  return actionCurr[a] && !actionPrev[a];
+}
+
+bool Input::justReleased(input::actions a) const{
+  return !actionCurr[a] && actionPrev[a];
+}
+
+
+void Input::update(){
+  mouse.update(actionCurr);
+}
+
+//update prev action after update
+
+void Input::setup(){
   preventPageScroll();
 
-  emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,keyCallback);
+  actionPrev = {
+    {forward, false},
+    {backward, false},
+    {left, false},
+    {right, false},     
+    {up, false},
+    {down, false},     
+  };
+
+  actionCurr = {
+    {forward, false},
+    {backward, false},
+    {left, false},
+    {right, false},     
+    {up, false},
+    {down, false},     
+  };
+
+  emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, EM_TRUE, keyCallback);
   emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,keyCallback);
   emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,mouseMoveCallback);
   emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,mouseButtonCallback);
   emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,mouseButtonCallback);
   emscripten_set_wheel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW,nullptr,EM_TRUE,mouseWheelCallback);
 }
+
+
 
 } // namespace input

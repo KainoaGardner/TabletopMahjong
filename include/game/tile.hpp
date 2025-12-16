@@ -3,11 +3,8 @@
 
 #include <unordered_map>
 #include <glm/glm.hpp>
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
-
-#include "../include/model.hpp"
 
 namespace tile {
   enum TileEnum {
@@ -55,9 +52,12 @@ namespace tile {
     ThreeP,
   };
 
-
 extern std::unordered_map<int, glm::vec2> tileUV;
 }
+
+
+class Model;
+class Shader;
 
 class Tile {
 public:
@@ -65,18 +65,17 @@ public:
 
   glm::vec3 position;
   glm::quat orientation;
-  void draw() const;
+  void draw(std::shared_ptr<Shader> shader) const;
 
 private:
   unsigned int tile;
   const Model* model;
 };
 
+// extern std::vector<Tile> tiles;
+// void setup(int type);
 
 namespace tile {
-extern std::vector<Tile> tiles;
-void setup(int type);
-
 void fourPSetup();
 void threePSetup();
 

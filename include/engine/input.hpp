@@ -31,32 +31,46 @@ namespace input {
   };
 
 extern std::unordered_map<std::string, actions> keyToAction;
-extern std::unordered_map<actions, bool> actionPressed;
+} // namespace input
 
-EM_BOOL keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userData);
-EM_BOOL mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* userData);
-EM_BOOL mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* userData);
-EM_BOOL mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, void* userData);
-
-struct Mouse {
+class Mouse {
+public:
   double x = 0.0;
   double y = 0.0;
   double dx = 0.0;
   double dy = 0.0;
-  bool pointerLock = false;
-  bool first = true;
 
   bool justClicked = false;
   long long clickTime = 0.0;
+
+  void update(std::unordered_map<input::actions, bool> actionCurr);
+
+  bool first = true;
+  bool pointerLock = false;
+private:
+  // void recenter();
 };
 
-extern Mouse mouse;
 
-void updateMouse();
-void recenterMouse();
+class Input {
+public:
+  static Mouse mouse;
+  static std::unordered_map<input::actions, bool> actionPrev;
+  static std::unordered_map<input::actions, bool> actionCurr;
 
-void setup();
+  bool pressed(input::actions a) const;
+  bool justPressed(input::actions a) const;
+  bool justReleased(input::actions a) const;
 
-} // namespace input
+  static EM_BOOL keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userData);
+  static EM_BOOL mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* userData);
+  static EM_BOOL mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e, void* userData);
+  static EM_BOOL mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, void* userData);
+
+  void update();
+  void setup();
+private:
+};
+
 
 #endif

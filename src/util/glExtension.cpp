@@ -1,4 +1,4 @@
-#include "../include/glExtension.hpp"
+#include "../include/util/glExtension.hpp"
 
 #include <GLES3/gl3.h>
 #include <cstring>

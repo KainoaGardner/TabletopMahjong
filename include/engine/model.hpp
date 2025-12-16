@@ -10,7 +10,6 @@
 
 #include "../include/tiny_gltf.h"
 
-
 namespace model {
 struct Vertex {
   float position[3];
@@ -27,7 +26,6 @@ struct Mesh {
 };
 
 
-
 const glm::vec3 matScale = glm::vec3(0.89f, 0.005f, 0.89f);
 const glm::vec3 tableSideShortScale = glm::vec3(matScale.x, 0.03f, 0.03f);
 const glm::vec3 tableSideLongScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, 0.03f, 0.03f);
@@ -39,13 +37,14 @@ const glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x
 } // namespace model
 
 
+class Shader;
 
 class Model {
 public:
   Model(const std::string& path);
   ~Model();
 
-  void draw() const;
+  void draw(std::shared_ptr<Shader> shader) const;
   std::vector<model::Mesh> meshes;
 private:
 
@@ -54,21 +53,4 @@ private:
   GLuint loadTexture(const tinygltf::Image& image);
 };
 
-
-namespace model {
-struct Models {
-  std::unique_ptr<Model> tile;
-
-  std::unique_ptr<Model> dice;
-};
-
-void setup();
-  
-extern Models model;
-}
-
-
 #endif
-
-
-

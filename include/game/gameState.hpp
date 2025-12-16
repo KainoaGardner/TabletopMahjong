@@ -1,24 +1,41 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
-#include "../include/camera.hpp"
+#include <vector>
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
-#include <memory>
 
 namespace gameState {
 
-struct GameState {
-  // Camera camera;
+struct CameraState {
+  glm::vec3 position;
+  float yaw;
+  float pitch;
+  float roll;
+  float fov;
 };
 
+struct TileState {
+  glm::vec3 position;
+  glm::quat orientation;
+};
 
-void setGameState(std::shared_ptr<GameState> gameState);
-void swapGameState(std::shared_ptr<GameState> prevState, std::shared_ptr<GameState> currState);
+struct DiceState {
+  glm::vec3 position;
+  glm::quat orientation;
+};
 
-void setup();
-  
-extern std::shared_ptr<GameState> currState;
-extern std::shared_ptr<GameState> prevState;
+class GameState {
+public:
+  bool firstFrame = true;
+
+  std::vector<TileState> tiles;
+  std::vector<DiceState> die;
+  CameraState cameras[5];
+private:
+};
 }
 
 #endif
