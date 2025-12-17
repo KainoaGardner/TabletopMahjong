@@ -13,7 +13,7 @@ void EngineContext::addFrameBuffer(const std::string& name, Framebuffer framebuf
   framebuffers.emplace(name, std::move(framebuffer));
 }
 
-Framebuffer EngineContext::getFramebuffer(const std::string& name){
+Framebuffer& EngineContext::getFramebuffer(const std::string& name){
   return framebuffers.at(name);
 }
 
@@ -22,7 +22,7 @@ void EngineContext::addGeometry(const std::string& name, Geometry geometry){
   geometries.emplace(name, std::move(geometry));
 }
 
-Geometry EngineContext::getGeometry(const std::string& name){
+Geometry& EngineContext::getGeometry(const std::string& name){
   return geometries.at(name);
 }
 
@@ -31,7 +31,7 @@ void EngineContext::addTexture(const std::string& name, Texture texture){
   textures.emplace(name, std::move(texture));
 }
 
-Texture EngineContext::getTexture(const std::string& name){
+Texture& EngineContext::getTexture(const std::string& name){
   return textures.at(name);
 }
 
@@ -40,7 +40,7 @@ void EngineContext::addShader(const std::string& name, Shader shader){
   shaders.emplace(name, std::move(shader));
 }
 
-Shader EngineContext::getShader(const std::string& name){
+Shader& EngineContext::getShader(const std::string& name){
   return shaders.at(name);
 }
 
@@ -50,7 +50,7 @@ void EngineContext::addModel(const std::string& name, Model model){
   models.emplace(name, std::move(model));
 }
 
-Model EngineContext::getModel(const std::string& name){
+Model& EngineContext::getModel(const std::string& name){
   return models.at(name);
 }
 
@@ -129,6 +129,3 @@ void EngineContext::setup(engineContext::SetupConfig config){
   setupShaders();
   setupModels();
 }
-
-std::shared_ptr<EngineContext> engineCTX = std::make_shared<EngineContext>();
-

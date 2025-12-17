@@ -59,16 +59,16 @@ Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm:
   orientation = orientationIn;
 }
 
-void Tile::draw() const {
+void Tile::draw(Shader& shader) const {
   if (model == nullptr) return;
 
-  shader::shader.model->use();
+  shader.use();
 
   for (int i = 0; i < model->meshes.size(); i++){
     const model::Mesh& mesh = model->meshes[i];
     glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader::shader.model->setInt("uDiffuse0",0);
+    shader.setInt("uDiffuse0",0);
 
     if (i == 1) {
       auto it = tile::tileUV.find(tile);
@@ -80,9 +80,9 @@ void Tile::draw() const {
         uvPos *= tileMapRatio;
         // uvPos *= model::tileMapRatio;
       }
-      shader::shader.model->setVec2f("uTexOffset", uvPos);
+      shader.setVec2f("uTexOffset", uvPos);
     }else {
-      shader::shader.model->setVec2f("uTexOffset", glm::vec2(0.0f));
+      shader.setVec2f("uTexOffset", glm::vec2(0.0f));
     }
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
@@ -92,24 +92,27 @@ void Tile::draw() const {
 }
 
 namespace tile {
-std::vector<Tile> tiles;
 
-void setup(int type){
-  switch(type){
+void setup(const game::SetupConfig& config, std::vector<Tile>& tiles){
+  switch(config.tileSet){
     case FourP:
-      fourPSetup();
+      fourPSetup(tiles, config.tileModel);
       break;
     case ThreeP:
-      threePSetup();
+      threePSetup(tiles, config.tileModel);
       break;
 
     default:
     break;
   }
 
+  int roll = 1;
+  makeWalls(tiles);
+  dealHands(roll, config.oya, tiles);
+  makeDeadWall(roll, config.oya, tiles);
 }
 
-void fourPSetup(){
+void fourPSetup(std::vector<Tile>& tiles, const Model& tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
@@ -124,20 +127,20 @@ void fourPSetup(){
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
       if (j == 3 && (i == Man5 || i == Sou5 || i == Pin5)){
         if (i == Man5){
-          tiles.emplace_back(Man5A, model::model.tile.get(), pos, orientation);
+          tiles.emplace_back(Man5A, tileModel, pos, orientation);
         }else if (i == Sou5){
-          tiles.emplace_back(Sou5A, model::model.tile.get(), pos, orientation);
+          tiles.emplace_back(Sou5A, tileModel, pos, orientation);
         }else{
-          tiles.emplace_back(Pin5A, model::model.tile.get(), pos, orientation);
+          tiles.emplace_back(Pin5A, tileModel, pos, orientation);
         }
       }else{
-        tiles.emplace_back(i, model::model.tile.get(), pos, orientation);
+        tiles.emplace_back(i, tileModel, pos, orientation);
       }
     }
   }
 }
 
-void threePSetup(){
+void threePSetup(std::vector<Tile>& tiles, const Model& tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
@@ -147,13 +150,13 @@ void threePSetup(){
       int c = (i) % 18;
       int r = (i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man1, model::model.tile.get(), pos, orientation);
+      tiles.emplace_back(Man1, tileModel, pos, orientation);
   }
   for (int i = 0; i < 4; ++i){
       int c = (4 + i) % 18;
       int r = (4 + i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man9, model::model.tile.get(), pos, orientation);
+      tiles.emplace_back(Man9, tileModel, pos, orientation);
   }
 
   for (int i = Sou1; i <= Chun; ++i){
@@ -165,35 +168,35 @@ void threePSetup(){
 
       if (j == 3 && (i == Sou5 || i == Pin5)){
         if (i == Sou5){
-          tiles.emplace_back(Sou5A, model::model.tile.get(), pos, orientation);
+          tiles.emplace_back(Sou5A, tileModel, pos, orientation);
         }else{
-          tiles.emplace_back(Pin5A, model::model.tile.get(), pos, orientation);
+          tiles.emplace_back(Pin5A, tileModel, pos, orientation);
         }
       }else{
-        tiles.emplace_back(i, model::model.tile.get(), pos, orientation);
+        tiles.emplace_back(i, tileModel, pos, orientation);
       }
     }
   }
 }
 
 
-void shuffleTiles(){
+void shuffleTiles(std::vector<Tile>& tiles){
   std::random_device rand;
   std::default_random_engine gen(rand());
   std::shuffle(tiles.begin(), tiles.end(), gen);
 }
 
-void flipTiles() {
+void flipTiles(std::vector<Tile>& tiles) {
   glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-  for (Tile& tile : tile::tiles){
+  for (Tile& tile : tiles){
     tile.orientation = orientation;
   }
 }
 
-void makeWalls() {
-  flipTiles();
-  shuffleTiles();
+void makeWalls(std::vector<Tile>& tiles) {
+  flipTiles(tiles);
+  shuffleTiles(tiles);
 
   int tileWidth;
   if (tiles.size() == 108){
@@ -208,7 +211,7 @@ void makeWalls() {
   float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
 
   int i = 0;
-  for (Tile& tile : tile::tiles){
+  for (Tile& tile : tiles){
     int x = (i % (tileWidth * 2)) / 2;
     int y = i % 2;
     int z = i / (tileWidth * 2);
@@ -237,21 +240,18 @@ void makeWalls() {
 
 }
 
-void dealHands(int roll){
+void dealHands(int roll, int oya, std::vector<Tile>& tiles){
   int tileWidth;
-  int hands;
   int walls;
   if (tiles.size() == 108){
     tileWidth = 18;
-    hands = 3;
     walls = 3;
   }else {
     tileWidth = 17;
-    hands = 4;
     walls = 4;
   }
 
-  int wall = (roll + config::gameConfig.oya) % walls;
+  int wall = (roll + oya) % walls;
   wall -= 1;
   if (wall < 0) {
     wall += walls;
@@ -270,7 +270,7 @@ void dealHands(int roll){
 
     int y = i / (walls * 4);
     int x = i % 4 + y * 4;
-    int z = ((i / 4) + config::gameConfig.oya) % walls;
+    int z = ((i / 4) + oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -302,7 +302,7 @@ void dealHands(int roll){
 
     int y = 3;
     int x = y * 4;
-    int z = (i + config::gameConfig.oya) % walls;
+    int z = (i + oya) % walls;
 
     glm::vec3 pos = glm::vec3(0.0f);
     pos.y = startY;
@@ -332,7 +332,7 @@ void dealHands(int roll){
 
   Tile& tile = tiles[index];
   int x = 3 * 4 + 1;
-  int z = config::gameConfig.oya;
+  int z = oya;
 
   glm::vec3 pos = glm::vec3(0.0f);
   pos.y = startY;
@@ -356,11 +356,10 @@ void dealHands(int roll){
 }
 
 
-void makeDeadWall(int roll){
+void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles){
   int tileWidth;
   int doraRow;
   int walls;
-  int wallLength = 7;
   if (tiles.size() == 108){
     tileWidth = 18;
     doraRow = 5;
@@ -371,7 +370,7 @@ void makeDeadWall(int roll){
     walls = 4;
   }
 
-  int wall = (roll + config::gameConfig.oya) % walls;
+  int wall = (roll + oya) % walls;
   wall -= 1;
   if (wall < 0) {
     wall += walls;
@@ -422,7 +421,6 @@ void makeDeadWall(int roll){
       Tile& tile = tiles[index + i];
 
       int z = wall;
-      int y = i % 2;
 
       int xMove = std::cos(glm::radians(90.0f * z));
       int zMove = -std::sin(glm::radians(90.0f * z));

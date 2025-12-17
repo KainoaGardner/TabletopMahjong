@@ -7,11 +7,15 @@ class Camera;
 class Tile;
 class Dice;
 
+class Model;
+
 namespace game {
   struct SetupConfig {
     int oya;
     int playerCount;
     int seat;
+    int tileSet;
+    const Model& tileModel;
   };
 };
 
@@ -22,24 +26,27 @@ class Game {
 public:
   Game();
 
-  void setupConfig(game::SetupConfig config);
+  void setupConfig(const game::SetupConfig& config);
   void setupCameras();
-  void setupTiles();
   void setupDie();
 
-  void setup(game::SetupConfig config);
+  void setup(const game::SetupConfig& config);
 
   void update(const Input& input);
+
+  std::vector<Tile>& getTiles();
+  // const std::vector<Tile>& getTiles() const;
+
+  std::unique_ptr<Camera> cameras[5];
+  int currCamera;
 
 private:
   int oya;
   int playerCount;
   int seat;
-  int currCamera;
 
-  std::unique_ptr<Camera> cameras[5];
   std::vector<Tile> tiles;
-  std::vector<Dice> die;
+  std::unique_ptr<Dice> die[2];
 
   gameState::GameState lastGameState;
 

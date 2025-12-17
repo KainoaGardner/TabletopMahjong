@@ -31,6 +31,7 @@ namespace input {
   };
 
 extern std::unordered_map<std::string, actions> keyToAction;
+
 } // namespace input
 
 class Mouse {
@@ -71,6 +72,7 @@ public:
   void setup();
 private:
 };
+
 
 
 #endif

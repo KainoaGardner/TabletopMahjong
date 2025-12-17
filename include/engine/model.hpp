@@ -44,7 +44,7 @@ public:
   Model(const std::string& path);
   ~Model();
 
-  void draw(std::shared_ptr<Shader> shader) const;
+  void draw(Shader& shader) const;
   std::vector<model::Mesh> meshes;
 private:
 

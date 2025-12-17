@@ -165,14 +165,14 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
 }
 
 
-void Model::draw(std::shared_ptr<Shader> shader) const {
-  shader->use();
+void Model::draw(Shader& shader) const {
+  shader.use();
 
-  shader->setVec2f("uTexOffset", glm::vec2(0.0f));
+  shader.setVec2f("uTexOffset", glm::vec2(0.0f));
   for (const auto& mesh : meshes) {
     glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader->setInt("uDiffuse0",0);
+    shader.setInt("uDiffuse0",0);
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
   }

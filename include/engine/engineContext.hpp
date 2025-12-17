@@ -41,11 +41,11 @@ public:
   void addShader(const std::string& name, Shader shader);
   void addModel(const std::string& name, Model model);
 
-  Framebuffer getFramebuffer(const std::string& name);
-  Geometry getGeometry(const std::string& name);
-  Texture getTexture(const std::string& name);
-  Shader getShader(const std::string& name);
-  Model getModel(const std::string& name);
+  Framebuffer& getFramebuffer(const std::string& name);
+  Geometry& getGeometry(const std::string& name);
+  Texture& getTexture(const std::string& name);
+  Shader& getShader(const std::string& name);
+  Model& getModel(const std::string& name);
 
   void setupConfig(engineContext::SetupConfig config);
   void setupFramebuffers(engineContext::SetupConfig config);
@@ -63,7 +63,5 @@ private:
   std::unordered_map<std::string, Texture> textures;
   std::unordered_map<std::string, Model> models;
 };
-
-extern std::shared_ptr<EngineContext> engineCTX;
 
 #endif

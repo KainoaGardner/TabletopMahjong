@@ -6,24 +6,16 @@
 
 #include "../include/engine/engineContext.hpp"
 
+#include "../include/app.hpp"
 #include "../include/engine/config.hpp"
 #include "../include/util/glExtension.hpp"
-
-#include "../include/engine/render.hpp"
-#include "../include/engine/update.hpp"
-// #include "../include/camera.hpp"
-// #include "../include/tile.hpp"
-// #include "../include/gameState.hpp"
-// #include "../include/dice.hpp"
 
 #include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
-
-void mainLoop();
+void mainLoop(void* arg);
 
 int main(){
   EmscriptenWebGLContextAttributes attr;
@@ -42,62 +34,44 @@ int main(){
   }
   emscripten_webgl_make_context_current(ctx);
 
-  engineContext::SetupConfig setupConfig = {
-    // .width = 1920,
-    // .height = 1080,
-    // .width = 1600,
-    // .height = 900,
-    // .width = 1280,
-    // .height = 720,
-    // .width = 960,
-    // .height = 540,
-    .width = 1366,
-    .height = 768,
-    .fps = 60,
-  };
 
-  emscripten_set_canvas_element_size("#canvas", setupConfig.width, setupConfig.height);
 
   glExtensions::setup();
-  engineCTX->setup(setupConfig);
+
+  App* app = new App();
+
+  emscripten_set_canvas_element_size("#canvas", app->engineCTX.width, app->engineCTX.height);
   // gameState::setup();
-  // camera::setup();
-  // dice::setup();
 
-  // tile::setup(tile::FourP);
-  // tile::setup(tile::ThreeP);
-  // int roll = dice::getDiceRoll() + dice::getDiceRoll();
-  // tile::makeWalls();
-  // tile::dealHands(roll);
-  // tile::makeDeadWall(roll);
-
-  glViewport(0, 0, engineCTX->width, engineCTX->height);
-  emscripten_set_main_loop(mainLoop, 0, true);
+  glViewport(0, 0, app->engineCTX.width, app->engineCTX.height);
+  emscripten_set_main_loop_arg(mainLoop, app, 0, true);
 
   return 0;
 }
 
-void mainLoop(){
+void mainLoop(void* arg){
+  App* app = static_cast<App*>(arg);
+
   auto now = std::chrono::system_clock::now();
   auto duration = now.time_since_epoch();
   long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-  if (engineCTX->lastUpdateTime == 0){
-    engineCTX->lastUpdateTime = currentTime;
+  if (app->engineCTX.lastUpdateTime == 0){
+    app->engineCTX.lastUpdateTime = currentTime;
   }
 
-  long long timeDif = currentTime - engineCTX->lastUpdateTime;
+  long long timeDif = currentTime - app->engineCTX.lastUpdateTime;
   if (timeDif > global::maxTimeGap){
     timeDif = global::maxTimeGap;
   }
 
-  engineCTX->lastUpdateTime = currentTime;
-  engineCTX->excessTime += timeDif;
+  app->engineCTX.lastUpdateTime = currentTime;
+  app->engineCTX.excessTime += timeDif;
 
-  while (engineCTX->excessTime >= engineCTX->logicIntervalTime) {
-    update();
-    engineCTX->excessTime -= engineCTX->logicIntervalTime;
+  while (app->engineCTX.excessTime >= app->engineCTX.logicIntervalTime) {
+    app->update();
+    app->engineCTX.excessTime -= app->engineCTX.logicIntervalTime;
   }
   
-  render::main();
+  app->render();
 }

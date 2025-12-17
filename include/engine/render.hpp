@@ -3,17 +3,23 @@
 
 
 #include <glm/glm.hpp>
+#include <vector>
+
+class EngineContext;
+class Game;
+class Shader;
+class Tile;
 
 namespace render {
-  void main();
+  void main(EngineContext& engineCTX, Game& gameCTX);
 
-  void tiles(const glm::mat4& view, const glm::mat4& projection);
-  void dice(const glm::mat4& view, const glm::mat4& projection);
-  void table(const glm::mat4& view, const glm::mat4& projection);
-  void mat(const glm::mat4& view, const glm::mat4& projection);
-  void cubemap(const glm::mat4& view, const glm::mat4& projection);
+  void tiles(Shader& shader, std::vector<Tile>& tiles, const glm::mat4& view, const glm::mat4& projection);
+  void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
+  void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
+  void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
+  void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
 
-  void screen();
+  void screen(EngineContext& engineCTX);
 }
 
 #endif

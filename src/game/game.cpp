@@ -1,8 +1,20 @@
 #include "../include/game/game.hpp"
 #include "../include/game/camera.hpp"
+#include "../include/game/dice.hpp"
+#include "../include/game/tile.hpp"
 #include "../include/engine/input.hpp"
 
 Game::Game(){}
+
+
+std::vector<Tile>& Game::getTiles(){
+  return tiles;
+}
+
+// const std::vector<Tile>& Game::getTiles() const{
+//   return tiles;
+// }
+
 
 void Game::update(const Input& input){
   switchCamera(input);
@@ -30,24 +42,31 @@ void Game::switchCamera(const Input& input){
 }
 
 void Game::setupCameras(){
-  std::unique_ptr<Camera> cameras[5] = {
-    std::make_unique<Camera>(camera::tonPos, camera::yaw, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed),
-    std::make_unique<Camera>(camera::nanPos, camera::yaw + 90.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed),
-    std::make_unique<Camera>(camera::shaPos, camera::yaw + 180.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed),
-    std::make_unique<Camera>(camera::peiPos, camera::yaw + 270.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed),
-    std::make_unique<Camera>(camera::topPos, camera::yaw, -90.0f, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed),
-  };
-}
+  cameras[0] = std::make_unique<Camera>(
+    camera::tonPos, camera::yaw, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
 
-void Game::setupTiles(){
+  cameras[1] = std::make_unique<Camera>(
+    camera::nanPos, camera::yaw + 90.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+
+  cameras[2] = std::make_unique<Camera>(
+    camera::shaPos, camera::yaw + 180.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+
+  cameras[3] = std::make_unique<Camera>(
+    camera::peiPos, camera::yaw + 270.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+
+  cameras[4] = std::make_unique<Camera>(
+    camera::topPos, camera::yaw, -90.0f, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
 
 }
 
 void Game::setupDie(){
+  die[0] = std::make_unique<Dice>();
+  die[1] = std::make_unique<Dice>();
 
+  // int roll = dice::getDiceRoll() + dice::getDiceRoll();
 }
 
-void Game::setupConfig(game::SetupConfig config){
+void Game::setupConfig(const game::SetupConfig& config){
   oya = config.oya;
   playerCount = config.playerCount;
   seat = config.seat;
@@ -70,13 +89,9 @@ void Game::setupConfig(game::SetupConfig config){
   }
 }
 
-void Game::setup(game::SetupConfig config){
+void Game::setup(const game::SetupConfig& config){
   setupConfig(config);
   setupCameras();
-  setupTiles();
+  tile::setup(config, getTiles());
   setupDie();
 }
-
-
-
-

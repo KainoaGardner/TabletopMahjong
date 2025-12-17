@@ -2,9 +2,12 @@
 #define TILE_H
 
 #include <unordered_map>
+#include <vector>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+
+#include "../include/game/game.hpp"
 
 namespace tile {
   enum TileEnum {
@@ -65,25 +68,24 @@ public:
 
   glm::vec3 position;
   glm::quat orientation;
-  void draw(std::shared_ptr<Shader> shader) const;
+  void draw(Shader& shader) const;
 
 private:
   unsigned int tile;
   const Model* model;
 };
 
-// extern std::vector<Tile> tiles;
-// void setup(int type);
-
 namespace tile {
-void fourPSetup();
-void threePSetup();
 
-void shuffleTiles();
-void flipTiles();
-void makeWalls();
-void dealHands(int roll);
-void makeDeadWall(int roll);
+void setup(const game::SetupConfig& config, std::vector<Tile>& tiles);
+void fourPSetup(std::vector<Tile>& tiles, const Model& tileModel);
+void threePSetup(std::vector<Tile>& tiles, const Model& tileModel);
+
+void shuffleTiles(std::vector<Tile>& tiles);
+void flipTiles(std::vector<Tile>& tiles);
+void makeWalls(std::vector<Tile>& tiles);
+void dealHands(int roll, int oya, std::vector<Tile>& tiles);
+void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles);
 }
 
 #endif

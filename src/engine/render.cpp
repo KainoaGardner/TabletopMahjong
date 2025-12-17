@@ -1,106 +1,116 @@
 #include <GLES3/gl3.h>
 
-#include "../include/render.hpp"
-#include "../include/shader.hpp"
-#include "../include/geometry.hpp"
-#include "../include/framebuffer.hpp"
-#include "../include/texture.hpp"
-#include "../include/model.hpp"
-#include "../include/config.hpp"
-#include "../include/camera.hpp"
-#include "../include/tile.hpp"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 
+#include "../include/engine/render.hpp"
+
+#include "../include/engine/config.hpp"
+#include "../include/game/game.hpp"
+#include "../include/engine/model.hpp"
+#include "../include/game/tile.hpp"
+#include "../include/engine/shader.hpp"
+#include "../include/engine/engineContext.hpp"
+#include "../include/game/camera.hpp"
 
 namespace render {
-void main(){
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer::framebuffers.screen.fbo);
+void main(EngineContext& engineCTX, Game& gameCTX){
+  glBindFramebuffer(GL_FRAMEBUFFER, engineCTX.getFramebuffer("screen").fbo);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
-  std::unique_ptr<Camera>& camera = camera::cameras[camera::curr];
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
   glm::mat4 view = camera->getViewMatrix();
   glm::mat4 projection = camera->getProjectionMatrix();
 
-  cubemap(view, projection);
+  cubemap(engineCTX, view, projection);
 
-  mat(view,projection);
-  table(view,projection);
+  mat(engineCTX, view, projection);
+  table(engineCTX, view,projection);
   
-  tiles(view, projection);
-  dice(view, projection);
+  tiles(engineCTX.getShader("model"), gameCTX.getTiles(), view, projection);
 
-  screen();
+  dice(engineCTX, view, projection);
+
+  screen(engineCTX);
 }
 
-void tiles(const glm::mat4& view, const glm::mat4& projection){
-  int i = 0;
-  for (const Tile& tile : tile::tiles){
-    shader::shader.model->use();
+void tiles(Shader& shader, std::vector<Tile>& tiles, const glm::mat4& view, const glm::mat4& projection){
+  // int i = 0;
+  for (const Tile& tile : tiles){
+    shader.use();
     glm::mat4 model = glm::mat4(1.0f);
 
     glm::vec3 tileScale = glm::vec3(1.14);
     model = glm::translate(model, tile.position);
     model *= glm::mat4_cast(tile.orientation);
     model = glm::scale(model, tileScale);
-    shader::shader.model->setMatrix4fv("uModel", model);
-    shader::shader.model->setMatrix4fv("uView", view);
-    shader::shader.model->setMatrix4fv("uProjection", projection);
-    tile.draw();
+    shader.setMatrix4fv("uModel", model);
+    shader.setMatrix4fv("uView", view);
+    shader.setMatrix4fv("uProjection", projection);
+    tile.draw(shader);
   }
-
 }
 
-void dice(const glm::mat4& view, const glm::mat4& projection){
-  shader::shader.model->use();
+void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
+  Shader& shader = engineCTX.getShader("model");
+  Model& diceModel = engineCTX.getModel("dice");
+
+  shader.use();
   glm::mat4 model = glm::mat4(1.0f);
 
   model = glm::translate(model, glm::vec3(0.0f, model::diceScale.y / 2.0f,0.0f));
-  shader::shader.model->setMatrix4fv("uModel", model);
-  model::model.dice->draw();
+  shader.setMatrix4fv("uModel", model);
+  diceModel.draw(shader);
 }
 
-void mat(const glm::mat4& view, const glm::mat4& projection){
-  shader::shader.normal->use();
+void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
+  Shader& shader = engineCTX.getShader("normal");
+  Geometry& planeGeo = engineCTX.getGeometry("plane");
+  Texture& matTexture = engineCTX.getTexture("mat");
+
+  shader.use();
   glm::mat4 model = glm::mat4(1.0f);
 
-  glBindVertexArray(geometry::geometry.plane.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry::geometry.plane.ebo);
+  glBindVertexArray(planeGeo.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planeGeo.ebo);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture::texture.mat.texture);
-  shader::shader.normal->setVec2f("uTexScale", glm::vec2(1.0f));
-  shader::shader.normal->setInt("uDiff",0);
+  glBindTexture(GL_TEXTURE_2D, matTexture.texture);
+  shader.setVec2f("uTexScale", glm::vec2(1.0f));
+  shader.setInt("uDiff",0);
 
   model = glm::mat4(1.0f);
   model = glm::scale(model, model::matScale);
   model = glm::translate(model, glm::vec3(0.0f,-0.5f,0.0f));
-  model = glm::rotate(model,glm::radians(90.0f),global::worldRight);
+  model = glm::rotate(model,glm::radians(90.0f), global::worldRight);
 
-  shader::shader.normal->setMatrix4fv("uModel", model);
-  shader::shader.normal->setMatrix4fv("uView", view);
-  shader::shader.normal->setMatrix4fv("uProjection", projection);
+  shader.setMatrix4fv("uModel", model);
+  shader.setMatrix4fv("uView", view);
+  shader.setMatrix4fv("uProjection", projection);
 
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void table(const glm::mat4& view, const glm::mat4& projection){
-  shader::shader.normal->use();
+void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
+  Shader& shader = engineCTX.getShader("normal");
+  Geometry& cubeGeo = engineCTX.getGeometry("cube");
+  Texture& tableTexture = engineCTX.getTexture("tableSide");
+
+  shader.use();
   glm::mat4 model = glm::mat4(1.0f);
 
-  glBindVertexArray(geometry::geometry.cube.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry::geometry.cube.ebo);
+  glBindVertexArray(cubeGeo.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo.ebo);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture::texture.tableSide.texture);
-  shader::shader.normal->setVec2f("uTexScale", glm::vec2(1.0f, 0.05f));
-  shader::shader.normal->setInt("uDiff",0);
-  shader::shader.normal->setMatrix4fv("uView", view);
-  shader::shader.normal->setMatrix4fv("uProjection", projection);
+  glBindTexture(GL_TEXTURE_2D, tableTexture.texture);
+  shader.setVec2f("uTexScale", glm::vec2(1.0f, 0.05f));
+  shader.setInt("uDiff",0);
+  shader.setMatrix4fv("uView", view);
+  shader.setMatrix4fv("uProjection", projection);
 
 
   float offsetDiff = -model::matScale.z / 2.0 - model::tableSideLongScale.z / 2.0;
@@ -110,7 +120,7 @@ void table(const glm::mat4& view, const glm::mat4& projection){
     model = glm::translate(model, glm::vec3(0.0f,0.0f, offsetDiff));
     model = glm::scale(model, model::tableSideLongScale);
 
-    shader::shader.normal->setMatrix4fv("uModel", model);
+    shader.setMatrix4fv("uModel", model);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
 
@@ -120,42 +130,48 @@ void table(const glm::mat4& view, const glm::mat4& projection){
     model = glm::translate(model, glm::vec3(0.0f,0.0f, offsetDiff));
     model = glm::scale(model, model::tableSideShortScale);
 
-    shader::shader.normal->setMatrix4fv("uModel", model);
+    shader.setMatrix4fv("uModel", model);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
 }
 
-void cubemap(const glm::mat4& view, const glm::mat4& projection){
+void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
   glDepthFunc(GL_LEQUAL);
   glDepthMask(GL_FALSE);
 
-  glBindVertexArray(geometry::geometry.cube.vao);
+  glBindVertexArray(engineCTX.getGeometry("cube").vao);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, texture::texture.room1.texture);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, engineCTX.getTexture("sky4").texture);
 
-  shader::shader.cubemap->use();
-  shader::shader.cubemap->setMatrix4fv("uProjection", projection);
+  Shader& shader = engineCTX.getShader("cubemap");
+  
+  shader.use();
+  shader.setMatrix4fv("uProjection", projection);
   glm::mat4 noTranslateView = glm::mat4(glm::mat3(view));
 
-  shader::shader.cubemap->setMatrix4fv("uView", noTranslateView);
+  shader.setMatrix4fv("uView", noTranslateView);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   glDepthMask(GL_TRUE);
   glDepthFunc(GL_LESS);
 
 }
 
-void screen(){
+void screen(EngineContext& engineCTX){
+  Shader& shader = engineCTX.getShader("screen");
+  Geometry& screenGeo = engineCTX.getGeometry("screen");
+  Framebuffer& screenFramebuffer = engineCTX.getFramebuffer("screen");
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  shader::shader.screen->use();
-  glBindVertexArray(geometry::geometry.screen.vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry::geometry.screen.ebo);
+  shader.use();
+  glBindVertexArray(screenGeo.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, screenGeo.ebo);
   glDisable(GL_DEPTH_TEST);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, framebuffer::framebuffers.screen.texture);
-  shader::shader.screen->setInt("uTexture0",0);
+  glBindTexture(GL_TEXTURE_2D, screenFramebuffer.texture);
+  shader.setInt("uTexture0",0);
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
