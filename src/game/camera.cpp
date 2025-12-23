@@ -35,17 +35,7 @@ Camera::Camera(
   updateVectors();
 }
 
-glm::mat4 Camera::getViewMatrix() const {
-  return glm::lookAt(position,position + front, up);
-}
 
-glm::mat4 Camera::getProjectionMatrix() const {
-  return glm::perspective(
-    glm::radians(fov),
-    (float)engineCTX->width / (float)engineCTX->height,
-    global::nearPlane,
-    global::farPlane);
-}
 
 
 void Camera::clampPitch() {
@@ -160,4 +150,30 @@ namespace camera {
     std::make_unique<Camera>(peiPos, yaw + 270.0f, pitch, roll, fov, speed, sensitivity, zoomSpeed),
     std::make_unique<Camera>(topPos, yaw, -90.0f, roll, fov, speed, sensitivity, zoomSpeed),
 };
+
+glm::mat4 getViewMatrix(glm::vec3 position, float yaw, float pitch, float roll) {
+  const float yawR = glm::radians(yaw);
+  const float pitchR = glm::radians(pitch);
+  const float rollR = glm::radians(roll);
+
+  glm::quat qYaw = glm::angleAxis(yawR,  global::worldUp);
+  glm::quat qPitch = glm::angleAxis(pitchR,global::worldRight);
+  glm::quat qRoll = glm::angleAxis(rollR, global::worldFront);
+
+  glm::quat orientation = qYaw * qPitch * qRoll;
+  orientation = glm::normalize(orientation);
+
+  glm::vec3 front = glm::normalize(orientation * camera::cameraFront);
+  glm::vec3 up = glm::normalize(orientation * camera::cameraUp);
+
+  return glm::lookAt(position,position + front, up);
+}
+
+glm::mat4 getProjectionMatrix(float fov, float width, float height) {
+  return glm::perspective(
+    glm::radians(fov),
+    width / height,
+    global::nearPlane,
+    global::farPlane);
+}
 }

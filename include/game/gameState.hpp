@@ -27,15 +27,24 @@ struct DiceState {
   glm::quat orientation;
 };
 
+}
+
+class Game;
 class GameState {
 public:
   bool firstFrame = true;
 
-  std::vector<TileState> tiles;
-  std::vector<DiceState> die;
-  CameraState cameras[5];
+  std::vector<gameState::TileState> tiles;
+  gameState::DiceState die[2];
+  gameState::CameraState cameras[5];
+
+  void createGameState(Game& gameCTX);
 private:
+  void createTileState(Game& gameCTX);
+  void createDiceState(Game& gameCTX);
+  void createCameraState(Game& gameCTX);
 };
-}
+
+
 
 #endif

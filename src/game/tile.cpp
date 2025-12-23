@@ -93,7 +93,7 @@ void Tile::draw(Shader& shader) const {
 
 namespace tile {
 
-void setup(const game::SetupConfig& config, std::vector<Tile>& tiles){
+void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& tiles){
   switch(config.tileSet){
     case FourP:
       fourPSetup(tiles, config.tileModel);
@@ -112,7 +112,7 @@ void setup(const game::SetupConfig& config, std::vector<Tile>& tiles){
   makeDeadWall(roll, config.oya, tiles);
 }
 
-void fourPSetup(std::vector<Tile>& tiles, const Model& tileModel){
+void fourPSetup(std::vector<Tile>& tiles, const Model* tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
@@ -140,7 +140,7 @@ void fourPSetup(std::vector<Tile>& tiles, const Model& tileModel){
   }
 }
 
-void threePSetup(std::vector<Tile>& tiles, const Model& tileModel){
+void threePSetup(std::vector<Tile>& tiles, const Model* tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);

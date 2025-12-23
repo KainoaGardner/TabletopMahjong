@@ -2,11 +2,12 @@
 #define GAME
 
 #include "../include/game/gameState.hpp"
+#include "../include/engine/config.hpp"
 
 class Camera;
 class Tile;
 class Dice;
-
+class GameState;
 class Model;
 
 namespace game {
@@ -15,7 +16,7 @@ namespace game {
     int playerCount;
     int seat;
     int tileSet;
-    const Model& tileModel;
+    const Model* tileModel;
   };
 };
 
@@ -25,6 +26,7 @@ class Input;
 class Game {
 public:
   Game();
+  ~Game();
 
   void setupConfig(const game::SetupConfig& config);
   void setupCameras();
@@ -34,21 +36,19 @@ public:
 
   void update(const Input& input);
 
-  std::vector<Tile>& getTiles();
-  // const std::vector<Tile>& getTiles() const;
-
-  std::unique_ptr<Camera> cameras[5];
+  std::unique_ptr<Camera> cameras[global::cameraAmount];
   int currCamera;
+
+  std::unique_ptr<Dice> die[global::diceAmount];
+  std::vector<std::unique_ptr<Tile>> tiles;
+
+  GameState lastGameState;
 
 private:
   int oya;
   int playerCount;
   int seat;
 
-  std::vector<Tile> tiles;
-  std::unique_ptr<Dice> die[2];
-
-  gameState::GameState lastGameState;
 
   void switchCamera(const Input& input);
 };

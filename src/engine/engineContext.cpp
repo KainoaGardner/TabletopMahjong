@@ -50,8 +50,8 @@ void EngineContext::addModel(const std::string& name, Model model){
   models.emplace(name, std::move(model));
 }
 
-Model& EngineContext::getModel(const std::string& name){
-  return models.at(name);
+Model* EngineContext::getModel(const std::string& name){
+  return &models.at(name);
 }
 
 

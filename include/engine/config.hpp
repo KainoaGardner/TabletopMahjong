@@ -15,6 +15,9 @@ namespace global {
   const float farPlane = 10000.0f;
 
   const int maxTimeGap = 250;
+
+  const int diceAmount = 2;
+  const int cameraAmount = 5;
 } // namespace global
 
 #endif

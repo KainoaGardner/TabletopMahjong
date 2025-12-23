@@ -30,6 +30,11 @@ std::unordered_map<std::string, actions>keyToAction = {
 
 } // namespace input
 
+
+Mouse Input::mouse{};
+std::unordered_map<input::actions, bool> Input::actionPrev{};
+std::unordered_map<input::actions, bool> Input::actionCurr{};
+
 EM_BOOL Input::keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void* userData){
   auto it = input::keyToAction.find(e->code);
   if (eventType == EMSCRIPTEN_EVENT_KEYDOWN){
@@ -61,8 +66,6 @@ EM_BOOL Input::keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void
   return EM_TRUE;
 }
 
-
-Mouse mouse;
 
 EM_BOOL Input::mouseMoveCallback(int eventType, const EmscriptenMouseEvent* e, void* userData){
     double clientX = e->clientX;
@@ -139,21 +142,21 @@ EM_BOOL Input::mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, 
 }
 
 void Mouse::update(std::unordered_map<input::actions, bool> actionCurr){
-  if (mouse.pointerLock){
-    mouse.dx = 0.0;
-    mouse.dy = 0.0;
+  if (pointerLock){
+    dx = 0.0;
+    dy = 0.0;
   }
 
   if (actionCurr[input::freeLook]){
-    mouse.pointerLock = true;
+    pointerLock = true;
     hideMouse();
   }else {
-    mouse.pointerLock = false;
+    pointerLock = false;
     showMouse();
   }
 
-  if (mouse.justClicked){
-    mouse.justClicked = false;
+  if (justClicked){
+    justClicked = false;
   }
 
   if (actionCurr[input::zoomIn]){

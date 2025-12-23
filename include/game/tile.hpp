@@ -77,9 +77,9 @@ private:
 
 namespace tile {
 
-void setup(const game::SetupConfig& config, std::vector<Tile>& tiles);
-void fourPSetup(std::vector<Tile>& tiles, const Model& tileModel);
-void threePSetup(std::vector<Tile>& tiles, const Model& tileModel);
+void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& tiles);
+void fourPSetup(std::vector<Tile>& tiles, const Model* tileModel);
+void threePSetup(std::vector<Tile>& tiles, const Model* tileModel);
 
 void shuffleTiles(std::vector<Tile>& tiles);
 void flipTiles(std::vector<Tile>& tiles);

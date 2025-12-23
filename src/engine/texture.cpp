@@ -5,7 +5,7 @@
 #include <iostream>
 
 namespace texture {
-GLuint loadTexture(const char *path) {
+GLuint createTexture(const char *path) {
   unsigned int textureID;
   glGenTextures(1, &textureID);
 
@@ -41,7 +41,7 @@ GLuint loadTexture(const char *path) {
 }
 
 
-GLuint loadCubemap(const std::vector<std::string>& textures) {
+GLuint createCubemap(const std::vector<std::string>& textures) {
   unsigned int textureID;
   glGenTextures(1, &textureID);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);

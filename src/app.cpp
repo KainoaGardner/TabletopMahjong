@@ -7,8 +7,8 @@ void App::update(){
 
 }
 
-void App::render(){
-  render::main(engineCTX, gameCTX);
+void App::render(float a){
+  render::main(0, engineCTX, gameCTX);
 }
 
 void App::setup(){

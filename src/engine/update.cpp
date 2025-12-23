@@ -1,13 +1,20 @@
-#include "../include/update.hpp"
+#include "../include/engine/update.hpp"
+#include "../include/engine/engineContext.hpp"
 
 #include <GLES3/gl3.h>
-#include "../include/camera.hpp"
-#include "../include/input.hpp"
 
-void update(){
+#include "../include/game/game.hpp"
+#include "../include/engine/engineContext.hpp"
 
-  camera::switchCamera();
-  camera::cameras[camera::curr]->update();
 
-  input::updateMouse();
+// #include "../include/game/gameState.hpp"
+
+
+void update(EngineContext& engineCTX, Game& gameCTX){
+  gameCTX.update(engineCTX.input);
+
+  engineCTX.input.update();
+  engineCTX.input.actionPrev = engineCTX.input.actionCurr;
+
+  gameCTX.lastGameState.createGameState(gameCTX);
 }

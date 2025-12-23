@@ -14,57 +14,114 @@
 #include "../include/engine/shader.hpp"
 #include "../include/engine/engineContext.hpp"
 #include "../include/game/camera.hpp"
+#include "../include/game/gameState.hpp"
 
 namespace render {
-void main(EngineContext& engineCTX, Game& gameCTX){
+
+glm::vec3 linearInterp(const glm::vec3& a, const glm::vec3& b, float alpha){
+  return a + alpha * (b - a);
+}
+
+float linearInterp(float a, float b, float alpha){
+  return a + alpha * (b - a);
+}
+
+
+glm::mat4 getInterpCameraView(float a, Game& gameCTX){
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+  gameState::CameraState& cameraState = gameCTX.lastGameState.cameras[gameCTX.currCamera];
+
+  glm::vec3 positionState;
+  float yawState;
+  float pitchState;
+  float rollState;
+  if (gameCTX.lastGameState.firstFrame){
+    positionState = camera->position;
+    yawState = camera->yaw;
+    pitchState = camera->pitch;
+    rollState = camera->roll;
+  }else {
+    positionState = cameraState.position;
+    yawState = cameraState.yaw;
+    pitchState = cameraState.pitch;
+    rollState = cameraState.roll;
+  }
+
+  glm::vec3 positionInterp = linearInterp(camera->position, positionState, a);
+  float yawInterp = linearInterp(camera->yaw, yawState, a);
+  float pitchInterp = linearInterp(camera->pitch, pitchState, a);
+  float rollInterp = linearInterp(camera->roll, rollState, a);
+
+  glm::mat4 view = camera::getViewMatrix(positionInterp, yawInterp, pitchInterp, rollInterp);
+  return view;
+}
+
+glm::mat4 getInterpCameraProj(float a, Game& gameCTX, EngineContext& engineCTX){
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+  gameState::CameraState& cameraState = gameCTX.lastGameState.cameras[gameCTX.currCamera];
+
+  float fovState;
+  if (gameCTX.lastGameState.firstFrame){
+    fovState = camera->fov;
+  }else {
+    fovState = cameraState.fov;
+  }
+
+  float fovInterp  = linearInterp(camera->fov, fovState, a);
+
+  glm::mat4 projection = camera::getProjectionMatrix(fovInterp, engineCTX.width, engineCTX.height);
+  return projection;
+}
+
+
+void main(float a, EngineContext& engineCTX, Game& gameCTX){
   glBindFramebuffer(GL_FRAMEBUFFER, engineCTX.getFramebuffer("screen").fbo);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
-  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
-  glm::mat4 view = camera->getViewMatrix();
-  glm::mat4 projection = camera->getProjectionMatrix();
+  glm::mat4 view = getInterpCameraView(a, gameCTX);
+  glm::mat4 projection = getInterpCameraProj(a, gameCTX, engineCTX);
 
   cubemap(engineCTX, view, projection);
 
   mat(engineCTX, view, projection);
   table(engineCTX, view,projection);
   
-  tiles(engineCTX.getShader("model"), gameCTX.getTiles(), view, projection);
+  tiles(engineCTX.getShader("model"), gameCTX.tiles, view, projection);
 
-  dice(engineCTX, view, projection);
+  // dice(engineCTX, view, projection);
 
   screen(engineCTX);
 }
 
-void tiles(Shader& shader, std::vector<Tile>& tiles, const glm::mat4& view, const glm::mat4& projection){
+void tiles(Shader& shader, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
   // int i = 0;
-  for (const Tile& tile : tiles){
+  for (const auto& tile : tiles){
     shader.use();
     glm::mat4 model = glm::mat4(1.0f);
 
     glm::vec3 tileScale = glm::vec3(1.14);
-    model = glm::translate(model, tile.position);
-    model *= glm::mat4_cast(tile.orientation);
+    model = glm::translate(model, tile->position);
+    model *= glm::mat4_cast(tile->orientation);
     model = glm::scale(model, tileScale);
     shader.setMatrix4fv("uModel", model);
     shader.setMatrix4fv("uView", view);
     shader.setMatrix4fv("uProjection", projection);
-    tile.draw(shader);
+    tile->draw(shader);
   }
 }
 
 void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
   Shader& shader = engineCTX.getShader("model");
-  Model& diceModel = engineCTX.getModel("dice");
+  Model* diceModel = engineCTX.getModel("dice");
 
   shader.use();
   glm::mat4 model = glm::mat4(1.0f);
 
   model = glm::translate(model, glm::vec3(0.0f, model::diceScale.y / 2.0f,0.0f));
   shader.setMatrix4fv("uModel", model);
-  diceModel.draw(shader);
+  diceModel->draw(shader);
 }
 
 void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){

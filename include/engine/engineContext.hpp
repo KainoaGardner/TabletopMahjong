@@ -45,7 +45,7 @@ public:
   Geometry& getGeometry(const std::string& name);
   Texture& getTexture(const std::string& name);
   Shader& getShader(const std::string& name);
-  Model& getModel(const std::string& name);
+  Model* getModel(const std::string& name);
 
   void setupConfig(engineContext::SetupConfig config);
   void setupFramebuffers(engineContext::SetupConfig config);

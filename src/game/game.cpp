@@ -6,15 +6,7 @@
 
 Game::Game(){}
 
-
-std::vector<Tile>& Game::getTiles(){
-  return tiles;
-}
-
-// const std::vector<Tile>& Game::getTiles() const{
-//   return tiles;
-// }
-
+Game::~Game() = default;
 
 void Game::update(const Input& input){
   switchCamera(input);
@@ -92,6 +84,6 @@ void Game::setupConfig(const game::SetupConfig& config){
 void Game::setup(const game::SetupConfig& config){
   setupConfig(config);
   setupCameras();
-  tile::setup(config, getTiles());
+  tile::setup(config, tiles);
   setupDie();
 }

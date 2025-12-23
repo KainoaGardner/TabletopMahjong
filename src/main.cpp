@@ -15,6 +15,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+
 void mainLoop(void* arg);
 
 int main(){
@@ -39,6 +41,7 @@ int main(){
   glExtensions::setup();
 
   App* app = new App();
+  app->setup();
 
   emscripten_set_canvas_element_size("#canvas", app->engineCTX.width, app->engineCTX.height);
   // gameState::setup();
@@ -68,10 +71,18 @@ void mainLoop(void* arg){
   app->engineCTX.lastUpdateTime = currentTime;
   app->engineCTX.excessTime += timeDif;
 
+  if (app->engineCTX.logicIntervalTime <= 0){
+    std::cout << "logic interval time wrong" << std::endl;
+    std::cout << app->engineCTX.logicIntervalTime << std::endl;
+    return;
+  }
   while (app->engineCTX.excessTime >= app->engineCTX.logicIntervalTime) {
     app->update();
     app->engineCTX.excessTime -= app->engineCTX.logicIntervalTime;
   }
   
-  app->render();
+  float alpha = app->engineCTX.excessTime / app->engineCTX.logicIntervalTime;
+  app->render(alpha);
+
+  std::cout << "test" << std::endl;
 }

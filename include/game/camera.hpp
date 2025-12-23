@@ -5,6 +5,9 @@
 #include "../include/engine/model.hpp"
 
 namespace camera {
+  glm::mat4 getViewMatrix(glm::vec3 position, float yaw, float pitch, float roll);
+  glm::mat4 getProjectionMatrix(float fov, float width, float height);
+
   enum CameraEnum {
     ton1,
     nan1,
@@ -24,7 +27,7 @@ namespace camera {
   const float speed = 90.0f / 60.0f;
   const float sensitivity = 0.1f;
   const float orthoSensRatio = 0.005f;
-  const float zoomSpeed = 1.0f;
+  const float zoomSpeed = 100.0f;
 
   const float orthoZoomRatio = 0.007f;
 
@@ -65,8 +68,8 @@ public:
 
   void update(const Input& input);
 
-  glm::mat4 getViewMatrix() const;
-  glm::mat4 getProjectionMatrix() const;
+  // glm::mat4 getViewMatrix() const;
+  // glm::mat4 getProjectionMatrix() const;
 
 private:
   float startYaw;
@@ -89,5 +92,6 @@ private:
   void zoom(const Input& input);
   void move(const Input& input);
 };
+
 
 #endif

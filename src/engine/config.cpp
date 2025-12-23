@@ -1,5 +1,1 @@
-#include "../include/config.hpp"
-
-namespace config {
-  GameConfig gameConfig;
-}
+#include "../include/engine/config.hpp"
