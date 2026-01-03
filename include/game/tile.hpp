@@ -78,14 +78,14 @@ private:
 namespace tile {
 
 void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& tiles);
-void fourPSetup(std::vector<Tile>& tiles, const Model* tileModel);
-void threePSetup(std::vector<Tile>& tiles, const Model* tileModel);
+void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel);
+void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel);
 
-void shuffleTiles(std::vector<Tile>& tiles);
-void flipTiles(std::vector<Tile>& tiles);
-void makeWalls(std::vector<Tile>& tiles);
-void dealHands(int roll, int oya, std::vector<Tile>& tiles);
-void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles);
+void shuffleTiles(std::vector<std::unique_ptr<Tile>>& tiles);
+void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles);
+void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles);
+void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
+void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
 }
 
 #endif

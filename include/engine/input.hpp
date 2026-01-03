@@ -70,6 +70,8 @@ public:
 
   void update();
   void setup();
+
+  void clear();
 private:
 };
 

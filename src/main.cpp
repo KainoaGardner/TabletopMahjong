@@ -37,7 +37,6 @@ int main(){
   emscripten_webgl_make_context_current(ctx);
 
 
-
   glExtensions::setup();
 
   App* app = new App();
@@ -73,16 +72,17 @@ void mainLoop(void* arg){
 
   if (app->engineCTX.logicIntervalTime <= 0){
     std::cout << "logic interval time wrong" << std::endl;
-    std::cout << app->engineCTX.logicIntervalTime << std::endl;
     return;
   }
+
+
+  app->update();
   while (app->engineCTX.excessTime >= app->engineCTX.logicIntervalTime) {
-    app->update();
+    app->gameUpdate();
     app->engineCTX.excessTime -= app->engineCTX.logicIntervalTime;
   }
+
   
   float alpha = app->engineCTX.excessTime / app->engineCTX.logicIntervalTime;
   app->render(alpha);
-
-  std::cout << "test" << std::endl;
 }

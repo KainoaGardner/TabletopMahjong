@@ -2,6 +2,7 @@
 #include "engine/model.hpp"
 #include "engine/shader.hpp"
 
+
 EngineContext::EngineContext(){
 }
 
@@ -53,7 +54,6 @@ void EngineContext::addModel(const std::string& name, Model model){
 Model* EngineContext::getModel(const std::string& name){
   return &models.at(name);
 }
-
 
 
 void EngineContext::setupConfig(engineContext::SetupConfig config){

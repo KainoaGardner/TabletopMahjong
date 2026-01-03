@@ -7,7 +7,6 @@
 #include <memory>
 
 
-
 Camera::Camera(
   glm::vec3 positionIn,
   float yawIn,
@@ -34,9 +33,6 @@ Camera::Camera(
   clampPitch();
   updateVectors();
 }
-
-
-
 
 void Camera::clampPitch() {
   float pitchDif = pitch - startPitch;
@@ -69,15 +65,15 @@ void Camera::updateVectors() {
 
 void Camera::rotate(const Input& input){
   if (input.pressed(input::actions::freeLook)){
-    yaw -= input.mouse.dx * sensitivity;
+    yaw -= input.mouse.dx   * sensitivity;
     pitch -= input.mouse.dy * sensitivity;
+
   }else {
     // pitch = startPitch;
     // yaw = startYaw;
   }
 
   clampPitch();
-  revertRotate(input);
   updateVectors();
 }
 
@@ -140,6 +136,10 @@ void Camera::move(const Input& input){
 void Camera::update(const Input& input){
   rotate(input);
   zoom(input);
+}
+
+void Camera::gameUpdate(const Input& input){
+  revertRotate(input);
 }
 
 namespace camera {

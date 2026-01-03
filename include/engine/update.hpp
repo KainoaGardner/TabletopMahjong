@@ -4,7 +4,11 @@
 class EngineContext;
 class Game;
 
-void update(EngineContext& engineCTX, Game& gameCTX);
+
+namespace update {
+  void update(EngineContext& engineCTX, Game& gameCTX);
+  void gameUpdate(EngineContext& engineCTX, Game& gameCTX);
+}
 
 
 #endif

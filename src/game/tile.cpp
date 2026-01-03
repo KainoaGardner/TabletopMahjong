@@ -1,13 +1,11 @@
 #include "../include/game/tile.hpp"
 #include "../include/engine/model.hpp"
 #include "../include/engine/shader.hpp"
-#include "../include/engine/config.hpp"
 
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>
 #include <random>
 #include <algorithm>
-
 
 namespace tile {
 std::unordered_map<int, glm::vec2> tileUV = {
@@ -112,7 +110,7 @@ void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& 
   makeDeadWall(roll, config.oya, tiles);
 }
 
-void fourPSetup(std::vector<Tile>& tiles, const Model* tileModel){
+void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
@@ -127,20 +125,20 @@ void fourPSetup(std::vector<Tile>& tiles, const Model* tileModel){
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
       if (j == 3 && (i == Man5 || i == Sou5 || i == Pin5)){
         if (i == Man5){
-          tiles.emplace_back(Man5A, tileModel, pos, orientation);
+          tiles.emplace_back(std::make_unique<Tile>(Man5A, tileModel, pos, orientation));
         }else if (i == Sou5){
-          tiles.emplace_back(Sou5A, tileModel, pos, orientation);
+          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation));
         }else{
-          tiles.emplace_back(Pin5A, tileModel, pos, orientation);
+          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation));
         }
       }else{
-        tiles.emplace_back(i, tileModel, pos, orientation);
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation));
       }
     }
   }
 }
 
-void threePSetup(std::vector<Tile>& tiles, const Model* tileModel){
+void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel){
   glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
@@ -150,13 +148,13 @@ void threePSetup(std::vector<Tile>& tiles, const Model* tileModel){
       int c = (i) % 18;
       int r = (i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man1, tileModel, pos, orientation);
+      tiles.emplace_back(std::make_unique<Tile>(Man1, tileModel, pos, orientation));
   }
   for (int i = 0; i < 4; ++i){
       int c = (4 + i) % 18;
       int r = (4 + i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(Man9, tileModel, pos, orientation);
+      tiles.emplace_back(std::make_unique<Tile>(Man9, tileModel, pos, orientation));
   }
 
   for (int i = Sou1; i <= Chun; ++i){
@@ -168,33 +166,33 @@ void threePSetup(std::vector<Tile>& tiles, const Model* tileModel){
 
       if (j == 3 && (i == Sou5 || i == Pin5)){
         if (i == Sou5){
-          tiles.emplace_back(Sou5A, tileModel, pos, orientation);
+          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation));
         }else{
-          tiles.emplace_back(Pin5A, tileModel, pos, orientation);
+          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation));
         }
       }else{
-        tiles.emplace_back(i, tileModel, pos, orientation);
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation));
       }
     }
   }
 }
 
 
-void shuffleTiles(std::vector<Tile>& tiles){
+void shuffleTiles(std::vector<std::unique_ptr<Tile>>& tiles){
   std::random_device rand;
   std::default_random_engine gen(rand());
   std::shuffle(tiles.begin(), tiles.end(), gen);
 }
 
-void flipTiles(std::vector<Tile>& tiles) {
+void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles) {
   glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-  for (Tile& tile : tiles){
-    tile.orientation = orientation;
+  for (std::unique_ptr<Tile>& tile : tiles){
+    tile->orientation = orientation;
   }
 }
 
-void makeWalls(std::vector<Tile>& tiles) {
+void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles) {
   flipTiles(tiles);
   shuffleTiles(tiles);
 
@@ -211,7 +209,7 @@ void makeWalls(std::vector<Tile>& tiles) {
   float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
 
   int i = 0;
-  for (Tile& tile : tiles){
+  for (std::unique_ptr<Tile>& tile : tiles){
     int x = (i % (tileWidth * 2)) / 2;
     int y = i % 2;
     int z = i / (tileWidth * 2);
@@ -230,17 +228,17 @@ void makeWalls(std::vector<Tile>& tiles) {
     pos.x += x * model::tileScale.x * zMove; 
     pos.z -= x * model::tileScale.x * xMove;
 
-    tile.position = pos;
+    tile->position = pos;
 
     glm::quat orientation = glm::quat(glm::vec3(glm::radians(180.0f), glm::radians(90.0f * (z + 1)), 0.0f));
-    tile.orientation = orientation;
+    tile->orientation = orientation;
 
     i++;
   }
 
 }
 
-void dealHands(int roll, int oya, std::vector<Tile>& tiles){
+void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   int tileWidth;
   int walls;
   if (tiles.size() == 108){
@@ -266,7 +264,7 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
   float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
 
   for (int i = 0; i < walls * 4 * 3; i++){
-    Tile& tile = tiles[index];
+    std::unique_ptr<Tile>& tile = tiles[index];
 
     int y = i / (walls * 4);
     int x = i % 4 + y * 4;
@@ -286,10 +284,10 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
     pos.x += x * model::tileScale.x * zMove; 
     pos.z -= x * model::tileScale.x * xMove;
 
-    tile.position = pos;
+    tile->position = pos;
 
     glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
-    tile.orientation = orientation;
+    tile->orientation = orientation;
 
     index -= 1;
     if (index < 0){
@@ -298,7 +296,7 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
   }
 
   for (int i = 0; i < 4; i++){
-    Tile& tile = tiles[index];
+    std::unique_ptr<Tile>& tile = tiles[index];
 
     int y = 3;
     int x = y * 4;
@@ -318,10 +316,10 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
     pos.x += x * model::tileScale.x * zMove; 
     pos.z -= x * model::tileScale.x * xMove;
 
-    tile.position = pos;
+    tile->position = pos;
 
     glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
-    tile.orientation = orientation;
+    tile->orientation = orientation;
 
 
     index -= 1;
@@ -330,7 +328,7 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
     }
   }
 
-  Tile& tile = tiles[index];
+  std::unique_ptr<Tile>& tile = tiles[index];
   int x = 3 * 4 + 1;
   int z = oya;
 
@@ -348,15 +346,14 @@ void dealHands(int roll, int oya, std::vector<Tile>& tiles){
   pos.x += x * model::tileScale.x * zMove + zMove * (model::tileScale.x / 2.0f); 
   pos.z -= x * model::tileScale.x * xMove + xMove * (model::tileScale.x / 2.0f);
 
-  tile.position = pos;
+  tile->position = pos;
 
   glm::quat orientation = glm::quat(glm::vec3(glm::radians(90.0f), glm::radians(90.0f * (z + 1)), 0.0f));
-  tile.orientation = orientation;
-
+  tile->orientation = orientation;
 }
 
 
-void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles){
+void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   int tileWidth;
   int doraRow;
   int walls;
@@ -391,7 +388,7 @@ void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles){
         index += tiles.size();
       }
 
-      Tile& tile = tiles[index];
+      std::unique_ptr<Tile>& tile = tiles[index];
 
       int x = i / 2;
       int y = (i + 1) % 2;
@@ -411,29 +408,29 @@ void makeDeadWall(int roll, int oya, std::vector<Tile>& tiles){
       pos.x -= x * model::tileScale.x * zMove; 
       pos.z += x * model::tileScale.x * xMove;
 
-      tile.position = pos;
+      tile->position = pos;
 
       glm::quat orientation = glm::quat(glm::vec3(glm::radians(180.0f), glm::radians(90.0f * (z + 1)), 0.0f));
-      tile.orientation = orientation;
+      tile->orientation = orientation;
     }
   }else if (roll != 7){
     for (int i = 0; i < 14; ++i){
-      Tile& tile = tiles[index + i];
+      std::unique_ptr<Tile>& tile = tiles[index + i];
 
       int z = wall;
 
       int xMove = std::cos(glm::radians(90.0f * z));
       int zMove = -std::sin(glm::radians(90.0f * z));
 
-      tile.position.x -= model::tileScale.x * zMove; 
-      tile.position.z += model::tileScale.x * xMove;
+      tile->position.x -= model::tileScale.x * zMove; 
+      tile->position.z += model::tileScale.x * xMove;
     }
 
   }
 
-  Tile& doraInd = tiles[(index + doraRow * 2 - 1) % tiles.size()];
+  std::unique_ptr<Tile>& doraInd = tiles[(index + doraRow * 2 - 1) % tiles.size()];
   glm::quat orientation = glm::quat(glm::vec3(0.0f, glm::radians(90.0f * (wall + 1)), 0.0f));
-  doraInd.orientation = orientation;
+  doraInd->orientation = orientation;
 }
 
 }

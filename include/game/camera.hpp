@@ -26,8 +26,8 @@ namespace camera {
   const float fov = 45.0f;
   const float speed = 90.0f / 60.0f;
   const float sensitivity = 0.1f;
-  const float orthoSensRatio = 0.005f;
-  const float zoomSpeed = 100.0f;
+  const float orthoSensRatio = 0.001f;
+  const float zoomSpeed = 00005.0f;
 
   const float orthoZoomRatio = 0.007f;
 
@@ -67,6 +67,7 @@ public:
   glm::vec3 right = camera::cameraRight;
 
   void update(const Input& input);
+  void gameUpdate(const Input& input);
 
   // glm::mat4 getViewMatrix() const;
   // glm::mat4 getProjectionMatrix() const;

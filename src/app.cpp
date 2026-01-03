@@ -2,9 +2,16 @@
 #include "../include/game/tile.hpp"
 
 #include "../include/engine/render.hpp"
+#include "../include/engine/update.hpp"
+
+
 
 void App::update(){
+  update::update(engineCTX, gameCTX);
+}
 
+void App::gameUpdate(){
+  update::gameUpdate(engineCTX, gameCTX);
 }
 
 void App::render(float a){

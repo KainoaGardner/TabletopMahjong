@@ -13,6 +13,7 @@ public:
   Game gameCTX;
 
   void update();
+  void gameUpdate();
   void render(float a);
   void setup();
 private:

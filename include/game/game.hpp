@@ -35,6 +35,7 @@ public:
   void setup(const game::SetupConfig& config);
 
   void update(const Input& input);
+  void gameUpdate(const Input& input);
 
   std::unique_ptr<Camera> cameras[global::cameraAmount];
   int currCamera;

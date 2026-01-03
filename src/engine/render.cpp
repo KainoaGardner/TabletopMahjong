@@ -16,6 +16,9 @@
 #include "../include/game/camera.hpp"
 #include "../include/game/gameState.hpp"
 
+
+#include <iostream>
+
 namespace render {
 
 glm::vec3 linearInterp(const glm::vec3& a, const glm::vec3& b, float alpha){
@@ -96,6 +99,7 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
 }
 
 void tiles(Shader& shader, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
+
   // int i = 0;
   for (const auto& tile : tiles){
     shader.use();

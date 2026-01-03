@@ -17,10 +17,10 @@ void GameState::createGameState(Game& gameCTX){
 
 void GameState::createTileState(Game& gameCTX){
   tiles.clear();
-  for (const Tile& tile : gameCTX.getTiles()){
+  for (std::unique_ptr<Tile>& tile : gameCTX.tiles){
     gameState::TileState tileState = {
-      .position = tile.position,
-      .orientation = tile.orientation,
+      .position = tile->position,
+      .orientation = tile->orientation,
     };
 
     tiles.push_back(tileState);

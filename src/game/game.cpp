@@ -8,8 +8,16 @@ Game::Game(){}
 
 Game::~Game() = default;
 
+void Game::gameUpdate(const Input& input){
+  auto& camera = cameras[currCamera];
+  camera->gameUpdate(input);
+}
+
 void Game::update(const Input& input){
   switchCamera(input);
+
+  auto& camera = cameras[currCamera];
+  camera->update(input);
 }
 
 void Game::switchCamera(const Input& input){

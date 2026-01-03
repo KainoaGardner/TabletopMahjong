@@ -2,6 +2,7 @@
 #include "../include/util/emjs.hpp"
 #include <chrono>
 
+
 namespace input {
 
 std::unordered_map<std::string, actions>keyToAction = {
@@ -138,21 +139,22 @@ EM_BOOL Input::mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, 
     actionCurr[it->second] = true;
   }
 
+
   return EM_TRUE;
 }
 
 void Mouse::update(std::unordered_map<input::actions, bool> actionCurr){
-  if (pointerLock){
+  if (!pointerLock){
     dx = 0.0;
     dy = 0.0;
   }
 
   if (actionCurr[input::freeLook]){
     pointerLock = true;
-    hideMouse();
+    // hideMouse();
   }else {
     pointerLock = false;
-    showMouse();
+    // showMouse();
   }
 
   if (justClicked){
@@ -173,11 +175,24 @@ bool Input::pressed(input::actions a) const{
 }
 
 bool Input::justPressed(input::actions a) const{
+
   return actionCurr[a] && !actionPrev[a];
 }
 
 bool Input::justReleased(input::actions a) const{
   return !actionCurr[a] && actionPrev[a];
+}
+
+void Input::clear(){
+  // for (const auto& pair : actionCurr){
+  //   actionCurr[pair.first] = false;
+  // }
+
+  actionCurr[input::actions::zoomIn] = false;
+  actionCurr[input::actions::zoomOut] = false;
+
+  mouse.dx = 0.0f;
+  mouse.dy = 0.0f;
 }
 
 
