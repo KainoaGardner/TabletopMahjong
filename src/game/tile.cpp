@@ -57,16 +57,15 @@ Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm:
   orientation = orientationIn;
 }
 
-void Tile::draw(Shader& shader) const {
+void Tile::draw(Shader* shader) const {
   if (model == nullptr) return;
-
-  shader.use();
 
   for (int i = 0; i < model->meshes.size(); i++){
     const model::Mesh& mesh = model->meshes[i];
-    glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader.setInt("uDiffuse0",0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
+    shader->setInt("uDiffuse0",0);
 
     if (i == 1) {
       auto it = tile::tileUV.find(tile);
@@ -76,11 +75,10 @@ void Tile::draw(Shader& shader) const {
 
         glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.101f, 0.1f);
         uvPos *= tileMapRatio;
-        // uvPos *= model::tileMapRatio;
       }
-      shader.setVec2f("uTexOffset", uvPos);
+      shader->setVec2f("uTexOffset", uvPos);
     }else {
-      shader.setVec2f("uTexOffset", glm::vec2(0.0f));
+      shader->setVec2f("uTexOffset", glm::vec2(0.0f));
     }
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
@@ -432,5 +430,4 @@ void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   glm::quat orientation = glm::quat(glm::vec3(0.0f, glm::radians(90.0f * (wall + 1)), 0.0f));
   doraInd->orientation = orientation;
 }
-
 }

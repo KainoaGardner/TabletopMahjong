@@ -19,7 +19,7 @@ namespace render {
   glm::vec3 linearInterp(const glm::vec3& a, const glm::vec3& b, float alpha);
   float linearInterp(float a, float b, float alpha);
 
-  void tiles(Shader& shader, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection);
+  void tiles(Shader* shader, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection);
   void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);

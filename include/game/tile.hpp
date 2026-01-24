@@ -68,7 +68,7 @@ public:
 
   glm::vec3 position;
   glm::quat orientation;
-  void draw(Shader& shader) const;
+  void draw(Shader* shader) const;
 
 private:
   unsigned int tile;

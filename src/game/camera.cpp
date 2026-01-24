@@ -1,6 +1,5 @@
 #include "../include/game/camera.hpp"
 #include "../include/engine/config.hpp"
-#include "../include/engine/engineContext.hpp"
 #include "../include/engine/input.hpp"
 
 #include <glm/gtc/quaternion.hpp>
@@ -30,12 +29,13 @@ Camera::Camera(
   sensitivity = sensitivityIn;
   zoomSpeed = zoomSpeedIn;
 
-  clampPitch();
+  clampAngles();
   updateVectors();
 }
 
-void Camera::clampPitch() {
+void Camera::clampAngles() {
   float pitchDif = pitch - startPitch;
+  float yawDif = yaw - startYaw;
 
   if (pitchDif > 89.9f) {
     pitch = startPitch + 89.9f; 
@@ -43,6 +43,14 @@ void Camera::clampPitch() {
 
   if (pitchDif < -89.9f) { 
     pitch = startPitch - 89.9f; 
+  }
+
+  if (yawDif > 89.9f) {
+    yaw = startYaw + 89.9f; 
+  }
+
+  if (yawDif < -89.9f) { 
+    yaw = startYaw - 89.9f; 
   }
 }
 
@@ -64,6 +72,7 @@ void Camera::updateVectors() {
 }
 
 void Camera::rotate(const Input& input){
+
   if (input.pressed(input::actions::freeLook)){
     yaw -= input.mouse.dx   * sensitivity;
     pitch -= input.mouse.dy * sensitivity;
@@ -73,7 +82,7 @@ void Camera::rotate(const Input& input){
     // yaw = startYaw;
   }
 
-  clampPitch();
+  clampAngles();
   updateVectors();
 }
 

@@ -23,6 +23,7 @@ struct Mesh {
 
   int indexCount;
   GLuint textureIndex;
+  GLenum indexType;
 };
 
 
@@ -44,7 +45,7 @@ public:
   Model(const std::string& path);
   ~Model();
 
-  void draw(Shader& shader) const;
+  void draw(Shader* shader) const;
   std::vector<model::Mesh> meshes;
 private:
 
@@ -52,5 +53,6 @@ private:
   void loadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh);
   GLuint loadTexture(const tinygltf::Image& image);
 };
+
 
 #endif

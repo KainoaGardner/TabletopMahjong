@@ -85,7 +85,7 @@ private:
 
   bool freeCam = false;
 
-  void clampPitch();
+  void clampAngles();
   void updateVectors();
 
   void rotate(const Input& input);

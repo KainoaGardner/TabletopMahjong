@@ -50,7 +50,6 @@ private:
   int playerCount;
   int seat;
 
-
   void switchCamera(const Input& input);
 };
 

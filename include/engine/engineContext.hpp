@@ -35,16 +35,16 @@ public:
 
   Input input;
 
-  void addFrameBuffer(const std::string& name, Framebuffer framebuffer);
-  void addGeometry(const std::string& name, Geometry geometry);
-  void addTexture(const std::string& name, Texture texture);
-  void addShader(const std::string& name, Shader shader);
-  void addModel(const std::string& name, Model model);
+  Framebuffer* addFrameBuffer(const std::string& name, std::unique_ptr<Framebuffer> framebuffer);
+  Geometry* addGeometry(const std::string& name, std::unique_ptr<Geometry> geometry);
+  Texture* addTexture(const std::string& name, std::unique_ptr<Texture> texture);
+  Shader* addShader(const std::string& name, std::unique_ptr<Shader> shader);
+  Model* addModel(const std::string& name, std::unique_ptr<Model> model);
 
-  Framebuffer& getFramebuffer(const std::string& name);
-  Geometry& getGeometry(const std::string& name);
-  Texture& getTexture(const std::string& name);
-  Shader& getShader(const std::string& name);
+  Framebuffer* getFramebuffer(const std::string& name);
+  Geometry* getGeometry(const std::string& name);
+  Texture* getTexture(const std::string& name);
+  Shader* getShader(const std::string& name);
   Model* getModel(const std::string& name);
 
   void setupConfig(engineContext::SetupConfig config);
@@ -57,11 +57,11 @@ public:
   void setup(engineContext::SetupConfig config);
 
 private:
-  std::unordered_map<std::string, Shader> shaders;
-  std::unordered_map<std::string, Framebuffer> framebuffers;
-  std::unordered_map<std::string, Geometry> geometries;
-  std::unordered_map<std::string, Texture> textures;
-  std::unordered_map<std::string, Model> models;
+  std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
+  std::unordered_map<std::string, std::unique_ptr<Framebuffer>> framebuffers;
+  std::unordered_map<std::string, std::unique_ptr<Geometry>> geometries;
+  std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
+  std::unordered_map<std::string, std::unique_ptr<Model>> models;
 };
 
 #endif

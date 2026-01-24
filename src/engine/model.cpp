@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-
 Model::Model(const std::string& path){
   loadModel(path);
 }
@@ -42,7 +41,7 @@ void Model::loadModel(const std::string& path){
   if (!ok) std::cerr << "Failed to load model: " << path << std::endl;
 
   for (const auto& mesh : model.meshes) {
-    loadMesh(model,mesh);
+    loadMesh(model ,mesh);
   }
 }
 
@@ -165,19 +164,16 @@ GLuint Model::loadTexture(const tinygltf::Image& image){
 }
 
 
-void Model::draw(Shader& shader) const {
-  shader.use();
-
-  shader.setVec2f("uTexOffset", glm::vec2(0.0f));
+void Model::draw(Shader* shader) const {
+  glActiveTexture(GL_TEXTURE0);
+  shader->setVec2f("uTexOffset", glm::vec2(0.0f));
   for (const auto& mesh : meshes) {
     glBindTexture(GL_TEXTURE_2D, mesh.textureIndex);
     glBindVertexArray(mesh.vao);
-    shader.setInt("uDiffuse0",0);
+    shader->setInt("uDiffuse0",0);
 
     glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, 0);
   }
 
   glBindVertexArray(0);
 }
-
- 

@@ -2,7 +2,6 @@
 #include "engine/model.hpp"
 #include "engine/shader.hpp"
 
-
 EngineContext::EngineContext(){
 }
 
@@ -10,49 +9,54 @@ EngineContext::~EngineContext(){
 }
 
 //Framebuffers
-void EngineContext::addFrameBuffer(const std::string& name, Framebuffer framebuffer){
-  framebuffers.emplace(name, std::move(framebuffer));
+Framebuffer* EngineContext::addFrameBuffer(const std::string& name, std::unique_ptr<Framebuffer> framebuffer){
+  framebuffers[name] = std::move(framebuffer);
+  return framebuffers[name].get();
 }
 
-Framebuffer& EngineContext::getFramebuffer(const std::string& name){
-  return framebuffers.at(name);
+Framebuffer* EngineContext::getFramebuffer(const std::string& name){
+  return framebuffers.at(name).get();
 }
 
 //Geometries
-void EngineContext::addGeometry(const std::string& name, Geometry geometry){
-  geometries.emplace(name, std::move(geometry));
+Geometry* EngineContext::addGeometry(const std::string& name, std::unique_ptr<Geometry> geometry){
+  geometries[name] = std::move(geometry);
+  return geometries[name].get();
 }
 
-Geometry& EngineContext::getGeometry(const std::string& name){
-  return geometries.at(name);
+Geometry* EngineContext::getGeometry(const std::string& name){
+  return geometries.at(name).get();
 }
 
 //Textures
-void EngineContext::addTexture(const std::string& name, Texture texture){
-  textures.emplace(name, std::move(texture));
+Texture* EngineContext::addTexture(const std::string& name, std::unique_ptr<Texture> texture){
+  textures[name] = std::move(texture);
+  return textures[name].get();
 }
 
-Texture& EngineContext::getTexture(const std::string& name){
-  return textures.at(name);
+Texture* EngineContext::getTexture(const std::string& name){
+  return textures.at(name).get();
 }
 
 //Shaders
-void EngineContext::addShader(const std::string& name, Shader shader){
-  shaders.emplace(name, std::move(shader));
+Shader* EngineContext::addShader(const std::string& name, std::unique_ptr<Shader> shader){
+  shaders[name] = std::move(shader);
+  return shaders[name].get();
 }
 
-Shader& EngineContext::getShader(const std::string& name){
-  return shaders.at(name);
+Shader* EngineContext::getShader(const std::string& name){
+  return shaders.at(name).get();
 }
 
 
 //Models
-void EngineContext::addModel(const std::string& name, Model model){
-  models.emplace(name, std::move(model));
+Model* EngineContext::addModel(const std::string& name, std::unique_ptr<Model> model){
+  models[name] = std::move(model);
+  return models[name].get();
 }
 
 Model* EngineContext::getModel(const std::string& name){
-  return &models.at(name);
+  return models.at(name).get();
 }
 
 
@@ -77,47 +81,47 @@ void EngineContext::setupTextures(){
   };
   Texture sky4Texture = Texture{.texture = texture::createCubemap(sky4Textures)};
 
-  addTexture("mat", matTexture);
-  addTexture("tableSide", woodTexture);
-  addTexture("sky4", sky4Texture);
+  addTexture("mat", std::make_unique<Texture>(std::move(matTexture)));
+  addTexture("tableSide", std::make_unique<Texture>(std::move(woodTexture)));
+  addTexture("sky4", std::make_unique<Texture>(std::move(sky4Texture)));
 }
 
 void EngineContext::setupFramebuffers(engineContext::SetupConfig config){
-  auto screenFramebuffer = Framebuffer(framebuffer::create(config.width, config.height));
+  auto screenFramebuffer = std::make_unique<Framebuffer>(framebuffer::create(config.width, config.height));
 
-  addFrameBuffer("screen", screenFramebuffer);
+  addFrameBuffer("screen", std::move(screenFramebuffer));
 }
 
 void EngineContext::setupGeometries(){
-  auto planeGeometry =  Geometry(geometry::createPlane());
-  auto cubeGeometry = Geometry(geometry::createCube());
-  auto cubemapGeometry = Geometry(geometry::createCubemap());
-  auto screenGeometry = Geometry(geometry::createScreen());
+  auto planeGeometry = std::make_unique<Geometry>(geometry::createPlane());
+  auto cubeGeometry = std::make_unique<Geometry>(geometry::createCube());
+  auto cubemapGeometry = std::make_unique<Geometry>(geometry::createCubemap());
+  auto screenGeometry = std::make_unique<Geometry>(geometry::createScreen());
 
-  addGeometry("plane", planeGeometry);
-  addGeometry("cube", cubeGeometry);
-  addGeometry("cubemap", cubemapGeometry);
-  addGeometry("screen", screenGeometry);
+  addGeometry("plane", std::move(planeGeometry));
+  addGeometry("cube", std::move(cubeGeometry));
+  addGeometry("cubemap", std::move(cubemapGeometry));
+  addGeometry("screen", std::move(screenGeometry));
 }
 
 void EngineContext::setupShaders(){
-  auto normalShader = Shader("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
-  auto screenShader = Shader("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
-  auto modelShader = Shader("./assets/shaders/model.vert", "./assets/shaders/model.frag");
-  auto cubemapShader = Shader("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
+  auto normalShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
+  auto screenShader = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
+  auto modelShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
+  auto cubemapShader= std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
 
-  addShader("normal", normalShader);
-  addShader("screen", screenShader);
-  addShader("model", modelShader);
-  addShader("cubemap", cubemapShader);
+  addShader("normal", std::move(normalShader));
+  addShader("screen", std::move(screenShader));
+  addShader("model", std::move(modelShader));
+  addShader("cubemap", std::move(cubemapShader));
 }
 
 void EngineContext::setupModels(){
-  auto tileModel = Model("../assets/models/tile.glb");
-  auto diceModel = Model("../assets/models/dice.glb");
+  auto tileModel = std::make_unique<Model>("./assets/models/tile.glb");
+  auto diceModel = std::make_unique<Model>("./assets/models/dice.glb");
 
-  addModel("tile", tileModel);
-  addModel("dice", diceModel);
+  addModel("tile", std::move(tileModel));
+  addModel("dice", std::move(diceModel));
 }
 
 void EngineContext::setup(engineContext::SetupConfig config){

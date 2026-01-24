@@ -36,18 +36,15 @@ int main(){
   }
   emscripten_webgl_make_context_current(ctx);
 
-
   glExtensions::setup();
 
   App* app = new App();
   app->setup();
 
   emscripten_set_canvas_element_size("#canvas", app->engineCTX.width, app->engineCTX.height);
-  // gameState::setup();
 
   glViewport(0, 0, app->engineCTX.width, app->engineCTX.height);
   emscripten_set_main_loop_arg(mainLoop, app, 0, true);
-
   return 0;
 }
 
