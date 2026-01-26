@@ -64,14 +64,19 @@ class Shader;
 
 class Tile {
 public:
-  Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn);
+  Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
 
   glm::vec3 position;
   glm::quat orientation;
+  glm::vec3 scale;
+  glm::vec3 halfSize;
+
+  bool selected = false;
+
   void draw(Shader* shader) const;
+  unsigned int tile;
 
 private:
-  unsigned int tile;
   const Model* model;
 };
 

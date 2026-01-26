@@ -4,23 +4,28 @@
 #include "../include/game/tile.hpp"
 #include "../include/engine/input.hpp"
 
+
 Game::Game(){}
 
 Game::~Game() = default;
 
 void Game::gameUpdate(const Input& input){
   auto& camera = cameras[currCamera];
-  camera->gameUpdate(input);
+  bool topCamera = currCamera == camera::CameraEnum::top;
+  camera->gameUpdate(input, topCamera);
 }
 
 void Game::update(const Input& input){
   switchCamera(input);
 
   auto& camera = cameras[currCamera];
-  camera->update(input);
+  bool topCamera = currCamera == camera::CameraEnum::top;
+  camera->update(input, topCamera);
 }
 
 void Game::switchCamera(const Input& input){
+  int initial = currCamera;
+
   if (input.justPressed(input::actions::mainCamera)){
     currCamera = seat;
   }else if (input.justPressed(input::actions::pointCamera)){
@@ -39,23 +44,28 @@ void Game::switchCamera(const Input& input){
   }else if (input.justPressed(input::actions::camera4)){
     currCamera = camera::CameraEnum::pei1;
   }
+
+  if (initial != currCamera){
+    bool topCamera = currCamera == camera::CameraEnum::top;
+    cameras[currCamera]->revert(topCamera);
+  }
 }
 
 void Game::setupCameras(){
   cameras[0] = std::make_unique<Camera>(
-    camera::tonPos, camera::yaw, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+    camera::tonPos, camera::yaw, camera::pitch, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
   cameras[1] = std::make_unique<Camera>(
-    camera::nanPos, camera::yaw + 90.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+    camera::nanPos, camera::yaw + 90.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
   cameras[2] = std::make_unique<Camera>(
-    camera::shaPos, camera::yaw + 180.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+    camera::shaPos, camera::yaw + 180.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
   cameras[3] = std::make_unique<Camera>(
-    camera::peiPos, camera::yaw + 270.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+    camera::peiPos, camera::yaw + 270.0f, camera::pitch, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
   cameras[4] = std::make_unique<Camera>(
-    camera::topPos, camera::yaw, -90.0f, camera::roll, camera::fov, camera::speed, camera::sensitivity, camera::zoomSpeed);
+    camera::topPos, camera::yaw, -90.0f, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
 }
 

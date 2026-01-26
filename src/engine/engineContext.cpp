@@ -106,11 +106,13 @@ void EngineContext::setupGeometries(){
 
 void EngineContext::setupShaders(){
   auto normalShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
+  auto clickShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/click.frag");
   auto screenShader = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
   auto modelShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
   auto cubemapShader= std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
 
   addShader("normal", std::move(normalShader));
+  addShader("click", std::move(clickShader));
   addShader("screen", std::move(screenShader));
   addShader("model", std::move(modelShader));
   addShader("cubemap", std::move(cubemapShader));

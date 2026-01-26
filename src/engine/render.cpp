@@ -85,29 +85,63 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
   mat(engineCTX, view, projection);
   table(engineCTX, view,projection);
   
-  tiles(engineCTX.getShader("model"), gameCTX.tiles, view, projection);
-
+  tiles(engineCTX, gameCTX.tiles, view, projection);
   dice(engineCTX, view, projection);
+
+  click(engineCTX, gameCTX.click, view, projection);
   screen(engineCTX);
 }
 
-void tiles(Shader* shader, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
+void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
   // int i = 0;
-  shader->use();
-  shader->setMatrix4fv("uView", view);
-  shader->setMatrix4fv("uProjection", projection);
+  Shader* shader = engineCTX.getShader("model");
+  Shader* outlineShader = engineCTX.getShader("click");
+  Geometry* cubeGeo = engineCTX.getGeometry("cube");
 
-  glm::vec3 tileScale = glm::vec3(1.14);
+  glEnable(GL_STENCIL_TEST);
 
   for (const auto& tile : tiles){
+    glEnable(GL_DEPTH_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+
+    shader->use();
+    shader->setMatrix4fv("uView", view);
+    shader->setMatrix4fv("uProjection", projection);
+
     glm::mat4 model = glm::mat4(1.0f);
 
     model = glm::translate(model, tile->position);
     model *= glm::mat4_cast(tile->orientation);
-    model = glm::scale(model, tileScale);
+    model = glm::scale(model, glm::vec3(model::tileScaleFactor));
     shader->setMatrix4fv("uModel", model);
     tile->draw(shader);
+
+    if (tile->selected){
+      glDisable(GL_DEPTH_TEST);
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+
+      outlineShader->use();
+      outlineShader->setMatrix4fv("uView", view);
+      outlineShader->setMatrix4fv("uProjection", projection);
+
+      glBindVertexArray(cubeGeo->vao);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
+
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, tile->position);
+      model *= glm::mat4_cast(tile->orientation);
+      model = glm::scale(model, glm::vec3(tile->scale * 1.1f));
+
+      outlineShader->setMatrix4fv("uModel", model);
+      glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    }
   }
+
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_STENCIL_TEST);
 }
 
 void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
@@ -171,25 +205,29 @@ void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& pro
   shader->setMatrix4fv("uProjection", projection);
 
   float offsetDiff = -model::matScale.z / 2.0 - model::tableSideLongScale.z / 2.0;
-  for (int i = 0; i < 2; ++i){
+  for (int i = 0; i < 4; ++i){
     model = glm::mat4(1.0f);
-    model = glm::rotate(model,glm::radians(90.0f) * (i * 2),global::worldUp);
-    model = glm::translate(model, glm::vec3(0.0f,0.0f, offsetDiff));
-    model = glm::scale(model, model::tableSideLongScale);
-
-    shader->setMatrix4fv("uModel", model);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-  }
-
-  for (int i = 0; i < 2; ++i){
-    model = glm::mat4(1.0f);
-    model = glm::rotate(model,glm::radians(90.0f) * (i * 2) + glm::radians(90.0f),global::worldUp);
+    model = glm::rotate(model,glm::radians(90.0f) * i,global::worldUp);
     model = glm::translate(model, glm::vec3(0.0f,0.0f, offsetDiff));
     model = glm::scale(model, model::tableSideShortScale);
 
     shader->setMatrix4fv("uModel", model);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
+
+  // float cornerOffsetDiffVert = -model::tableSideShortScale.x / 2.0 - model::tableSideLongScale.z / 2.0;
+  float cornerOffsetDiffVert = -model::tableSideShortScale.x / 2.0 + model::tableSideLongScale.z / 2.0;
+  for (int i = 0; i < 4; ++i){
+    model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(90.0f) * i, global::worldUp);
+    model = glm::translate(model, glm::vec3(offsetDiff, cornerOffsetDiffVert, offsetDiff));
+    model = glm::rotate(model, glm::radians(90.0f), global::worldFront);
+    model = glm::scale(model, model::tableSideShortScale);
+
+    shader->setMatrix4fv("uModel", model);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  }
+
 }
 
 void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
@@ -211,6 +249,32 @@ void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& p
   glDepthMask(GL_TRUE);
   glDepthFunc(GL_LESS);
 
+}
+
+void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, const glm::mat4& projection){
+  glEnable(GL_BLEND);
+
+  Shader* shader = engineCTX.getShader("click");
+  Geometry* cubeGeo = engineCTX.getGeometry("cube");
+
+  shader->use();
+  glm::mat4 model = glm::mat4(1.0f);
+
+  glBindVertexArray(cubeGeo->vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
+
+  shader->setMatrix4fv("uView", view);
+  shader->setMatrix4fv("uProjection", projection);
+
+  model = glm::mat4(1.0f);
+  model = glm::translate(model, clickPos);
+  model = glm::scale(model, glm::vec3(0.035f));
+
+  shader->setMatrix4fv("uModel", model);
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+
+  glDisable(GL_BLEND);
 }
 
 void screen(EngineContext& engineCTX){

@@ -3,7 +3,8 @@
 #include "../include/engine/input.hpp"
 
 #include <glm/gtc/quaternion.hpp>
-#include <memory>
+
+#include "../include/engine/model.hpp"
 
 
 Camera::Camera(
@@ -13,6 +14,7 @@ Camera::Camera(
   float rollIn,
   float fovIn,
   float speedIn,
+  float moveSpeedIn,
   float sensitivityIn,
   float zoomSpeedIn){
 
@@ -26,6 +28,7 @@ Camera::Camera(
   fov = fovIn;
   startFov = fovIn;
   speed = speedIn;
+  moveSpeed = moveSpeedIn;
   sensitivity = sensitivityIn;
   zoomSpeed = zoomSpeedIn;
 
@@ -37,12 +40,12 @@ void Camera::clampAngles() {
   float pitchDif = pitch - startPitch;
   float yawDif = yaw - startYaw;
 
-  if (pitchDif > 89.9f) {
-    pitch = startPitch + 89.9f; 
+  if (pitch > 89.9f) {
+    pitch = 89.9f; 
   }
 
-  if (pitchDif < -89.9f) { 
-    pitch = startPitch - 89.9f; 
+  if (pitch < -89.9f) { 
+    pitch = -89.9f; 
   }
 
   if (yawDif > 89.9f) {
@@ -72,7 +75,6 @@ void Camera::updateVectors() {
 }
 
 void Camera::rotate(const Input& input){
-
   if (input.pressed(input::actions::freeLook)){
     yaw -= input.mouse.dx   * sensitivity;
     pitch -= input.mouse.dy * sensitivity;
@@ -123,6 +125,45 @@ void Camera::revertRotate(const Input& input){
   }
 }
 
+void Camera::revertPosition(const Input& input){
+  if (input.pressed(input::actions::freeLook)) return; 
+
+  float xDiff = position.x;
+  float zDiff = position.z;
+
+  float xDist = std::abs(xDiff);
+  float zDist = std::abs(zDiff);
+
+  float maxDist = std::max(xDist, zDist);
+
+  if (maxDist < 0.001f) {
+    position.x = 0.0f;
+    position.z = 0.0f;
+    return;
+  }
+
+  float returnSpeed = moveSpeed * 5.0f;
+
+  float xSpeed = returnSpeed * (xDist / maxDist);
+  float zSpeed = returnSpeed * (zDist / maxDist);
+
+  if (xDiff >= xSpeed){
+    position.x -= xSpeed;
+  }else if (xDiff <= -xSpeed){
+    position.x += xSpeed;
+  }else{
+    position.x = 0.0f;
+  }
+
+  if (zDiff >= zSpeed){
+    position.z -= zSpeed;
+  }else if (zDiff <= -zSpeed){
+    position.z += zSpeed;
+  }else{
+    position.z = 0.0f;
+  }
+}
+
 void Camera::zoom(const Input& input){
   if (input.pressed(input::actions::zoomIn)){
     fov += zoomSpeed;
@@ -140,25 +181,72 @@ void Camera::zoom(const Input& input){
 }
 
 void Camera::move(const Input& input){
+  if (input.pressed(input::actions::freeLook)){
+    position.z += input.mouse.dx * moveSpeed;
+    position.x -= input.mouse.dy * moveSpeed;
+  }else {
+    // pitch = startPitch;
+    // yaw = startYaw;
+  }
+
+  clampPosition();
+  updateVectors();
 }
 
-void Camera::update(const Input& input){
-  rotate(input);
+void Camera::clampPosition(){
+  // float clampPos = model::matScale
+  float clampPos = model::matScale.z / 2.0f - 1.5f * model::tileScale.z;
+
+  if (position.z > clampPos){
+    position.z = clampPos;
+  }else if (position.z < -clampPos){
+    position.z = -clampPos;
+  }
+
+  if (position.x > clampPos){
+    position.x = clampPos;
+  }else if (position.x < -clampPos){
+    position.x = -clampPos;
+  }
+
+
+}
+
+void Camera::update(const Input& input, bool topCamera){
+  if (!topCamera){
+    rotate(input);
+  }else {
+    move(input);
+  }
+
   zoom(input);
+
+  if (input.justPressed(input::actions::revertCamera)){
+    revert(topCamera);
+  }
 }
 
-void Camera::gameUpdate(const Input& input){
-  revertRotate(input);
+void Camera::revert(bool topCamera){
+    fov = startFov;
+
+    if (!topCamera){
+      yaw = startYaw;
+      pitch = startPitch;
+    }else{
+      position.x = 0.0f;
+      position.z = 0.0f;
+    }
+}
+
+void Camera::gameUpdate(const Input& input, bool topCamera){
+  // if (!topCamera){
+  //   revertRotate(input);
+  // }else{
+  //   revertPosition(input);
+  // }
 }
 
 namespace camera {
-  std::unique_ptr<Camera> cameras[5] = {
-    std::make_unique<Camera>(tonPos, yaw, pitch, roll, fov, speed, sensitivity, zoomSpeed),
-    std::make_unique<Camera>(nanPos, yaw + 90.0f, pitch, roll, fov, speed, sensitivity, zoomSpeed),
-    std::make_unique<Camera>(shaPos, yaw + 180.0f, pitch, roll, fov, speed, sensitivity, zoomSpeed),
-    std::make_unique<Camera>(peiPos, yaw + 270.0f, pitch, roll, fov, speed, sensitivity, zoomSpeed),
-    std::make_unique<Camera>(topPos, yaw, -90.0f, roll, fov, speed, sensitivity, zoomSpeed),
-};
 
 glm::mat4 getViewMatrix(glm::vec3 position, float yaw, float pitch, float roll) {
   const float yawR = glm::radians(yaw);

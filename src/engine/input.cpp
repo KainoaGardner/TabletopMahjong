@@ -17,6 +17,7 @@ std::unordered_map<std::string, actions>keyToAction = {
     {"KeyF", freeCam},
     {"MouseWheelUp", zoomIn},
     {"MouseWheelDown", zoomOut},
+    {"KeyR", revertCamera},
     {"KeyP", perspective},
     {"Digit1", mainCamera},
     {"Digit2", pointCamera},

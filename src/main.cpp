@@ -37,6 +37,7 @@ int main(){
   emscripten_webgl_make_context_current(ctx);
 
   glExtensions::setup();
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   App* app = new App();
   app->setup();

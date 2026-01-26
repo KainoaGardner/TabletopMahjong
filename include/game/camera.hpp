@@ -26,6 +26,7 @@ namespace camera {
   const float fov = 45.0f;
   const float speed = 90.0f / 60.0f;
   const float sensitivity = 0.1f;
+  const float moveSpeed = 0.001f;
   const float orthoSensRatio = 0.001f;
   const float zoomSpeed = 00005.0f;
 
@@ -52,7 +53,7 @@ class Input;
 
 class Camera {
 public:
-  Camera(glm::vec3 position, float yaw, float pitch, float roll, float fov, float speed, float sensitivity, float zoomSpeed);
+  Camera(glm::vec3 position, float yaw, float pitch, float roll, float fov, float speed, float moveSpeed, float sensitivity, float zoomSpeed);
 
   glm::vec3 position;
 
@@ -66,8 +67,10 @@ public:
   glm::vec3 up = camera::cameraUp;
   glm::vec3 right = camera::cameraRight;
 
-  void update(const Input& input);
-  void gameUpdate(const Input& input);
+  void update(const Input& input, bool topCamera = false);
+  void gameUpdate(const Input& input, bool topCamera = false);
+
+  void revert(bool topCamera = false);
 
   // glm::mat4 getViewMatrix() const;
   // glm::mat4 getProjectionMatrix() const;
@@ -81,15 +84,19 @@ private:
 
   float speed;
   float sensitivity;
+  float moveSpeed;
   float zoomSpeed;
 
   bool freeCam = false;
 
   void clampAngles();
+  void clampPosition();
+
   void updateVectors();
 
   void rotate(const Input& input);
   void revertRotate(const Input& input);
+  void revertPosition(const Input& input);
   void zoom(const Input& input);
   void move(const Input& input);
 };

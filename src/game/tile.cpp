@@ -50,11 +50,14 @@ std::unordered_map<int, glm::vec2> tileUV = {
 
 }
 
-Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn){
+Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn){
   tile = tileIn;
   model = modelIn;
   position = positionIn;
   orientation = orientationIn;
+
+  scale = scaleIn;
+  halfSize = scaleIn * 0.5f;
 }
 
 void Tile::draw(Shader* shader) const {
@@ -97,6 +100,11 @@ void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& 
     case ThreeP:
       threePSetup(tiles, config.tileModel);
       break;
+    case 3:{
+      glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+      tiles.emplace_back(std::make_unique<Tile>(Sou5A, config.tileModel, glm::vec3(0.0f), orientation, model::tileScale));
+      break;
+    }
 
     default:
     break;
@@ -113,7 +121,7 @@ void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMode
                                  model::tileScale.y / 2.0f,
                                  -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
 
-  glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   for (int i = Man1; i <= Chun; ++i){
     for (int j = 0; j < 4; ++j){
@@ -123,14 +131,14 @@ void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMode
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
       if (j == 3 && (i == Man5 || i == Sou5 || i == Pin5)){
         if (i == Man5){
-          tiles.emplace_back(std::make_unique<Tile>(Man5A, tileModel, pos, orientation));
+          tiles.emplace_back(std::make_unique<Tile>(Man5A, tileModel, pos, orientation, model::tileScale));
         }else if (i == Sou5){
-          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation));
+          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation, model::tileScale));
         }else{
-          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation));
+          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation, model::tileScale));
         }
       }else{
-        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation));
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation, model::tileScale));
       }
     }
   }
@@ -146,13 +154,13 @@ void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMod
       int c = (i) % 18;
       int r = (i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(std::make_unique<Tile>(Man1, tileModel, pos, orientation));
+      tiles.emplace_back(std::make_unique<Tile>(Man1, tileModel, pos, orientation, model::tileScale));
   }
   for (int i = 0; i < 4; ++i){
       int c = (4 + i) % 18;
       int r = (4 + i) / 18;
       glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
-      tiles.emplace_back(std::make_unique<Tile>(Man9, tileModel, pos, orientation));
+      tiles.emplace_back(std::make_unique<Tile>(Man9, tileModel, pos, orientation, model::tileScale));
   }
 
   for (int i = Sou1; i <= Chun; ++i){
@@ -164,12 +172,12 @@ void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMod
 
       if (j == 3 && (i == Sou5 || i == Pin5)){
         if (i == Sou5){
-          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation));
+          tiles.emplace_back(std::make_unique<Tile>(Sou5A, tileModel, pos, orientation, model::tileScale));
         }else{
-          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation));
+          tiles.emplace_back(std::make_unique<Tile>(Pin5A, tileModel, pos, orientation, model::tileScale));
         }
       }else{
-        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation));
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation, model::tileScale));
       }
     }
   }

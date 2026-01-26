@@ -6,6 +6,7 @@
 #include "../include/game/game.hpp"
 #include "../include/engine/engineContext.hpp"
 #include "../include/game/camera.hpp"
+#include "../include/game/tile.hpp"
 
 #include <iostream>
 
@@ -33,18 +34,24 @@ void update(EngineContext& engineCTX, Game& gameCTX){
 }
 
 void selectTile(EngineContext& engineCTX, Game& gameCTX){
-    const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
-    const glm::mat4& view = camera::getViewMatrix(camera->position, camera->yaw, camera->pitch, camera->roll);
-    const glm::mat4& projection = camera::getProjectionMatrix(camera->fov, engineCTX.width, engineCTX.height);
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+  const glm::mat4& view = camera::getViewMatrix(camera->position, camera->yaw, camera->pitch, camera->roll);
+  const glm::mat4& projection = camera::getProjectionMatrix(camera->fov, engineCTX.width, engineCTX.height);
 
-    glm::vec3 rayDir;
-    glm::vec3 rayOrigin;
-    collision::computeMouseRay(engineCTX.input.mouse.x, engineCTX.input.mouse.y, engineCTX.width, engineCTX.height,
-                               view, projection, camera->position,
-                               rayOrigin, rayDir);
+  glm::vec3 rayDir;
+  glm::vec3 rayOrigin;
+  collision::computeMouseRay(engineCTX.input.mouse.x, engineCTX.input.mouse.y, engineCTX.width, engineCTX.height,
+                             view, projection, camera->position,
+                             rayOrigin, rayDir);
 
-    std::cout << rayDir.x << " " << rayDir.y << std::endl;
+  float t = -rayOrigin.y / rayDir.y;
+  glm::vec3 clickPos = rayOrigin + t * rayDir;
+  gameCTX.click = clickPos;
 
+  Tile* tile = collision::pickTile(rayOrigin, rayDir, gameCTX.tiles);
+  if (tile != nullptr){
+    tile->selected = !tile->selected;
+  }
 }
 
 }

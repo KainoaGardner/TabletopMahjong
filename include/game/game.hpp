@@ -45,6 +45,8 @@ public:
 
   GameState lastGameState;
 
+  glm::vec3 click = glm::vec3(0.0f);
+
 private:
   int oya;
   int playerCount;

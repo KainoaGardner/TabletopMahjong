@@ -19,11 +19,11 @@ namespace input {
     freeCam,
     zoomIn,
     zoomOut,
+    revertCamera,
     perspective,
-    topCamera,
     mainCamera,
     pointCamera,
-
+    topCamera,
     camera1,
     camera2,
     camera3,
