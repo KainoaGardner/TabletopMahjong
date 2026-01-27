@@ -3,7 +3,26 @@
 #include "../include/game/dice.hpp"
 #include "../include/game/tile.hpp"
 #include "../include/engine/input.hpp"
+#include "engine/config.hpp"
 
+
+namespace game {
+glm::vec3 getPlayerColor(global::players player){
+  switch(player) {
+    case global::shimocha:
+      return global::colorToVec3[global::colors::blue];
+    case global::toimen:
+      return global::colorToVec3[global::colors::red];
+    case global::kamicha:
+      return global::colorToVec3[global::colors::green];
+    default:
+      return global::colorToVec3[global::colors::yellow];
+
+  }
+
+  return glm::vec3(0.0);
+}
+};
 
 Game::Game(){}
 

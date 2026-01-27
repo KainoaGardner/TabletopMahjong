@@ -74,8 +74,11 @@ glm::mat4 getInterpCameraProj(float a, Game& gameCTX, EngineContext& engineCTX){
 void main(float a, EngineContext& engineCTX, Game& gameCTX){
   glBindFramebuffer(GL_FRAMEBUFFER, engineCTX.getFramebuffer("screen")->fbo);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glStencilMask(0x00);
 
   glm::mat4 view = getInterpCameraView(a, gameCTX);
   glm::mat4 projection = getInterpCameraProj(a, gameCTX, engineCTX);
@@ -86,25 +89,24 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
   table(engineCTX, view,projection);
   
   tiles(engineCTX, gameCTX.tiles, view, projection);
+
   dice(engineCTX, view, projection);
 
+  selectHighlight(engineCTX, gameCTX.tiles, view, projection);
   click(engineCTX, gameCTX.click, view, projection);
   screen(engineCTX);
 }
 
 void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
-  // int i = 0;
   Shader* shader = engineCTX.getShader("model");
-  Shader* outlineShader = engineCTX.getShader("click");
-  Geometry* cubeGeo = engineCTX.getGeometry("cube");
 
-  glEnable(GL_STENCIL_TEST);
-
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
   for (const auto& tile : tiles){
-    glEnable(GL_DEPTH_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
+    if (tile->selected){
+      glStencilMask(0xFF);
+    }else{
+      glStencilMask(0x00);
+    }
 
     shader->use();
     shader->setMatrix4fv("uView", view);
@@ -117,32 +119,56 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
     model = glm::scale(model, glm::vec3(model::tileScaleFactor));
     shader->setMatrix4fv("uModel", model);
     tile->draw(shader);
-
-    if (tile->selected){
-      glDisable(GL_DEPTH_TEST);
-      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-      glStencilMask(0x00);
-
-      outlineShader->use();
-      outlineShader->setMatrix4fv("uView", view);
-      outlineShader->setMatrix4fv("uProjection", projection);
-
-      glBindVertexArray(cubeGeo->vao);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
-
-      glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, tile->position);
-      model *= glm::mat4_cast(tile->orientation);
-      model = glm::scale(model, glm::vec3(tile->scale * 1.1f));
-
-      outlineShader->setMatrix4fv("uModel", model);
-      glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    }
   }
 
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_STENCIL_TEST);
+  glStencilMask(0x00);
 }
+
+void selectHighlight(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
+  Shader* outlineShader = engineCTX.getShader("click");
+  Geometry* cubeGeo = engineCTX.getGeometry("cube");
+
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  glStencilMask(0x00);
+  glDisable(GL_DEPTH_TEST);
+
+  for (const auto& tile : tiles){
+    if (!tile->selected)
+      continue;
+
+    outlineShader->use();
+    outlineShader->setMatrix4fv("uView", view);
+    outlineShader->setMatrix4fv("uProjection", projection);
+  
+    glBindVertexArray(cubeGeo->vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
+  
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, tile->position);
+    model *= glm::mat4_cast(tile->orientation);
+    model = glm::scale(model, glm::vec3(tile->scale * 1.2f));
+
+    //default color
+    // glm::vec3 color = glm::vec3(1.0, 1.0, 0.0);
+    glm::vec3 color = game::getPlayerColor(*tile->selected);
+
+    //get color based on player color
+    // auto it = global::colorToVec3.find(global::colors::red);
+    // if (it != global::colorToVec3.end()){
+    //   color = it->second;
+    // }
+
+    outlineShader->setVec3f("uColor", color);
+
+    outlineShader->setMatrix4fv("uModel", model);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  }
+
+  glStencilMask(0xFF);
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glEnable(GL_DEPTH_TEST);
+}
+
 
 void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){
   Shader* shader = engineCTX.getShader("model");
@@ -269,6 +295,18 @@ void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, 
   model = glm::mat4(1.0f);
   model = glm::translate(model, clickPos);
   model = glm::scale(model, glm::vec3(0.035f));
+
+    //default color
+
+  glm::vec3 color = game::getPlayerColor(global::players::jicha);
+
+  // //get color based on player color
+  // auto it = global::colorToVec3.find(global::colors::red);
+  // if (it != global::colorToVec3.end()){
+  //   color = it->second;
+  // }
+
+  shader->setVec3f("uColor", color);
 
   shader->setMatrix4fv("uModel", model);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

@@ -15,6 +15,7 @@ namespace input {
     up,
     down,
     click,
+    shift,
     freeLook,
     freeCam,
     zoomIn,

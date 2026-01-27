@@ -18,6 +18,9 @@ namespace game {
     int tileSet;
     const Model* tileModel;
   };
+
+  //TEST update
+  glm::vec3 getPlayerColor(global::players player);
 };
 
 

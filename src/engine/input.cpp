@@ -2,7 +2,6 @@
 #include "../include/util/emjs.hpp"
 #include <chrono>
 
-
 namespace input {
 
 std::unordered_map<std::string, actions>keyToAction = {
@@ -13,6 +12,7 @@ std::unordered_map<std::string, actions>keyToAction = {
     {"KeyQ", up},
     {"KeyE", down},
     {"Mouse0", click},
+    {"ShiftLeft", shift},
     {"Mouse2", freeLook},
     {"KeyF", freeCam},
     {"MouseWheelUp", zoomIn},

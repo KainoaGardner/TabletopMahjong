@@ -8,6 +8,7 @@
 #include "../include/game/camera.hpp"
 #include "../include/game/tile.hpp"
 
+
 #include <iostream>
 
 #include "../include/engine/collision.hpp"
@@ -48,10 +49,42 @@ void selectTile(EngineContext& engineCTX, Game& gameCTX){
   glm::vec3 clickPos = rayOrigin + t * rayDir;
   gameCTX.click = clickPos;
 
+  global::players player = global::players::jicha;
+
+  //REMOVE TESTING
+  if (gameCTX.currCamera == camera::nan1){
+    player = global::players::shimocha;
+  }else if (gameCTX.currCamera == camera::sha1){
+    player = global::players::toimen;
+  }else if (gameCTX.currCamera == camera::pei1){
+    player = global::players::kamicha;
+  }
+
   Tile* tile = collision::pickTile(rayOrigin, rayDir, gameCTX.tiles);
   if (tile != nullptr){
-    tile->selected = !tile->selected;
+    if (tile->selected == player){
+      tile->selected = std::nullopt;
+      return;
+    }
+
+    if (!engineCTX.input.pressed(input::shift)){
+      unselectPlayerTiles(player, gameCTX);
+    }
+
+    tile->selected = player;
   }
 }
+
+void unselectPlayerTiles(global::players player, Game& gameCTX){
+  for (const auto& tile : gameCTX.tiles){
+    if (!tile->selected)
+      continue;
+
+    if (tile->selected == player){
+      tile->selected = std::nullopt;
+    }
+  };
+}
+
 
 }

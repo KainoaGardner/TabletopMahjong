@@ -6,6 +6,8 @@
 
 #include "../include/engine/model.hpp"
 
+#include <iostream>
+
 
 Camera::Camera(
   glm::vec3 positionIn,
@@ -75,6 +77,7 @@ void Camera::updateVectors() {
 }
 
 void Camera::rotate(const Input& input){
+  std::cout << "rotate" << std::endl;
   if (input.pressed(input::actions::freeLook)){
     yaw -= input.mouse.dx   * sensitivity;
     pitch -= input.mouse.dy * sensitivity;

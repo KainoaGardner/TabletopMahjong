@@ -8,6 +8,8 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "../include/game/game.hpp"
+#include "../include/engine/config.hpp"
+#include <optional>
 
 namespace tile {
   enum TileEnum {
@@ -55,6 +57,7 @@ namespace tile {
     ThreeP,
   };
 
+
 extern std::unordered_map<int, glm::vec2> tileUV;
 }
 
@@ -71,7 +74,7 @@ public:
   glm::vec3 scale;
   glm::vec3 halfSize;
 
-  bool selected = false;
+  std::optional<global::players> selected;
 
   void draw(Shader* shader) const;
   unsigned int tile;
