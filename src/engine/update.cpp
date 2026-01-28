@@ -7,6 +7,7 @@
 #include "../include/engine/engineContext.hpp"
 #include "../include/game/camera.hpp"
 #include "../include/game/tile.hpp"
+#include "../include/game/hand.hpp"
 
 
 #include <iostream>
@@ -24,17 +25,6 @@ void gameUpdate(EngineContext& engineCTX, Game& gameCTX){
 void update(EngineContext& engineCTX, Game& gameCTX){
   engineCTX.input.update();
 
-  if (engineCTX.input.justPressed(input::actions::click)){
-    selectTile(engineCTX, gameCTX);
-  }
-
-  gameCTX.update(engineCTX.input);
-
-  engineCTX.input.actionPrev = engineCTX.input.actionCurr;
-  engineCTX.input.clear();
-}
-
-void selectTile(EngineContext& engineCTX, Game& gameCTX){
   const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
   const glm::mat4& view = camera::getViewMatrix(camera->position, camera->yaw, camera->pitch, camera->roll);
   const glm::mat4& projection = camera::getProjectionMatrix(camera->fov, engineCTX.width, engineCTX.height);
@@ -45,10 +35,35 @@ void selectTile(EngineContext& engineCTX, Game& gameCTX){
                              view, projection, camera->position,
                              rayOrigin, rayDir);
 
-  float t = -rayOrigin.y / rayDir.y;
-  glm::vec3 clickPos = rayOrigin + t * rayDir;
-  gameCTX.click = clickPos;
 
+  if (engineCTX.input.justPressed(input::actions::click)){
+    selectTile(engineCTX, gameCTX, rayDir, rayOrigin);
+  }
+
+  updateHands(gameCTX, rayDir, rayOrigin);
+
+  gameCTX.update(engineCTX.input);
+
+  engineCTX.input.actionPrev = engineCTX.input.actionCurr;
+  engineCTX.input.clear();
+}
+
+void updateHands(Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin){
+  int player = 0;
+
+  if (gameCTX.currCamera == camera::nan1){
+    player = 1;
+  }else if (gameCTX.currCamera == camera::sha1){
+    player = 2;
+  }else if (gameCTX.currCamera == camera::pei1){
+    player = 3;
+  }
+
+  gameCTX.hands[player]->update(rayDir, rayOrigin);
+}
+
+
+void selectTile(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin){
   global::players player = global::players::jicha;
 
   //REMOVE TESTING
@@ -72,6 +87,8 @@ void selectTile(EngineContext& engineCTX, Game& gameCTX){
     }
 
     tile->selected = player;
+  }else{
+    unselectPlayerTiles(player, gameCTX);
   }
 }
 

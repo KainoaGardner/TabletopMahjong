@@ -20,6 +20,7 @@ const int maxTimeGap = 250;
 
 const int diceAmount = 2;
 const int cameraAmount = 5;
+const int handAmount = 4;
 
 enum colors{
   red,

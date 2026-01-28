@@ -26,8 +26,11 @@ namespace render {
   void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
 
+  void click(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
 
-  void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, const glm::mat4& projection);
+  void centerPiece(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
+
+  void hands(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
   void screen(EngineContext& engineCTX);
 }
 

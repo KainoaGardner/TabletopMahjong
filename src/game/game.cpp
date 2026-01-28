@@ -2,6 +2,7 @@
 #include "../include/game/camera.hpp"
 #include "../include/game/dice.hpp"
 #include "../include/game/tile.hpp"
+#include "../include/game/hand.hpp"
 #include "../include/engine/input.hpp"
 #include "engine/config.hpp"
 
@@ -70,7 +71,7 @@ void Game::switchCamera(const Input& input){
   }
 }
 
-void Game::setupCameras(){
+void Game::setupCameras(const game::SetupConfig& config){
   cameras[0] = std::make_unique<Camera>(
     camera::tonPos, camera::yaw, camera::pitch, camera::roll, camera::fov, camera::speed, camera::moveSpeed, camera::sensitivity, camera::zoomSpeed);
 
@@ -93,6 +94,13 @@ void Game::setupDie(){
   die[1] = std::make_unique<Dice>();
 
   // int roll = dice::getDiceRoll() + dice::getDiceRoll();
+}
+
+void Game::setupHands(const game::SetupConfig& config){
+  hands[0] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::yellow]);
+  hands[1] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::blue]);
+  hands[2] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::red]);
+  hands[3] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::green]);
 }
 
 void Game::setupConfig(const game::SetupConfig& config){
@@ -120,7 +128,8 @@ void Game::setupConfig(const game::SetupConfig& config){
 
 void Game::setup(const game::SetupConfig& config){
   setupConfig(config);
-  setupCameras();
+  setupCameras(config);
   tile::setup(config, tiles);
   setupDie();
+  setupHands(config);
 }

@@ -31,9 +31,13 @@ const glm::vec3 tableSideShortScale = glm::vec3(matScale.x, 0.03f, 0.03f);
 const glm::vec3 tableSideLongScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, 0.03f, 0.03f);
 const glm::vec3 diceScale = glm::vec3(0.016f);
 
+const glm::vec3 centerPieceScale = glm::vec3(0.15f, 0.005f, 0.15f);
+
 const float tileScaleFactor = 1.14;
 const glm::vec3 tileScale = glm::vec3(0.0245f, 0.0152f, 0.033f) * tileScaleFactor;
 const glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.1 ,0.1f);
+
+
 } // namespace model
 
 

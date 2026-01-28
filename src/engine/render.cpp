@@ -8,12 +8,16 @@
 #include "../include/engine/render.hpp"
 #include "../include/engine/config.hpp"
 #include "../include/game/game.hpp"
+#include "../include/game/hand.hpp"
 #include "../include/engine/model.hpp"
 #include "../include/game/tile.hpp"
 #include "../include/engine/shader.hpp"
 #include "../include/engine/engineContext.hpp"
 #include "../include/game/camera.hpp"
+#include "../include/engine/collision.hpp"
 #include "../include/game/gameState.hpp"
+
+#include <iostream>
 
 namespace render {
 glm::vec3 linearInterp(const glm::vec3& a, const glm::vec3& b, float alpha){
@@ -86,14 +90,16 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
   cubemap(engineCTX, view, projection);
 
   mat(engineCTX, view, projection);
-  table(engineCTX, view,projection);
+  table(engineCTX, view, projection);
+  centerPiece(engineCTX, gameCTX, view, projection);
   
   tiles(engineCTX, gameCTX.tiles, view, projection);
 
-  dice(engineCTX, view, projection);
+  // dice(engineCTX, view, projection);
 
   selectHighlight(engineCTX, gameCTX.tiles, view, projection);
-  click(engineCTX, gameCTX.click, view, projection);
+  // click(engineCTX, gameCTX, view, projection);
+  hands(engineCTX, gameCTX, view, projection);
   screen(engineCTX);
 }
 
@@ -277,7 +283,7 @@ void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& p
 
 }
 
-void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, const glm::mat4& projection){
+void click(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
   glEnable(GL_BLEND);
 
   Shader* shader = engineCTX.getShader("click");
@@ -292,13 +298,43 @@ void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, 
   shader->setMatrix4fv("uView", view);
   shader->setMatrix4fv("uProjection", projection);
 
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+  glm::vec3 rayDir;
+  glm::vec3 rayOrigin;
+  collision::computeMouseRay(engineCTX.input.mouse.x, engineCTX.input.mouse.y, engineCTX.width, engineCTX.height,
+                             view, projection, camera->position,
+                             rayOrigin, rayDir);
+
+  float t = -rayOrigin.y / rayDir.y;
+  glm::vec3 clickPos = rayOrigin + t * rayDir;
+  // gameCTX.click = clickPos;
+
+
   model = glm::mat4(1.0f);
   model = glm::translate(model, clickPos);
-  model = glm::scale(model, glm::vec3(0.035f));
+  model = glm::scale(model, glm::vec3(0.015f));
 
     //default color
 
-  glm::vec3 color = game::getPlayerColor(global::players::jicha);
+  global::players player;
+  switch(gameCTX.currCamera){
+    case camera::ton1:
+      player = global::players::jicha;
+    break;
+    case camera::nan1:
+      player = global::players::shimocha;
+    break;
+    case camera::sha1:
+      player = global::players::toimen;
+    break;
+    case camera::pei1:
+      player = global::players::kamicha;
+    break;
+  }
+
+  glm::vec3 color = game::getPlayerColor(player);
+
+
 
   // //get color based on player color
   // auto it = global::colorToVec3.find(global::colors::red);
@@ -307,12 +343,65 @@ void click(EngineContext& engineCTX, glm::vec3 clickPos, const glm::mat4& view, 
   // }
 
   shader->setVec3f("uColor", color);
-
   shader->setMatrix4fv("uModel", model);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 
   glDisable(GL_BLEND);
+}
+
+void hands(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
+  glEnable(GL_BLEND);
+
+  Shader* shader = engineCTX.getShader("click");
+  Geometry* cubeGeo = engineCTX.getGeometry("cube");
+
+  shader->use();
+
+  glBindVertexArray(cubeGeo->vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
+
+  shader->setMatrix4fv("uView", view);
+  shader->setMatrix4fv("uProjection", projection);
+
+  for (const auto& hand : gameCTX.hands){
+    glm::mat4 model = glm::mat4(1.0f);
+  
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, hand->position);
+    model = glm::scale(model, glm::vec3(0.015f));
+  
+    shader->setVec3f("uColor", hand->color);
+    shader->setMatrix4fv("uModel", model);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  }
+
+
+  glDisable(GL_BLEND);
+}
+
+void centerPiece(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
+  Shader* shader = engineCTX.getShader("normal");
+  Geometry* cubeGeo = engineCTX.getGeometry("cube");
+  Texture* tableTexture = engineCTX.getTexture("tableSide");
+
+  shader->use();
+  glm::mat4 model = glm::mat4(1.0f);
+
+  glBindVertexArray(cubeGeo->vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeGeo->ebo);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tableTexture->texture);
+  shader->setVec2f("uTexScale", glm::vec2(1.0f, 0.05f));
+  shader->setInt("uDiff",0);
+  shader->setMatrix4fv("uView", view);
+  shader->setMatrix4fv("uProjection", projection);
+
+  model = glm::mat4(1.0f);
+  model = glm::scale(model, model::centerPieceScale);
+
+  shader->setMatrix4fv("uModel", model);
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 }
 
 void screen(EngineContext& engineCTX){

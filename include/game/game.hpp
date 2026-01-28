@@ -9,6 +9,7 @@ class Tile;
 class Dice;
 class GameState;
 class Model;
+class Hand;
 
 namespace game {
   struct SetupConfig {
@@ -32,8 +33,9 @@ public:
   ~Game();
 
   void setupConfig(const game::SetupConfig& config);
-  void setupCameras();
+  void setupCameras(const game::SetupConfig& config);
   void setupDie();
+  void setupHands(const game::SetupConfig& config);
 
   void setup(const game::SetupConfig& config);
 
@@ -44,6 +46,7 @@ public:
   int currCamera;
 
   std::unique_ptr<Dice> die[global::diceAmount];
+  std::unique_ptr<Hand> hands[global::handAmount];
   std::vector<std::unique_ptr<Tile>> tiles;
 
   GameState lastGameState;
