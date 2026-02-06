@@ -5,8 +5,11 @@
 #include <string>
 
 #include <emscripten/html5.h>
+#include <glm/glm.hpp>
 
 namespace input {
+  const float dragDist = 10.0f;
+
   enum actions {
     forward,
     backward,
@@ -42,10 +45,10 @@ public:
   double dx = 0.0;
   double dy = 0.0;
 
-  bool justClicked = false;
-  long long clickTime = 0.0;
+  glm::vec2 mouseDownPos = glm::vec2(0.0f);
+  bool drag = false;
 
-  void update(std::unordered_map<input::actions, bool> actionCurr);
+  void update(std::unordered_map<input::actions, bool>& actionCurr);
 
   bool first = true;
   bool pointerLock = false;

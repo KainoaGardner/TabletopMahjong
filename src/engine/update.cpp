@@ -9,16 +9,14 @@
 #include "../include/game/tile.hpp"
 #include "../include/game/hand.hpp"
 
-
-#include <iostream>
-
 #include "../include/engine/collision.hpp"
+
+// #include <iostream>
 
 namespace update {
 
 void gameUpdate(EngineContext& engineCTX, Game& gameCTX){
   gameCTX.gameUpdate(engineCTX.input);
-
   gameCTX.lastGameState.createGameState(gameCTX);
 }
 

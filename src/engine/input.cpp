@@ -44,14 +44,6 @@ EM_BOOL Input::keyCallback(int eventType, const EmscriptenKeyboardEvent* e, void
       actionCurr[it->second] = true;
     }
 
-    if (it->second == input::click){
-      mouse.justClicked = true;
-
-      auto now = std::chrono::system_clock::now();
-      auto duration = now.time_since_epoch();
-      long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-      mouse.clickTime = currentTime;
-    }
     if (it->second == input::freeLook){
       mouse.dx = 0.0;
       mouse.dy = 0.0;
@@ -102,14 +94,6 @@ EM_BOOL Input::mouseButtonCallback(int eventType, const EmscriptenMouseEvent* e,
     if (it != input::keyToAction.end()){
       actionCurr[it->second] = true;
 
-      if (it->second == input::click){
-        mouse.justClicked = true;
-
-        auto now = std::chrono::system_clock::now();
-        auto duration = now.time_since_epoch();
-        long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-        mouse.clickTime = currentTime;
-      }
       if (it->second == input::freeLook){
         mouse.dx = 0.0;
         mouse.dy = 0.0;
@@ -144,7 +128,8 @@ EM_BOOL Input::mouseWheelCallback(int eventType, const EmscriptenWheelEvent* e, 
   return EM_TRUE;
 }
 
-void Mouse::update(std::unordered_map<input::actions, bool> actionCurr){
+void Mouse::update(std::unordered_map<input::actions, bool>& actionCurr){
+
   if (!pointerLock){
     dx = 0.0;
     dy = 0.0;
@@ -156,10 +141,6 @@ void Mouse::update(std::unordered_map<input::actions, bool> actionCurr){
   }else {
     pointerLock = false;
     // showMouse();
-  }
-
-  if (justClicked){
-    justClicked = false;
   }
 
   if (actionCurr[input::zoomIn]){
