@@ -16,6 +16,8 @@ namespace update {
   void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player);
   void release(EngineContext& engineCTX, Game& gameCTX, global::players player);
 
+  void tileRotate(EngineContext& engineCTX, Game& gameCTX);
+
   Tile* selectTile(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, bool& reselect, global::players player);
   void unselectPlayerTiles(global::players player, Game& gameCTX);
 

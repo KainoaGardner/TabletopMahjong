@@ -47,6 +47,9 @@ void update(EngineContext& engineCTX, Game& gameCTX){
   }
 
   mouse(engineCTX, gameCTX, rayDir, rayOrigin, player);
+
+  tileRotate(engineCTX, gameCTX);
+
   updateHands(gameCTX, rayDir, rayOrigin, player);
 
   gameCTX.update(engineCTX.input);
@@ -158,6 +161,51 @@ void mouse(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 
   click(engineCTX, gameCTX, rayDir, rayOrigin, player);
   hold(engineCTX, gameCTX, rayDir, rayOrigin, player);
   release(engineCTX, gameCTX, player);
+}
+
+void tileRotate(EngineContext& engineCTX, Game& gameCTX){
+  glm::vec3 axis(0.0f);
+  float angle = glm::radians(-90.0f);
+  if (engineCTX.input.pressed(input::actions::reverse)){
+    angle *= -1.0f;
+  }
+
+  if (engineCTX.input.justPressed(input::actions::rotateX)){
+    axis.x = 1.0;
+  }
+  if (engineCTX.input.justPressed(input::actions::rotateY)){
+    axis.y = 1.0;
+  }
+  if (engineCTX.input.justPressed(input::actions::rotateZ)){
+    axis.z = 1.0;
+  }
+
+  if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f){
+    return;
+  }
+
+
+  for (const auto& tile : gameCTX.tiles){
+    if (!tile->selected){
+      continue;
+    }
+
+    glm::quat rotation = glm::angleAxis(angle, axis);
+    tile->orientation = tile->orientation * rotation;
+  } 
+
+
+  if (engineCTX.input.justPressed(input::actions::flip)){
+    for (const auto& tile : gameCTX.tiles){
+      if (!tile->selected){
+        continue;
+      }
+
+      glm::quat rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+      tile->orientation = tile->orientation * rotation;
+
+    }
+  }
 }
 
 
