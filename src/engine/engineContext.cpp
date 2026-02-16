@@ -88,8 +88,10 @@ void EngineContext::setupTextures(){
 
 void EngineContext::setupFramebuffers(engineContext::SetupConfig config){
   auto screenFramebuffer = std::make_unique<Framebuffer>(framebuffer::create(config.width, config.height));
+  auto highlightFramebuffer = std::make_unique<Framebuffer>(framebuffer::createColorBuffer(config.width, config.height, true));
 
   addFrameBuffer("screen", std::move(screenFramebuffer));
+  addFrameBuffer("highlight", std::move(highlightFramebuffer));
 }
 
 void EngineContext::setupGeometries(){
@@ -97,25 +99,33 @@ void EngineContext::setupGeometries(){
   auto cubeGeometry = std::make_unique<Geometry>(geometry::createCube());
   auto cubemapGeometry = std::make_unique<Geometry>(geometry::createCubemap());
   auto screenGeometry = std::make_unique<Geometry>(geometry::createScreen());
+  auto quadGeometry = std::make_unique<Geometry>(geometry::createQuad());
 
   addGeometry("plane", std::move(planeGeometry));
   addGeometry("cube", std::move(cubeGeometry));
   addGeometry("cubemap", std::move(cubemapGeometry));
   addGeometry("screen", std::move(screenGeometry));
+  addGeometry("quad", std::move(quadGeometry));
 }
 
 void EngineContext::setupShaders(){
   auto normalShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/fragment.frag");
   auto clickShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/click.frag");
+  auto blackShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/black.frag");
   auto screenShader = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
   auto modelShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
-  auto cubemapShader= std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
+  auto cubemapShader = std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
+
+  auto selectionBox = std::make_unique<Shader>("./assets/shaders/selectionBox.vert", "./assets/shaders/selectionBox.frag");
 
   addShader("normal", std::move(normalShader));
   addShader("click", std::move(clickShader));
+  addShader("black", std::move(blackShader));
   addShader("screen", std::move(screenShader));
   addShader("model", std::move(modelShader));
   addShader("cubemap", std::move(cubemapShader));
+
+  addShader("selectionBox", std::move(selectionBox));
 }
 
 void EngineContext::setupModels(){

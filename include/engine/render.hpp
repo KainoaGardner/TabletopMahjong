@@ -20,7 +20,6 @@ namespace render {
   float linearInterp(float a, float b, float alpha);
 
   void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection);
-  void selectHighlight(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection);
   void dice(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
@@ -31,6 +30,11 @@ namespace render {
   void centerPiece(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
 
   void hands(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
+
+  void selectMaskSetup(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection);
+  void selectHighlight(EngineContext& engineCTX);
+  void selectionBox(EngineContext& engineCTX, Game& gameCTX);
+
   void screen(EngineContext& engineCTX);
 }
 

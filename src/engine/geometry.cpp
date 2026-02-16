@@ -3,10 +3,10 @@
 
 namespace geometry {
 float PLANE_VERTICES[20] = {
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 
-    0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   
-    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  
+    0.5f, 0.5f, 0.0f, 1.0f, 1.0f,   
+    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  
 };
 
 
@@ -107,6 +107,13 @@ unsigned int SCREEN_INDICES[6] = {
     2, 3, 0, // second tri
 };
 
+
+float QUAD_VERTICES[8] = {
+    0.0f, 0.0f,   // bottom-left
+    1.0f, 0.0f,   // bottom-right
+    1.0f, 1.0f,   // top-right
+    0.0f, 1.0f    // top-left
+};
 
 
  
@@ -211,5 +218,31 @@ Geometry createCubemap() {
 
   return geometry;
 }
+
+Geometry createQuad() {
+  Geometry geometry;
+  glGenVertexArrays(1, &geometry.vao);
+  glBindVertexArray(geometry.vao);
+
+  glGenBuffers(1, &geometry.vbo);
+
+  glBindBuffer(GL_ARRAY_BUFFER, geometry.vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD_VERTICES), QUAD_VERTICES, GL_STATIC_DRAW);
+
+  glGenBuffers(1, &geometry.ebo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry.ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SCREEN_INDICES), SCREEN_INDICES, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0); 
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  return geometry;
 }
+
+}
+
 

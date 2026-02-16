@@ -15,6 +15,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../include/util/emjs.hpp"
+
 #include <iostream>
 
 void mainLoop(void* arg);
@@ -41,6 +43,8 @@ int main(){
 
   App* app = new App();
   app->setup();
+
+  preventShiftRightClick();
 
   emscripten_set_canvas_element_size("#canvas", app->engineCTX.width, app->engineCTX.height);
 

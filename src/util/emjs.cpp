@@ -34,3 +34,28 @@ EM_JS(void, preventPageScroll, (), {
     document.addEventListener('wheel', e => e.preventDefault(), { passive: false });
     document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 });
+
+EM_JS(void, preventShiftRightClick, (), {
+    let shiftDown = false;
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Shift') shiftDown = true;
+    });
+
+    document.addEventListener('keyup', e => {
+        if (e.key === 'Shift') shiftDown = false;
+    });
+
+    document.addEventListener('contextmenu', e => {
+        if (shiftDown) {
+            e.preventDefault();
+            return false;
+        }
+    }, { capture: true });
+
+    document.addEventListener('mousedown', e => {
+        if (e.button === 2 && shiftDown) {
+            e.preventDefault();
+        }
+    }, { capture: true });
+});

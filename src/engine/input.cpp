@@ -1,6 +1,6 @@
 #include "../include/engine/input.hpp"
 #include "../include/util/emjs.hpp"
-#include <chrono>
+
 
 namespace input {
 
@@ -143,12 +143,12 @@ void Mouse::update(std::unordered_map<input::actions, bool>& actionCurr){
     // showMouse();
   }
 
-  if (actionCurr[input::zoomIn]){
-    actionCurr[input::zoomIn] = false;
-  }
-  if (actionCurr[input::zoomOut]){
-    actionCurr[input::zoomOut] = false;
-  }
+  // if (actionCurr[input::zoomIn]){
+  //   actionCurr[input::zoomIn] = false;
+  // }
+  // if (actionCurr[input::zoomOut]){
+  //   actionCurr[input::zoomOut] = false;
+  // }
 
 }
 
@@ -170,8 +170,8 @@ void Input::clear(){
   //   actionCurr[pair.first] = false;
   // }
 
-  actionCurr[input::actions::zoomIn] = false;
-  actionCurr[input::actions::zoomOut] = false;
+  // actionCurr[input::actions::zoomIn] = false;
+  // actionCurr[input::actions::zoomOut] = false;
 
   mouse.dx = 0.0f;
   mouse.dy = 0.0f;

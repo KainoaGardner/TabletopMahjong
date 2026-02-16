@@ -37,6 +37,9 @@ namespace input {
 extern std::unordered_map<std::string, actions> keyToAction;
 
 } // namespace input
+//
+
+class Tile;
 
 class Mouse {
 public:
@@ -47,6 +50,9 @@ public:
 
   glm::vec2 mouseDownPos = glm::vec2(0.0f);
   bool drag = false;
+  bool selection = false;
+  Tile* tileClicked = nullptr;
+  bool reselectTile = false;
 
   void update(std::unordered_map<input::actions, bool>& actionCurr);
 

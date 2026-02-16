@@ -169,9 +169,11 @@ void Camera::revertPosition(const Input& input){
 void Camera::zoom(const Input& input){
   if (input.pressed(input::actions::zoomIn)){
     fov += zoomSpeed;
+    input.actionCurr[input::actions::zoomIn] = false;
   }
   if (input.pressed(input::actions::zoomOut)){
     fov -= zoomSpeed;
+    input.actionCurr[input::actions::zoomOut] = false;
   }
 
   if (fov < camera::minFov){

@@ -9,6 +9,7 @@ void showMouse();
 double getCanvasMouseX(int clientX);
 double getCanvasMouseY(int clientY);
 void preventPageScroll();
+void preventShiftRightClick();
 }
 
 #endif
