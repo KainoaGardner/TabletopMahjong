@@ -18,7 +18,9 @@ const float farPlane = 10000.0f;
 
 const int maxTimeGap = 250;
 
-const float dragThreshold = 15.0f;
+const float dragDistThreshold = 8.0f;
+const float dragTimeThreshold = 300.0f;
+
 const glm::vec2 selectionBoxThickness = glm::vec2(5.0f);
 
 const int diceAmount = 2;

@@ -3,6 +3,9 @@
 
 #include <GLES3/gl3.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp> 
+
 #include "../include/engine/config.hpp"
 #include "../include/game/game.hpp"
 #include "../include/engine/engineContext.hpp"
@@ -48,7 +51,7 @@ void update(EngineContext& engineCTX, Game& gameCTX){
 
   mouse(engineCTX, gameCTX, rayDir, rayOrigin, player);
 
-  tileRotate(engineCTX, gameCTX);
+  tileRotate(engineCTX, gameCTX, player);
 
   updateHands(gameCTX, rayDir, rayOrigin, player);
 
@@ -97,6 +100,7 @@ void click(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 
     return;
 
   engineCTX.input.mouse.mouseDownPos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
+  engineCTX.input.mouse.mouseDownTime = std::chrono::steady_clock::now();
   engineCTX.input.mouse.drag = false;
   engineCTX.input.mouse.selection = false;
   bool reselect = false;
@@ -118,7 +122,11 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
   glm::vec2 currMousePos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
   float dist = glm::distance(engineCTX.input.mouse.mouseDownPos, currMousePos);
 
-  if ((!engineCTX.input.mouse.drag && !engineCTX.input.mouse.selection) && dist > global::dragThreshold){
+  auto now = std::chrono::steady_clock::now();
+  auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - engineCTX.input.mouse.mouseDownTime).count();
+
+  if ((!engineCTX.input.mouse.drag && !engineCTX.input.mouse.selection) && 
+    (dist > global::dragDistThreshold || timePassed > global::dragTimeThreshold)){
     if (engineCTX.input.mouse.tileClicked){
       engineCTX.input.mouse.drag = true;
     }else{
@@ -163,51 +171,39 @@ void mouse(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 
   release(engineCTX, gameCTX, player);
 }
 
-void tileRotate(EngineContext& engineCTX, Game& gameCTX){
+void tileRotate(EngineContext& engineCTX, Game& gameCTX, global::players player){
   glm::vec3 axis(0.0f);
   float angle = glm::radians(-90.0f);
-  if (engineCTX.input.pressed(input::actions::reverse)){
-    angle *= -1.0f;
-  }
 
-  if (engineCTX.input.justPressed(input::actions::rotateX)){
+  if (engineCTX.input.justPressed(input::actions::spinForward))
+    axis.x = -1.0;
+  else if (engineCTX.input.justPressed(input::actions::spinBackward))
     axis.x = 1.0;
-  }
-  if (engineCTX.input.justPressed(input::actions::rotateY)){
+  else if (engineCTX.input.justPressed(input::actions::twistForward))
+    axis.y = -1.0;
+  else if (engineCTX.input.justPressed(input::actions::twistBackward))
     axis.y = 1.0;
-  }
-  if (engineCTX.input.justPressed(input::actions::rotateZ)){
+  else if (engineCTX.input.justPressed(input::actions::flipForward))
+    axis.z = -1.0;
+  else if (engineCTX.input.justPressed(input::actions::flipBackward))
     axis.z = 1.0;
-  }
+
 
   if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f){
     return;
   }
 
+  axis = glm::rotate(axis, glm::radians(90.0f * player), glm::vec3(0.0f, 1.0f, 0.0f));
 
   for (const auto& tile : gameCTX.tiles){
-    if (!tile->selected){
+    if (!tile->selected || tile->selected != player){
       continue;
     }
 
     glm::quat rotation = glm::angleAxis(angle, axis);
-    tile->orientation = tile->orientation * rotation;
+    tile->orientation = rotation * tile->orientation;
   } 
-
-
-  if (engineCTX.input.justPressed(input::actions::flip)){
-    for (const auto& tile : gameCTX.tiles){
-      if (!tile->selected){
-        continue;
-      }
-
-      glm::quat rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-      tile->orientation = tile->orientation * rotation;
-
-    }
-  }
 }
-
 
 }
 

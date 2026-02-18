@@ -19,10 +19,12 @@ namespace input {
     down,
     click,
     shift,
-    rotateX,
-    rotateY,
-    rotateZ,
-    flip,
+    flipForward,
+    flipBackward,
+    spinForward,
+    spinBackward,
+    twistForward,
+    twistBackward,
     reverse,
     freeLook,
     freeCam,
@@ -54,6 +56,7 @@ public:
   double dy = 0.0;
 
   glm::vec2 mouseDownPos = glm::vec2(0.0f);
+  std::chrono::steady_clock::time_point mouseDownTime = std::chrono::steady_clock::now();
   bool drag = false;
   bool selection = false;
   Tile* tileClicked = nullptr;

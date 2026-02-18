@@ -78,6 +78,7 @@ void Camera::updateVectors() {
 
 void Camera::rotate(const Input& input){
   if (input.pressed(input::actions::freeLook)){
+    // std::cout << "rotate" << std::endl;
     yaw -= input.mouse.dx   * sensitivity;
     pitch -= input.mouse.dy * sensitivity;
 
