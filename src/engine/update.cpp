@@ -32,10 +32,13 @@ void update(EngineContext& engineCTX, Game& gameCTX){
   const glm::mat4& view = camera::getViewMatrix(camera->position, camera->yaw, camera->pitch, camera->roll);
   const glm::mat4& projection = camera::getProjectionMatrix(camera->fov, engineCTX.width, engineCTX.height);
 
+  const glm::mat4 inverseView = glm::inverse(view);
+  const glm::mat4 inverseProjection = glm::inverse(projection);
+
   glm::vec3 rayDir;
   glm::vec3 rayOrigin;
   collision::computeMouseRay(engineCTX.input.mouse.x, engineCTX.input.mouse.y, engineCTX.width, engineCTX.height,
-                             view, projection, camera->position,
+                             inverseView, inverseProjection, camera->position,
                              rayOrigin, rayDir);
 
   global::players player = global::players::jicha;
@@ -49,7 +52,7 @@ void update(EngineContext& engineCTX, Game& gameCTX){
     player = global::players::kamicha;
   }
 
-  mouse(engineCTX, gameCTX, rayDir, rayOrigin, player);
+  mouse(engineCTX, gameCTX, inverseView, inverseProjection, rayDir, rayOrigin, player);
 
   tileRotate(engineCTX, gameCTX, player);
 
@@ -95,6 +98,14 @@ void unselectPlayerTiles(global::players player, Game& gameCTX){
   };
 }
 
+bool selectionBoxSelectTile(EngineContext& engineCTX, Game& gameCTX,
+                              const glm::mat4& inverseView, const glm::mat4& inverseProjection,
+                              glm::vec2 startPos, glm::vec2 endPos, global::players player){
+
+  std::array<glm::vec3, 8> points = collision::createFrustumPoints(inverseView, inverseProjection, startPos, endPos, engineCTX.width, engineCTX.height);
+  return collision::selectionBoxPickTile(points, gameCTX.tiles, player);
+}
+
 void click(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player){
   if (!engineCTX.input.justPressed(input::actions::click))
     return;
@@ -131,6 +142,7 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
       engineCTX.input.mouse.drag = true;
     }else{
       engineCTX.input.mouse.selection = true;
+      std::cout << "selecting" << std::endl;
     }
   }
 
@@ -154,9 +166,16 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
 
 }
 
-void release(EngineContext& engineCTX, Game& gameCTX, global::players player){
+void release(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView, const glm::mat4& inverseProjection, global::players player){
   if (!engineCTX.input.justReleased(input::actions::click))
     return;
+
+
+  if (engineCTX.input.mouse.selection){
+    glm::vec2 currMousePos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
+    bool selected = selectionBoxSelectTile(engineCTX, gameCTX,inverseView, inverseProjection, engineCTX.input.mouse.mouseDownPos, currMousePos, player);
+    std::cout << "selection done: selected: " << selected << std::endl;
+  }
 
   engineCTX.input.mouse.drag = false;
   engineCTX.input.mouse.selection = false;
@@ -165,10 +184,12 @@ void release(EngineContext& engineCTX, Game& gameCTX, global::players player){
 }
 
 
-void mouse(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player){
+void mouse(EngineContext& engineCTX, Game& gameCTX,
+             const glm::mat4& inverseView, const glm::mat4& inverseProjection,
+             glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player){
   click(engineCTX, gameCTX, rayDir, rayOrigin, player);
   hold(engineCTX, gameCTX, rayDir, rayOrigin, player);
-  release(engineCTX, gameCTX, player);
+  release(engineCTX, gameCTX, inverseView, inverseProjection, player);
 }
 
 void tileRotate(EngineContext& engineCTX, Game& gameCTX, global::players player){
