@@ -100,12 +100,14 @@ void EngineContext::setupGeometries(){
   auto cubemapGeometry = std::make_unique<Geometry>(geometry::createCubemap());
   auto screenGeometry = std::make_unique<Geometry>(geometry::createScreen());
   auto quadGeometry = std::make_unique<Geometry>(geometry::createQuad());
+  auto lineGeometry = std::make_unique<Geometry>(geometry::createLine());
 
   addGeometry("plane", std::move(planeGeometry));
   addGeometry("cube", std::move(cubeGeometry));
   addGeometry("cubemap", std::move(cubemapGeometry));
   addGeometry("screen", std::move(screenGeometry));
   addGeometry("quad", std::move(quadGeometry));
+  addGeometry("line", std::move(lineGeometry));
 }
 
 void EngineContext::setupShaders(){
@@ -116,7 +118,8 @@ void EngineContext::setupShaders(){
   auto modelShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
   auto cubemapShader = std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
 
-  auto selectionBox = std::make_unique<Shader>("./assets/shaders/selectionBox.vert", "./assets/shaders/selectionBox.frag");
+  auto selectionBoxShader = std::make_unique<Shader>("./assets/shaders/selectionBox.vert", "./assets/shaders/selectionBox.frag");
+  auto lineShader = std::make_unique<Shader>("./assets/shaders/line.vert", "./assets/shaders/line.frag");
 
   addShader("normal", std::move(normalShader));
   addShader("click", std::move(clickShader));
@@ -125,7 +128,8 @@ void EngineContext::setupShaders(){
   addShader("model", std::move(modelShader));
   addShader("cubemap", std::move(cubemapShader));
 
-  addShader("selectionBox", std::move(selectionBox));
+  addShader("selectionBox", std::move(selectionBoxShader));
+  addShader("line", std::move(lineShader));
 }
 
 void EngineContext::setupModels(){

@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <GLES3/gl3.h>
 
 class EngineContext;
 class Game;
@@ -36,6 +37,10 @@ namespace render {
   void selectionBox(EngineContext& engineCTX, Game& gameCTX);
 
   void screen(EngineContext& engineCTX);
+
+
+  void drawLine(const glm::vec3& a, const glm::vec3& b, GLuint vao, GLuint vbo);
+  void lines(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
 }
 
 #endif

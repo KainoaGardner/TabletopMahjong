@@ -27,6 +27,7 @@ namespace geometry {
   Geometry createCubemap();
   Geometry createScreen();
   Geometry createQuad();
+  Geometry createLine();
 } 
 
 #endif

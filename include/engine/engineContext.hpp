@@ -33,6 +33,17 @@ public:
   long long lastUpdateTime = 0;
   double excessTime = 0.0;
 
+  glm::vec3 testPoints[8] = {
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+    glm::vec3(0.0f),
+  };
+
   Input input;
 
   Framebuffer* addFrameBuffer(const std::string& name, std::unique_ptr<Framebuffer> framebuffer);

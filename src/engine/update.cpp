@@ -20,13 +20,12 @@
 namespace update {
 
 void gameUpdate(EngineContext& engineCTX, Game& gameCTX){
-  gameCTX.gameUpdate(engineCTX.input);
-  gameCTX.lastGameState.createGameState(gameCTX);
+  // gameCTX.gameUpdate(engineCTX.input);
+  // gameCTX.lastGameState.createGameState(gameCTX);
 }
 
 void update(EngineContext& engineCTX, Game& gameCTX){
   engineCTX.input.update();
-
 
   const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
   const glm::mat4& view = camera::getViewMatrix(camera->position, camera->yaw, camera->pitch, camera->roll);
@@ -99,10 +98,17 @@ void unselectPlayerTiles(global::players player, Game& gameCTX){
 }
 
 bool selectionBoxSelectTile(EngineContext& engineCTX, Game& gameCTX,
-                              const glm::mat4& inverseView, const glm::mat4& inverseProjection,
-                              glm::vec2 startPos, glm::vec2 endPos, global::players player){
+                            const glm::mat4& inverseView, const glm::mat4& inverseProjection,
+                            glm::vec2 startPos, glm::vec2 endPos, global::players player){
 
   std::array<glm::vec3, 8> points = collision::createFrustumPoints(inverseView, inverseProjection, startPos, endPos, engineCTX.width, engineCTX.height);
+  std::cout << "start" << std::endl;
+  for (int i = 0; i < 8; ++i){
+    std::cout << i << std::endl;
+    glm::vec3 p = points[i];
+    engineCTX.testPoints[i] = p;
+    std::cout << p.x << " " << p.y << " " << p.z << std::endl;
+  }
   return collision::selectionBoxPickTile(points, gameCTX.tiles, player);
 }
 
@@ -136,13 +142,13 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
   auto now = std::chrono::steady_clock::now();
   auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - engineCTX.input.mouse.mouseDownTime).count();
 
-  if ((!engineCTX.input.mouse.drag && !engineCTX.input.mouse.selection) && 
-    (dist > global::dragDistThreshold || timePassed > global::dragTimeThreshold)){
-    if (engineCTX.input.mouse.tileClicked){
-      engineCTX.input.mouse.drag = true;
-    }else{
-      engineCTX.input.mouse.selection = true;
-      std::cout << "selecting" << std::endl;
+  if (!engineCTX.input.mouse.drag && !engineCTX.input.mouse.selection){
+    if (dist > global::dragDistThreshold || timePassed > global::dragTimeThreshold){
+      if (engineCTX.input.mouse.tileClicked){
+        engineCTX.input.mouse.drag = true;
+      }else{
+        engineCTX.input.mouse.selection = true;
+      }
     }
   }
 
@@ -161,7 +167,6 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
         tile->position += posDelta;
       }
     }
-
   }
 
 }
@@ -171,10 +176,16 @@ void release(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseVi
     return;
 
 
+  if (!engineCTX.input.mouse.drag &&
+    engineCTX.input.mouse.tileClicked &&
+    engineCTX.input.mouse.reselectTile &&
+    engineCTX.input.pressed(input::actions::shift)){
+    engineCTX.input.mouse.tileClicked->selected = std::nullopt;
+  }
+
   if (engineCTX.input.mouse.selection){
     glm::vec2 currMousePos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
     bool selected = selectionBoxSelectTile(engineCTX, gameCTX,inverseView, inverseProjection, engineCTX.input.mouse.mouseDownPos, currMousePos, player);
-    std::cout << "selection done: selected: " << selected << std::endl;
   }
 
   engineCTX.input.mouse.drag = false;

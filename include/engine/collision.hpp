@@ -59,10 +59,11 @@ std::array<glm::vec3, 8> createFrustumPoints(const glm::mat4& inverseView, const
                                              const glm::vec2& startPos, const glm::vec2& endPos,
                                              int width, int height);
 
-Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
+Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& center);
 Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points);
 
 AABB convertTileToAABB(const std::unique_ptr<Tile>& tile);
+AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile);
 
 bool rayIntersectAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const AABB& box, float& tHit);
 bool outsidePlane(const Plane& plane, const AABB& hitbox);

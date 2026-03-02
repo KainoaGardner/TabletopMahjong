@@ -27,7 +27,7 @@ void convertV2toFrustumPoints(const glm::vec2& pos, int width, int height, const
   float x = (2.0f * pos.x) / float(width) - 1.0f;
   float y = 1.0f - (2.0f * pos.y) / float(height);
 
-  glm::mat4 inverseViewProjection = inverseProjection * inverseView;
+  glm::mat4 inverseViewProjection = inverseView * inverseProjection ;
 
   glm::vec4 clipNear = glm::vec4(x, y, -1.0f, 1.0f);
   glm::vec4 clipFar = glm::vec4(x, y, 1.0f, 1.0f);
@@ -80,7 +80,7 @@ std::array<glm::vec3, 8> createFrustumPoints(const glm::mat4& inverseView, const
   return points;
 }
 
-Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c){
+Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& center){
   Plane plane;
   glm::vec3 ab = b - a;
   glm::vec3 ac = c - a;
@@ -88,22 +88,28 @@ Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c){
   plane.normal = glm::normalize(glm::cross(ab, ac));
   plane.d = -glm::dot(plane.normal, a);
 
+  if (glm::dot(plane.normal, center) + plane.d < 0.0f){
+    plane.normal = -plane.normal;
+    plane.d = -plane.d;
+  }
+
   return plane;
 }
 
 Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points){
   Frustum f;
+
+  glm::vec3 center = (points[NEAR_BL] + points[FAR_TR]) * 0.5f;
   
-  f.planes[NEAR] = createPlane(points[NEAR_BL], points[NEAR_BR], points[NEAR_TR]);
-  f.planes[FAR] = createPlane(points[FAR_BR], points[FAR_BL], points[FAR_TL]);
-  f.planes[LEFT] = createPlane(points[FAR_BL], points[NEAR_BL], points[NEAR_TL]);
-  f.planes[RIGHT] = createPlane(points[NEAR_BR], points[FAR_BR], points[FAR_TR]);
-  f.planes[TOP] = createPlane(points[NEAR_TL], points[NEAR_TR], points[FAR_TR]);
-  f.planes[BOTTOM] = createPlane(points[FAR_BL], points[FAR_BR], points[NEAR_BR]);
+  f.planes[NEAR] = createPlane(points[NEAR_BL], points[NEAR_BR], points[NEAR_TR], center);
+  f.planes[FAR] = createPlane(points[FAR_BR], points[FAR_BL], points[FAR_TL], center);
+  f.planes[LEFT] = createPlane(points[FAR_BL], points[NEAR_BL], points[NEAR_TL], center);
+  f.planes[RIGHT] = createPlane(points[NEAR_BR], points[FAR_BR], points[FAR_TR], center);
+  f.planes[TOP] = createPlane(points[NEAR_TL], points[NEAR_TR], points[FAR_TR], center);
+  f.planes[BOTTOM] = createPlane(points[FAR_BL], points[FAR_BR], points[NEAR_BR], center);
 
   return f;
 }
-
 
 AABB convertTileToAABB(const std::unique_ptr<Tile>& tile){
   AABB result;
@@ -112,6 +118,47 @@ AABB convertTileToAABB(const std::unique_ptr<Tile>& tile){
   result.max = tile->halfSize;
   return result;
 }
+
+AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile){
+  AABB result;
+
+  glm::vec3 localMin = -tile->halfSize;
+  glm::vec3 localMax =  tile->halfSize;
+
+  glm::vec3 corners[8] = {
+      {localMin.x, localMin.y, localMin.z},
+      {localMax.x, localMin.y, localMin.z},
+      {localMin.x, localMax.y, localMin.z},
+      {localMax.x, localMax.y, localMin.z},
+      {localMin.x, localMin.y, localMax.z},
+      {localMax.x, localMin.y, localMax.z},
+      {localMin.x, localMax.y, localMax.z},
+      {localMax.x, localMax.y, localMax.z},
+  };
+
+  glm::vec3 worldMin(FLT_MAX);
+  glm::vec3 worldMax(-FLT_MAX);
+
+  for (int i = 0; i < 8; i++) {
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, tile->position);
+      model *= glm::mat4_cast(tile->orientation);
+      model = glm::scale(model, glm::vec3(model::tileScaleFactor));
+      glm::vec4 worldCorner = model * glm::vec4(corners[i], 1.0f);
+
+      glm::vec3 wc = glm::vec3(worldCorner);
+
+      worldMin = glm::min(worldMin, wc);
+      worldMax = glm::max(worldMax, wc);
+  }
+
+  result.min = worldMin;
+  result.max = worldMax;
+
+  return result;
+}
+
+
 
 bool rayIntersectAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const AABB& box, float& tHit){
   glm::vec3 invDir = 1.0f / rayDir;
@@ -184,11 +231,10 @@ bool outsidePlane(const Plane& plane, const AABB& hitbox){
 
 bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vector<std::unique_ptr<Tile>>& tiles, global::players player){
   bool selection = false; 
-
   Frustum frustum = createFrustumPlanes(points);
 
   for (const auto& tile : tiles){
-    AABB hitbox = convertTileToAABB(tile);
+    AABB hitbox = convertTileToWorldAABB(tile);
 
     bool out = false;
     for (const auto& plane : frustum.planes){
