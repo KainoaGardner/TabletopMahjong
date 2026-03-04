@@ -79,6 +79,9 @@ public:
   void draw(Shader* shader) const;
   unsigned int tile;
 
+  glm::mat4 getModelMatrix();
+
+
 private:
   const Model* model;
 };

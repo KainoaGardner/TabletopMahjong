@@ -3,6 +3,11 @@
 #include "../include/engine/model.hpp"
 #include "engine/model.hpp"
 
+
+#include "../include/engine/engineContext.hpp"
+#include "../include/game/game.hpp"
+#include "../include/game/camera.hpp"
+
 #include <iostream>
 
 namespace collision {
@@ -88,10 +93,14 @@ Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, co
   plane.normal = glm::normalize(glm::cross(ab, ac));
   plane.d = -glm::dot(plane.normal, a);
 
-  if (glm::dot(plane.normal, center) + plane.d < 0.0f){
-    plane.normal = -plane.normal;
-    plane.d = -plane.d;
+  float side = glm::dot(plane.normal, center) + plane.d;
+  if (side > 0.0f) {
+      plane.normal = -plane.normal;
+      plane.d = -plane.d;
   }
+
+  plane.normal = -plane.normal;
+  plane.d = -plane.d;
 
   return plane;
 }
@@ -101,8 +110,8 @@ Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points){
 
   glm::vec3 center = (points[NEAR_BL] + points[FAR_TR]) * 0.5f;
   
-  f.planes[NEAR] = createPlane(points[NEAR_BL], points[NEAR_BR], points[NEAR_TR], center);
-  f.planes[FAR] = createPlane(points[FAR_BR], points[FAR_BL], points[FAR_TL], center);
+  f.planes[NEAR] = createPlane(points[NEAR_BL], points[NEAR_BR], points[NEAR_TR], center); 
+  f.planes[FAR] = createPlane(points[FAR_BR], points[FAR_BL], points[FAR_TL], center); 
   f.planes[LEFT] = createPlane(points[FAR_BL], points[NEAR_BL], points[NEAR_TL], center);
   f.planes[RIGHT] = createPlane(points[NEAR_BR], points[FAR_BR], points[FAR_TR], center);
   f.planes[TOP] = createPlane(points[NEAR_TL], points[NEAR_TR], points[FAR_TR], center);
@@ -139,17 +148,14 @@ AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile){
   glm::vec3 worldMin(FLT_MAX);
   glm::vec3 worldMax(-FLT_MAX);
 
+  glm::mat4 model = tile->getModelMatrix();
+
   for (int i = 0; i < 8; i++) {
-      glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, tile->position);
-      model *= glm::mat4_cast(tile->orientation);
-      model = glm::scale(model, glm::vec3(model::tileScaleFactor));
-      glm::vec4 worldCorner = model * glm::vec4(corners[i], 1.0f);
+    glm::vec4 worldCorner = model * glm::vec4(corners[i], 1.0f);
+    glm::vec3 wc = glm::vec3(worldCorner);
 
-      glm::vec3 wc = glm::vec3(worldCorner);
-
-      worldMin = glm::min(worldMin, wc);
-      worldMax = glm::max(worldMax, wc);
+    worldMin = glm::min(worldMin, wc);
+    worldMax = glm::max(worldMax, wc);
   }
 
   result.min = worldMin;
@@ -188,11 +194,7 @@ Tile* pickTile(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const std::v
   for (const auto& tile : tiles){
     AABB hitbox = convertTileToAABB(tile);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, tile->position);
-    model *= glm::mat4_cast(tile->orientation);
-    model = glm::scale(model, glm::vec3(model::tileScaleFactor));
-
+    glm::mat4 model = tile->getModelMatrix();
     glm::mat4 invModel = glm::inverse(model);
 
     glm::vec3 localOrigin = glm::vec3(invModel * glm::vec4(rayOrigin, 1.0f));
@@ -211,27 +213,45 @@ Tile* pickTile(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const std::v
 }
 
 bool outsidePlane(const Plane& plane, const AABB& hitbox){
-  glm::vec3 positive;
 
-  positive.x = hitbox.min.x;
-  positive.y = hitbox.min.y;
-  positive.z = hitbox.min.z;
+  glm::vec3 corners[8] = {
+    {hitbox.min.x, hitbox.min.y, hitbox.min.z},
+    {hitbox.max.x, hitbox.min.y, hitbox.min.z},
+    {hitbox.min.x, hitbox.max.y, hitbox.min.z},
+    {hitbox.max.x, hitbox.max.y, hitbox.min.z},
+    {hitbox.min.x, hitbox.min.y, hitbox.max.z},
+    {hitbox.max.x, hitbox.min.y, hitbox.max.z},
+    {hitbox.min.x, hitbox.max.y, hitbox.max.z},
+    {hitbox.max.x, hitbox.max.y, hitbox.max.z},
+  };
 
-  if (plane.normal.x >= 0)
-    positive.x = hitbox.max.x;
+  int outsideCount = 0;
+  for (int i = 0; i < 8; i++){
+    if (glm::dot(plane.normal, corners[i]) + plane.d < 0){
+      outsideCount++;
+    }
+  }
 
-  if (plane.normal.y >= 0)
-    positive.y = hitbox.max.y;
+  return outsideCount == 8;
 
-  if (plane.normal.z >= 0)
-    positive.z = hitbox.max.z;
-
-  return glm::dot(plane.normal, positive) + plane.d < 0;
+  // glm::vec3 positive = hitbox.min;
+  //
+  // if (plane.normal.x >= 0)
+  //   positive.x = hitbox.max.x;
+  //
+  // if (plane.normal.y >= 0)
+  //   positive.y = hitbox.max.y;
+  //
+  // if (plane.normal.z >= 0)
+  //   positive.z = hitbox.max.z;
+  //
+  // return glm::dot(plane.normal, positive) + plane.d < 0;
 }
 
 bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vector<std::unique_ptr<Tile>>& tiles, global::players player){
   bool selection = false; 
   Frustum frustum = createFrustumPlanes(points);
+
 
   for (const auto& tile : tiles){
     AABB hitbox = convertTileToWorldAABB(tile);
@@ -256,4 +276,3 @@ bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vec
 }
 
 }
-

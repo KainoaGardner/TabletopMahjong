@@ -90,6 +90,16 @@ void Tile::draw(Shader* shader) const {
   glBindVertexArray(0);
 }
 
+glm::mat4 Tile::getModelMatrix(){
+  glm::mat4 model = glm::mat4(1.0f);
+
+  model = glm::translate(model, position);
+  model *= glm::mat4_cast(orientation);
+  model = glm::scale(model, glm::vec3(model::tileScaleFactor));
+
+  return model;
+}
+
 namespace tile {
 
 void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& tiles){
@@ -438,4 +448,8 @@ void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   glm::quat orientation = glm::quat(glm::vec3(0.0f, glm::radians(90.0f * (wall + 1)), 0.0f));
   doraInd->orientation = orientation;
 }
+
+
+
+
 }

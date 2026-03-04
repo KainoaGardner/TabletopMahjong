@@ -44,7 +44,6 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
   // click(engineCTX, gameCTX, view, projection);
   hands(engineCTX, gameCTX, view, projection);
   selectMaskSetup(engineCTX, gameCTX.tiles, view, projection);
-  lines(engineCTX, gameCTX, view, projection);
 
   //screen
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -64,11 +63,7 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
   shader->setMatrix4fv("uProjection", projection);
 
   for (const auto& tile : tiles){
-    glm::mat4 model = glm::mat4(1.0f);
-
-    model = glm::translate(model, tile->position);
-    model *= glm::mat4_cast(tile->orientation);
-    model = glm::scale(model, glm::vec3(model::tileScaleFactor));
+    glm::mat4 model = tile->getModelMatrix();
     shader->setMatrix4fv("uModel", model);
     tile->draw(shader);
   }
@@ -358,18 +353,6 @@ void hands(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
 
-  for (const auto& point : engineCTX.testPoints){
-    glm::mat4 model = glm::mat4(1.0f);
-  
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, point);
-    model = glm::scale(model, glm::vec3(0.005f));
-  
-    shader->setVec4f("uColor", glm::vec4(0.0f, 0.0f, 1.0f, 0.5f));
-    shader->setMatrix4fv("uModel", model);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-  }
-
   glDisable(GL_BLEND);
 }
 
@@ -523,50 +506,5 @@ glm::mat4 getInterpCameraProj(float a, Game& gameCTX, EngineContext& engineCTX){
   glm::mat4 projection = camera::getProjectionMatrix(fovInterp, engineCTX.width, engineCTX.height);
   return projection;
 }
-
-void drawLine(const glm::vec3& a, const glm::vec3& b, GLuint vao, GLuint vbo){
-  glm::vec3 points[2] = { a, b };
-
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_DYNAMIC_DRAW);
-  glDrawArrays(GL_LINES, 0, 2);
-}
-
-void lines(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  Shader* shader = engineCTX.getShader("line");
-  Geometry* lineGeo = engineCTX.getGeometry("line");
-
-  shader->use();
-  shader->setMatrix4fv("uView", view);
-  shader->setMatrix4fv("uProjection", projection);
-  shader->setVec4f("uColor", glm::vec4(0.0f, 0.0f, 1.0f, 0.5f));
-
-  auto p = engineCTX.testPoints;
-  drawLine(p[collision::NEAR_BL], p[collision::NEAR_BR], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_BR], p[collision::NEAR_TR], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_TR], p[collision::NEAR_TL], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_TL], p[collision::NEAR_BL], lineGeo->vao, lineGeo->vbo);
-  
-  // Far plane
-  drawLine(p[collision::FAR_BL], p[collision::FAR_BR], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::FAR_BR], p[collision::FAR_TR], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::FAR_TR], p[collision::FAR_TL], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::FAR_TL], p[collision::FAR_BL], lineGeo->vao, lineGeo->vbo);
-  
-  // Connect collision::near to far
-  drawLine(p[collision::NEAR_BL], p[collision::FAR_BL], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_BR], p[collision::FAR_BR], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_TL], p[collision::FAR_TL], lineGeo->vao, lineGeo->vbo);
-  drawLine(p[collision::NEAR_TR], p[collision::FAR_TR], lineGeo->vao, lineGeo->vbo);
-
-  glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-
-
-}
-
 
 }

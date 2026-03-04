@@ -102,13 +102,6 @@ bool selectionBoxSelectTile(EngineContext& engineCTX, Game& gameCTX,
                             glm::vec2 startPos, glm::vec2 endPos, global::players player){
 
   std::array<glm::vec3, 8> points = collision::createFrustumPoints(inverseView, inverseProjection, startPos, endPos, engineCTX.width, engineCTX.height);
-  std::cout << "start" << std::endl;
-  for (int i = 0; i < 8; ++i){
-    std::cout << i << std::endl;
-    glm::vec3 p = points[i];
-    engineCTX.testPoints[i] = p;
-    std::cout << p.x << " " << p.y << " " << p.z << std::endl;
-  }
   return collision::selectionBoxPickTile(points, gameCTX.tiles, player);
 }
 
