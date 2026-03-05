@@ -7,8 +7,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include "../include/game/game.hpp"
-#include "../include/engine/config.hpp"
+#include "game/game.hpp"
+#include "engine/config.hpp"
+
 #include <optional>
 
 namespace tile {
@@ -79,7 +80,7 @@ public:
   void draw(Shader* shader) const;
   unsigned int tile;
 
-  glm::mat4 getModelMatrix();
+  glm::mat4 getModelMatrix() const;
 
 
 private:

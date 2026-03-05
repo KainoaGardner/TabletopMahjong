@@ -1,9 +1,8 @@
-#include "../include/app.hpp"
-#include "../include/game/tile.hpp"
+#include "app.hpp"
+#include "game/tile.hpp"
 
-#include "../include/engine/render.hpp"
-#include "../include/engine/update.hpp"
-
+#include "engine/render.hpp"
+#include "engine/update.hpp"
 
 
 void App::update(){

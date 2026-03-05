@@ -1,21 +1,22 @@
-#include "../include/engine/update.hpp"
-#include "../include/engine/engineContext.hpp"
 
 #include <GLES3/gl3.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp> 
 
-#include "../include/engine/config.hpp"
-#include "../include/game/game.hpp"
-#include "../include/engine/engineContext.hpp"
-#include "../include/game/camera.hpp"
-#include "../include/game/tile.hpp"
-#include "../include/game/hand.hpp"
 
-#include "../include/engine/collision.hpp"
+#include "engine/engineContext.hpp"
+#include "engine/update.hpp"
+#include "engine/engineContext.hpp"
+#include "engine/collision.hpp"
+#include "engine/config.hpp"
 
-#include <iostream>
+#include "game/game.hpp"
+#include "game/camera.hpp"
+#include "game/tile.hpp"
+#include "game/hand.hpp"
+
+
 
 namespace update {
 

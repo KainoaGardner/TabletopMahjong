@@ -1,8 +1,9 @@
 #ifndef APP_H
 #define APP_H
 
-#include "../include/engine/engineContext.hpp"
-#include "../include/game/game.hpp"
+#include "engine/engineContext.hpp"
+
+#include "game/game.hpp"
 
 class EngineContext;
 class Game;

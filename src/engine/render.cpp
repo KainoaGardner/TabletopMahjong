@@ -5,18 +5,21 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 
-#include "../include/engine/render.hpp"
-#include "../include/engine/config.hpp"
-#include "../include/game/game.hpp"
-#include "../include/game/hand.hpp"
-#include "../include/engine/model.hpp"
-#include "../include/game/tile.hpp"
-#include "../include/engine/shader.hpp"
-#include "../include/engine/engineContext.hpp"
-#include "../include/game/camera.hpp"
-#include "../include/engine/collision.hpp"
-#include "../include/game/gameState.hpp"
+#include "engine/engineContext.hpp"
+#include "engine/render.hpp"
 #include "engine/geometry.hpp"
+#include "engine/config.hpp"
+#include "engine/model.hpp"
+#include "engine/shader.hpp"
+#include "engine/collision.hpp"
+
+#include "game/game.hpp"
+#include "game/gameState.hpp"
+#include "game/tile.hpp"
+#include "game/camera.hpp"
+#include "game/hand.hpp"
+#include "game/lockon.hpp"
+
 
 #include <iostream>
 
@@ -42,6 +45,8 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
   // dice(engineCTX, view, projection);
 
   // click(engineCTX, gameCTX, view, projection);
+
+  lockonSpaces(engineCTX, gameCTX, view, projection);
   hands(engineCTX, gameCTX, view, projection);
   selectMaskSetup(engineCTX, gameCTX.tiles, view, projection);
 
@@ -67,6 +72,19 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
     shader->setMatrix4fv("uModel", model);
     tile->draw(shader);
   }
+}
+
+void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
+  glEnable(GL_BLEND);
+
+  Shader* shader = engineCTX.getShader("click");
+  Geometry* geo = engineCTX.getGeometry("cube");
+
+  for (const auto& lockon : gameCTX.handLockSpaces){
+    lockon->draw(shader, geo, view, projection);
+  }
+
+  glDisable(GL_BLEND);
 }
 
 void selectMaskSetup(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){

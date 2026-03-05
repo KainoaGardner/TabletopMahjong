@@ -1,8 +1,8 @@
 #ifndef GAME
 #define GAME
 
-#include "../include/game/gameState.hpp"
-#include "../include/engine/config.hpp"
+#include "game/gameState.hpp"
+#include "engine/config.hpp"
 
 class Camera;
 class Tile;
@@ -10,6 +10,7 @@ class Dice;
 class GameState;
 class Model;
 class Hand;
+class LockSpace;
 
 namespace game {
   struct SetupConfig {
@@ -32,10 +33,7 @@ public:
   Game();
   ~Game();
 
-  void setupConfig(const game::SetupConfig& config);
-  void setupCameras(const game::SetupConfig& config);
-  void setupDie();
-  void setupHands(const game::SetupConfig& config);
+
 
   void setup(const game::SetupConfig& config);
 
@@ -48,10 +46,10 @@ public:
   std::unique_ptr<Dice> die[global::diceAmount];
   std::unique_ptr<Hand> hands[global::handAmount];
   std::vector<std::unique_ptr<Tile>> tiles;
+  std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount];
 
   GameState lastGameState;
 
-  glm::vec3 click = glm::vec3(0.0f);
 
 private:
   int oya;
@@ -59,6 +57,12 @@ private:
   int seat;
 
   void switchCamera(const Input& input);
+
+  void setupConfig(const game::SetupConfig& config);
+  void setupCameras(const game::SetupConfig& config);
+  void setupDie();
+  void setupHands(const game::SetupConfig& config);
+  void setupLockSpaces();
 };
 
 #endif

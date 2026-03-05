@@ -25,6 +25,7 @@ namespace render {
   void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void mat(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
   void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection);
+  void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
 
   void click(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection);
 

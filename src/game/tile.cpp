@@ -1,6 +1,7 @@
-#include "../include/game/tile.hpp"
-#include "../include/engine/model.hpp"
-#include "../include/engine/shader.hpp"
+#include "engine/model.hpp"
+#include "engine/shader.hpp"
+
+#include "game/tile.hpp"
 
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>
@@ -90,7 +91,7 @@ void Tile::draw(Shader* shader) const {
   glBindVertexArray(0);
 }
 
-glm::mat4 Tile::getModelMatrix(){
+glm::mat4 Tile::getModelMatrix() const{
   glm::mat4 model = glm::mat4(1.0f);
 
   model = glm::translate(model, position);

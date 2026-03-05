@@ -1,9 +1,11 @@
-#include "../include/game/game.hpp"
-#include "../include/game/camera.hpp"
-#include "../include/game/dice.hpp"
-#include "../include/game/tile.hpp"
-#include "../include/game/hand.hpp"
-#include "../include/engine/input.hpp"
+#include "game/game.hpp"
+#include "game/camera.hpp"
+#include "game/dice.hpp"
+#include "game/tile.hpp"
+#include "game/hand.hpp"
+#include "game/lockon.hpp"
+
+#include "engine/input.hpp"
 #include "engine/config.hpp"
 
 
@@ -18,7 +20,6 @@ glm::vec3 getPlayerColor(global::players player){
       return global::colorToVec3[global::colors::green];
     default:
       return global::colorToVec3[global::colors::yellow];
-
   }
 
   return glm::vec3(0.0);
@@ -96,12 +97,19 @@ void Game::setupDie(){
   // int roll = dice::getDiceRoll() + dice::getDiceRoll();
 }
 
+void Game::setupLockSpaces(){
+  glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  handLockSpaces[0] = std::make_unique<LockSpace>(glm::vec3(0.2f, model::tileScale.y / 2.0f, 0.0f), orientation, glm::vec3(model::tileScale));
+}
+
 void Game::setupHands(const game::SetupConfig& config){
   hands[0] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::yellow]);
   hands[1] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::blue]);
   hands[2] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::red]);
   hands[3] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::green]);
 }
+
+
 
 void Game::setupConfig(const game::SetupConfig& config){
   oya = config.oya;
@@ -131,5 +139,6 @@ void Game::setup(const game::SetupConfig& config){
   setupCameras(config);
   tile::setup(config, tiles);
   setupDie();
+  setupLockSpaces();
   setupHands(config);
 }
