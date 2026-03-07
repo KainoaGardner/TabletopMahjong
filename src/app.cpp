@@ -38,7 +38,7 @@ void App::setup(){
     .oya = 0,
     .playerCount = 4,
     .seat = 0,
-    .tileSet = tile::TileSet::FourP,
+    .tileSet = tile::TileSet::ThreeP,
     .tileModel = engineCTX.getModel("tile"),
   };
 

@@ -84,6 +84,16 @@ void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view
     lockon->draw(shader, geo, view, projection);
   }
 
+  for (const auto& lockon : gameCTX.discardLockSpaces){
+    lockon->draw(shader, geo, view, projection);
+  }
+
+  for (const auto& lockon : gameCTX.callLockSpaces){
+    lockon->draw(shader, geo, view, projection);
+  }
+
+
+
   glDisable(GL_BLEND);
 }
 

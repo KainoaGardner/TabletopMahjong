@@ -1,4 +1,5 @@
 #include "game/game.hpp"
+#include "engine/model.hpp"
 #include "game/camera.hpp"
 #include "game/dice.hpp"
 #include "game/tile.hpp"
@@ -8,6 +9,8 @@
 #include "engine/input.hpp"
 #include "engine/config.hpp"
 
+
+#include <iostream>
 
 namespace game {
 glm::vec3 getPlayerColor(global::players player){
@@ -97,9 +100,171 @@ void Game::setupDie(){
   // int roll = dice::getDiceRoll() + dice::getDiceRoll();
 }
 
-void Game::setupLockSpaces(){
-  glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-  handLockSpaces[0] = std::make_unique<LockSpace>(glm::vec3(0.2f, model::tileScale.y / 2.0f, 0.0f), orientation, glm::vec3(model::tileScale));
+void Game::setupLockSpaces(int tileSet){
+  // glm::quat orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  // handLockSpaces[0] = std::make_unique<LockSpace>(glm::vec3(0.25f, model::tileScale.y / 2.0f, 0.0f), orientation, glm::vec3(model::tileScale));
+  setupHandLockSpaces(tileSet);
+  setupDiscardLockSpaces(tileSet);
+  setupCallLockSpaces(tileSet);
+}
+
+void Game::setupHandLockSpaces(int tileSet){
+  int walls;
+  if (tileSet == tile::TileSet::ThreeP){
+    walls = 3;
+  }else {
+    walls = 4;
+  }
+
+  float r = model::handRadiusDistance;
+  float startY = 0.0;
+  float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
+
+  for (int i = 0; i < 13 * walls; i++){
+    int x = i % 13;
+    int z = (i / 13); 
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    // glm::quat o1 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    handLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
+
+  for (int i = 0; i < walls; i++){
+    float x = 13.5f;
+    int z = i; 
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    handLockSpaces[52 + z] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
+}
+
+void Game::setupDiscardLockSpaces(int tileSet){
+  int walls;
+  if (tileSet == tile::TileSet::ThreeP){
+    walls = 3;
+  }else {
+    walls = 4;
+  }
+
+  float r = model::discardRadiusDistance;
+  float startY = 0.0;
+  float offset = -model::tileScale.x * 2.5f;
+
+  for (int i = 0; i < 24 * walls; i++){
+    int x = i % 6;
+    int z = (i / 24); 
+    int y = (i % 24) / 6;
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    pos.x += y * model::tileScale.z * xMove; 
+    pos.z += y * model::tileScale.z * zMove;
+
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    discardLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
+}
+
+void Game::setupCallLockSpaces(int tileSet){
+  int walls;
+  if (tileSet == tile::TileSet::ThreeP){
+    walls = 3;
+  }else {
+    walls = 4;
+  }
+
+  float r = model::callRadiusDistance;
+  float startY = 0.0;
+  float offset = model::matScale.x * 0.5f - model::tileScale.x * 15.5f;
+
+  for (int i = 0; i < 16 * walls; i++){
+    int x = i % 16;
+    int z = (i / 16); 
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    callLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
+
+
+  offset = model::matScale.x * 0.5f - model::tileScale.x * 3.5f;
+  for (int i = 0; i < 4 * walls; i++){
+    int x = i % 4;
+    int z = (i / 4); 
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    pos.x -= model::tileScale.z * xMove; 
+    pos.z -= model::tileScale.z * zMove;
+
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    callLockSpaces[16 * 4 + i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
 }
 
 void Game::setupHands(const game::SetupConfig& config){
@@ -139,6 +304,6 @@ void Game::setup(const game::SetupConfig& config){
   setupCameras(config);
   tile::setup(config, tiles);
   setupDie();
-  setupLockSpaces();
+  setupLockSpaces(config.tileSet);
   setupHands(config);
 }

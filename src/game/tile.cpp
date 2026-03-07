@@ -221,7 +221,7 @@ void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles) {
   }
 
 
-  float r = model::matScale.z / 2.0f - 4.0f * model::tileScale.z;
+  float r = model::wallRadiusDistance;
   float startY = model::tileScale.y / 2.0f;
   float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
 
@@ -276,7 +276,7 @@ void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   index -= roll * 2;
 
 
-  float r = model::matScale.z / 2.0f - 1.5f * model::tileScale.z;
+  float r = model::handRadiusDistance;
   float startY = model::tileScale.z / 2.0f;
   float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
 
@@ -393,7 +393,7 @@ void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   int index = (wall + 1) * tileWidth * 2;
   index -= roll * 2;
 
-  float r = model::matScale.z / 2.0f - 4.0f * model::tileScale.z;
+  float r = model::wallRadiusDistance;
   float startY = model::tileScale.y / 2.0f;
   float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
 

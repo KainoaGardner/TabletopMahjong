@@ -23,10 +23,14 @@ const float dragTimeThreshold = 300.0f;
 
 const glm::vec2 selectionBoxThickness = glm::vec2(5.0f);
 
+
 const int diceAmount = 2;
 const int cameraAmount = 5;
 const int handAmount = 4;
-const int handLockSpaceAmount = 60;
+
+const int handLockSpaceAmount = 56;
+const int discardLockSpaceAmount = 96;
+const int callLockSpaceAmount = 80;
 
 
 enum colors{

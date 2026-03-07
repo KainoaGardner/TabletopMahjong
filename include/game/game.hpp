@@ -46,10 +46,12 @@ public:
   std::unique_ptr<Dice> die[global::diceAmount];
   std::unique_ptr<Hand> hands[global::handAmount];
   std::vector<std::unique_ptr<Tile>> tiles;
+
   std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount];
+  std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount];
+  std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount];
 
   GameState lastGameState;
-
 
 private:
   int oya;
@@ -62,7 +64,10 @@ private:
   void setupCameras(const game::SetupConfig& config);
   void setupDie();
   void setupHands(const game::SetupConfig& config);
-  void setupLockSpaces();
+  void setupLockSpaces(int tileSet);
+  void setupHandLockSpaces(int tileSet);
+  void setupDiscardLockSpaces(int tileSet);
+  void setupCallLockSpaces(int tileSet);
 };
 
 #endif
