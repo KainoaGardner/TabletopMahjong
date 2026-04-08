@@ -77,8 +77,13 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
 void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
   glEnable(GL_BLEND);
 
-  Shader* shader = engineCTX.getShader("click");
+  // Shader* shader = engineCTX.getShader("click");
+  Shader* shader = engineCTX.getShader("lockSpace");
   Geometry* geo = engineCTX.getGeometry("cube");
+
+  shader->use();
+
+  shader->setVec2f("uThickness", global::selectionBoxThickness);
 
   for (const auto& lockon : gameCTX.handLockSpaces){
     lockon->draw(shader, geo, view, projection);
@@ -92,6 +97,9 @@ void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view
     lockon->draw(shader, geo, view, projection);
   }
 
+  for (const auto& lockon : gameCTX.yamaLockSpaces){
+    lockon->draw(shader, geo, view, projection);
+  }
 
 
   glDisable(GL_BLEND);
@@ -253,18 +261,17 @@ void table(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& pro
   }
 
   // float cornerOffsetDiffVert = -model::tableSideShortScale.x / 2.0 - model::tableSideLongScale.z / 2.0;
-  float cornerOffsetDiffVert = -model::tableSideShortScale.x / 2.0 + model::tableSideLongScale.z / 2.0;
+  float cornerOffsetDiffVert = -model::tableLegScale.x / 2.0 + model::tableLegScale.z / 2.0;
   for (int i = 0; i < 4; ++i){
     model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(90.0f) * i, global::worldUp);
     model = glm::translate(model, glm::vec3(offsetDiff, cornerOffsetDiffVert, offsetDiff));
     model = glm::rotate(model, glm::radians(90.0f), global::worldFront);
-    model = glm::scale(model, model::tableSideShortScale);
+    model = glm::scale(model, model::tableLegScale);
 
     shader->setMatrix4fv("uModel", model);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
-
 }
 
 void cubemap(EngineContext& engineCTX, const glm::mat4& view, const glm::mat4& projection){

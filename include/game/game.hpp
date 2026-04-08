@@ -50,6 +50,7 @@ public:
   std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount];
   std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount];
   std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount];
+  std::unique_ptr<LockSpace> yamaLockSpaces[global::yamaLockSpaceAmount];
 
   GameState lastGameState;
 
@@ -68,6 +69,7 @@ private:
   void setupHandLockSpaces(int tileSet);
   void setupDiscardLockSpaces(int tileSet);
   void setupCallLockSpaces(int tileSet);
+  void setupYamaLockSpaces(int tileSet);
 };
 
 #endif

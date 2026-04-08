@@ -8,6 +8,7 @@
 #include "../include/engine/config.hpp"
 
 class Tile;
+class LockSpace;
 
 namespace collision {
 
@@ -62,8 +63,9 @@ std::array<glm::vec3, 8> createFrustumPoints(const glm::mat4& inverseView, const
 Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& center);
 Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points);
 
-AABB convertTileToAABB(const std::unique_ptr<Tile>& tile);
-AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile);
+AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model);
+
+AABB createAABB(const glm::vec3& scale);
 
 bool rayIntersectAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const AABB& box, float& tHit);
 bool outsidePlane(const Plane& plane, const AABB& hitbox);
@@ -71,6 +73,15 @@ bool outsidePlane(const Plane& plane, const AABB& hitbox);
 Tile* pickTile(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const std::vector<std::unique_ptr<Tile>>& tiles);
 bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vector<std::unique_ptr<Tile>>& tiles, global::players player);
 
+bool check2dAABBCollision(const AABB& a, const AABB& b);
+
+LockSpace* checkLockSpaceCollision(const Tile* tile, std::unique_ptr<LockSpace>* lockSpaces, size_t size);
+
+LockSpace* checkAllLockSpaceCollisions(const Tile* tile,
+  std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount],
+  std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount],
+  std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount],
+  std::unique_ptr<LockSpace> yamaLockSpaces[global::yamaLockSpaceAmount]);
 }
 
 

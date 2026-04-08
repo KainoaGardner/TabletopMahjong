@@ -1,14 +1,9 @@
+#include "../include/engine/config.hpp"
 #include "../include/engine/collision.hpp"
-#include "../include/game/tile.hpp"
-#include "../include/engine/model.hpp"
-#include "engine/model.hpp"
 
-
-#include "../include/engine/engineContext.hpp"
 #include "../include/game/game.hpp"
-#include "../include/game/camera.hpp"
-
-#include <iostream>
+#include "../include/game/tile.hpp"
+#include "../include/game/lockon.hpp"
 
 namespace collision {
   void computeMouseRay(float mouseX, float mouseY, int width, int height,
@@ -120,19 +115,25 @@ Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points){
   return f;
 }
 
-AABB convertTileToAABB(const std::unique_ptr<Tile>& tile){
+AABB createAABB(const glm::vec3& scale){
   AABB result;
 
-  result.min = -tile->halfSize;
-  result.max = tile->halfSize;
+  glm::vec3 halfSize = scale * 0.5f;
+
+  result.min = -halfSize;
+  result.max = halfSize;
   return result;
 }
 
-AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile){
+AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model){
   AABB result;
 
-  glm::vec3 localMin = -tile->halfSize;
-  glm::vec3 localMax =  tile->halfSize;
+  glm::vec3 halfSize = scale;
+  glm::vec3 localMin = -halfSize;
+  glm::vec3 localMax =  halfSize;
+
+  result.min = -halfSize;
+  result.max = halfSize;
 
   glm::vec3 corners[8] = {
       {localMin.x, localMin.y, localMin.z},
@@ -147,8 +148,6 @@ AABB convertTileToWorldAABB(const std::unique_ptr<Tile>& tile){
 
   glm::vec3 worldMin(FLT_MAX);
   glm::vec3 worldMax(-FLT_MAX);
-
-  glm::mat4 model = tile->getModelMatrix();
 
   for (int i = 0; i < 8; i++) {
     glm::vec4 worldCorner = model * glm::vec4(corners[i], 1.0f);
@@ -192,7 +191,7 @@ Tile* pickTile(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const std::v
   float closestDist = FLT_MAX;
 
   for (const auto& tile : tiles){
-    AABB hitbox = convertTileToAABB(tile);
+    AABB hitbox = createAABB(tile->scale);
 
     glm::mat4 model = tile->getModelMatrix();
     glm::mat4 invModel = glm::inverse(model);
@@ -254,7 +253,7 @@ bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vec
 
 
   for (const auto& tile : tiles){
-    AABB hitbox = convertTileToWorldAABB(tile);
+    AABB hitbox = createWorldAABB(tile->scale, tile->getModelMatrix());
 
     bool out = false;
     for (const auto& plane : frustum.planes){
@@ -265,7 +264,6 @@ bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vec
     }
 
     if (!out){
-      std::cout << "in" << std::endl;
       tile->selected = player;
       selection = true;
     }
@@ -273,6 +271,61 @@ bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vec
   }
 
   return selection;
+}
+
+LockSpace* checkLockSpaceCollision(const Tile* tile, std::unique_ptr<LockSpace>* lockSpaces, size_t size){
+  AABB tileHitbox = createWorldAABB(tile->scale, tile->getModelMatrix());
+
+  LockSpace* result = nullptr;
+  float closestDist = FLT_MAX;
+  
+  for (size_t i = 0; i < size; ++i){
+    auto& lockSpace  = lockSpaces[i];
+    AABB lockSpaceHitbox = createWorldAABB(lockSpace->scale, lockSpace->getModelMatrix());
+
+    if (check2dAABBCollision(tileHitbox, lockSpaceHitbox)){
+      float dist2 = glm::distance(glm::vec2(tile->position.x, tile->position.z), glm::vec2(lockSpace->position.x, lockSpace->position.z));
+      if (dist2 < closestDist){
+        closestDist = dist2;
+        result = lockSpace.get();
+      }
+    }
+  }
+
+  return result;
+}
+
+LockSpace* checkAllLockSpaceCollisions(const Tile* tile,
+  std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount],
+  std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount],
+  std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount],
+  std::unique_ptr<LockSpace> yamaLockSpaces[global::yamaLockSpaceAmount]){
+
+  LockSpace* result = nullptr;
+  float closestDist = FLT_MAX;
+
+  auto checkArray = [&](auto* arr, size_t size) {
+    if (auto lockSpace = checkLockSpaceCollision(tile, arr, size)) {
+      float dist2 = glm::distance(glm::vec2(tile->position.x, tile->position.z), glm::vec2(lockSpace->position.x, lockSpace->position.z));
+      if (dist2 < closestDist){
+        closestDist = dist2;
+        result = lockSpace;
+      }
+    }
+  };
+
+  checkArray(handLockSpaces, global::handLockSpaceAmount);
+  checkArray(discardLockSpaces, global::discardLockSpaceAmount);
+  checkArray(callLockSpaces, global::callLockSpaceAmount);
+  checkArray(yamaLockSpaces, global::yamaLockSpaceAmount);
+  return result;
+}
+
+bool check2dAABBCollision(const AABB& a, const AABB& b){
+  if (a.max.x < b.min.x || a.min.x > b.max.x) return false;
+  if (a.max.z < b.min.z || a.min.z > b.max.z) return false;
+
+  return true;
 }
 
 }

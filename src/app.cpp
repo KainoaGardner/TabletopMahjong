@@ -32,13 +32,14 @@ void App::setup(){
     .fps = 60,
   };
 
+
   engineCTX.setup(engineSetupConfig);
 
   game::SetupConfig gameSetupConfig = {
     .oya = 0,
     .playerCount = 4,
     .seat = 0,
-    .tileSet = tile::TileSet::ThreeP,
+    .tileSet = tile::TileSet::FourP,
     .tileModel = engineCTX.getModel("tile"),
   };
 

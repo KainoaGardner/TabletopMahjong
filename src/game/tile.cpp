@@ -58,7 +58,6 @@ Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm:
   orientation = orientationIn;
 
   scale = scaleIn;
-  halfSize = scaleIn * 0.5f;
 }
 
 void Tile::draw(Shader* shader) const {
@@ -122,9 +121,9 @@ void setup(const game::SetupConfig& config, std::vector<std::unique_ptr<Tile>>& 
   }
 
   int roll = 1;
-  makeWalls(tiles);
-  dealHands(roll, config.oya, tiles);
-  makeDeadWall(roll, config.oya, tiles);
+  makeWalls(config.tileSet, tiles);
+  dealHands(roll, config.tileSet, config.oya, tiles);
+  makeDeadWall(roll, config.tileSet, config.oya, tiles);
 }
 
 void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel){
@@ -209,12 +208,12 @@ void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles) {
   }
 }
 
-void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles) {
+void makeWalls(int tileSet, std::vector<std::unique_ptr<Tile>>& tiles) {
   flipTiles(tiles);
   shuffleTiles(tiles);
 
   int tileWidth;
-  if (tiles.size() == 108){
+  if (tileSet == tile::TileSet::ThreeP){
     tileWidth = 18;
   }else {
     tileWidth = 17;
@@ -255,10 +254,10 @@ void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles) {
 
 }
 
-void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
+void dealHands(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   int tileWidth;
   int walls;
-  if (tiles.size() == 108){
+  if (tileSet == tile::TileSet::ThreeP){
     tileWidth = 18;
     walls = 3;
   }else {
@@ -370,11 +369,11 @@ void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
 }
 
 
-void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
+void makeDeadWall(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles){
   int tileWidth;
   int doraRow;
   int walls;
-  if (tiles.size() == 108){
+  if (tileSet == tile::TileSet::ThreeP){
     tileWidth = 18;
     doraRow = 5;
     walls = 3;

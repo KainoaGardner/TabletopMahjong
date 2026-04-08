@@ -106,6 +106,7 @@ void Game::setupLockSpaces(int tileSet){
   setupHandLockSpaces(tileSet);
   setupDiscardLockSpaces(tileSet);
   setupCallLockSpaces(tileSet);
+  setupYamaLockSpaces(tileSet);
 }
 
 void Game::setupHandLockSpaces(int tileSet){
@@ -264,6 +265,44 @@ void Game::setupCallLockSpaces(int tileSet){
 
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
     callLockSpaces[16 * 4 + i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+  }
+}
+
+void Game::setupYamaLockSpaces(int tileSet){
+  int tileWidth;
+  int wallCount;
+  if (tileSet == tile::TileSet::ThreeP){
+    tileWidth = 18;
+    wallCount = 3;
+  }else {
+    tileWidth = 17;
+    wallCount = 4;
+  }
+
+  float r = model::wallRadiusDistance;
+  float startY = 0.0;
+  float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
+
+  for (int i = 0; i < tileWidth * wallCount; i++){
+    int x = i % (tileWidth);
+    int z = i / (tileWidth);
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+    yamaLockSpaces[i] = std::make_unique<YamaLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 }
 

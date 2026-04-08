@@ -25,17 +25,16 @@ struct Mesh {
   GLenum indexType;
 };
 
-
 const glm::vec3 matScale = glm::vec3(0.89f, 0.005f, 0.89f);
-const glm::vec3 tableSideShortScale = glm::vec3(matScale.x, 0.03f, 0.03f);
-const glm::vec3 tableSideLongScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, 0.03f, 0.03f);
+const float tableSideHeight = 0.015;
+const glm::vec3 tableSideShortScale = glm::vec3(matScale.x, tableSideHeight, 0.03f);
+const glm::vec3 tableSideLongScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, tableSideHeight, 0.03f);
+const glm::vec3 tableLegScale = glm::vec3(matScale.x + 2.0f * tableSideShortScale.z, 0.03f, 0.03f);
 const glm::vec3 diceScale = glm::vec3(0.016f);
-
 
 const float tileScaleFactor = 1.14;
 const glm::vec3 tileScale = glm::vec3(0.0245f, 0.0152f, 0.033f) * tileScaleFactor;
 const glm::vec2 tileMapRatio = glm::vec2(model::tileScale.z / model::tileScale.x * 0.1 ,0.1f);
-
 
 const float centerPieceSide = tileScale.x * 6;
 const glm::vec3 centerPieceScale = glm::vec3(centerPieceSide, 0.005f, centerPieceSide);
@@ -43,11 +42,9 @@ const glm::vec3 centerPieceScale = glm::vec3(centerPieceSide, 0.005f, centerPiec
 const float wallRadiusDistance = model::matScale.z / 2.0f - 4.0f * model::tileScale.z;
 const float handRadiusDistance = model::matScale.z / 2.0f - 2.0f * model::tileScale.z;
 const float discardRadiusDistance = model::centerPieceSide / 2.0f + 0.5f * model::tileScale.z;
-const float callRadiusDistance = model::matScale.z / 2.0f - 0.65f * model::tableSideShortScale.z;
-
+const float callRadiusDistance = model::matScale.z / 2.0f - 0.5f * model::tableSideShortScale.z;
 
 } // namespace model
-
 
 class Shader;
 

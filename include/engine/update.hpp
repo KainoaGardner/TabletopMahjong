@@ -29,6 +29,8 @@ namespace update {
   void unselectPlayerTiles(global::players player, Game& gameCTX);
 
   void updateHands(Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player);
+
+  void unhoverLockSpaces(Game& gameCTX);
 }
 
 #endif

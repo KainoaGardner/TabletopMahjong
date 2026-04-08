@@ -73,7 +73,6 @@ public:
   glm::vec3 position;
   glm::quat orientation;
   glm::vec3 scale;
-  glm::vec3 halfSize;
 
   std::optional<global::players> selected;
 
@@ -95,9 +94,9 @@ void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMod
 
 void shuffleTiles(std::vector<std::unique_ptr<Tile>>& tiles);
 void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles);
-void makeWalls(std::vector<std::unique_ptr<Tile>>& tiles);
-void dealHands(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
-void makeDeadWall(int roll, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
+void makeWalls(int tileSet,std::vector<std::unique_ptr<Tile>>& tiles);
+void dealHands(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
+void makeDeadWall(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
 }
 
 #endif

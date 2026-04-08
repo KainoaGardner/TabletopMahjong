@@ -120,6 +120,7 @@ void EngineContext::setupShaders(){
 
   auto selectionBoxShader = std::make_unique<Shader>("./assets/shaders/selectionBox.vert", "./assets/shaders/selectionBox.frag");
   auto lineShader = std::make_unique<Shader>("./assets/shaders/line.vert", "./assets/shaders/line.frag");
+  auto lockSpaceShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/lockSpace.frag");
 
   addShader("normal", std::move(normalShader));
   addShader("click", std::move(clickShader));
@@ -129,6 +130,7 @@ void EngineContext::setupShaders(){
   addShader("cubemap", std::move(cubemapShader));
 
   addShader("selectionBox", std::move(selectionBoxShader));
+  addShader("lockSpace", std::move(lockSpaceShader));
   addShader("line", std::move(lineShader));
 }
 

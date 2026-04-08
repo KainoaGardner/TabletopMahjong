@@ -15,6 +15,7 @@
 #include "game/camera.hpp"
 #include "game/tile.hpp"
 #include "game/hand.hpp"
+#include "game/lockon.hpp"
 
 
 
@@ -52,10 +53,10 @@ void update(EngineContext& engineCTX, Game& gameCTX){
     player = global::players::kamicha;
   }
 
+  unhoverLockSpaces(gameCTX);
+
   mouse(engineCTX, gameCTX, inverseView, inverseProjection, rayDir, rayOrigin, player);
-
   tileRotate(engineCTX, gameCTX, player);
-
   updateHands(gameCTX, rayDir, rayOrigin, player);
 
   gameCTX.update(engineCTX.input);
@@ -153,6 +154,15 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
 
     //change to mousedown pos
     glm::vec3 clickPos = engineCTX.input.mouse.tileClicked->position;
+    LockSpace* hoveredLockSpace = collision::checkAllLockSpaceCollisions(engineCTX.input.mouse.tileClicked,
+      gameCTX.handLockSpaces,
+      gameCTX.discardLockSpaces,
+      gameCTX.callLockSpaces,
+      gameCTX.yamaLockSpaces);
+
+    if (hoveredLockSpace){
+      hoveredLockSpace->hovered = true;
+    }
 
     for (const auto& tile : gameCTX.tiles){
       if (tile->selected == player){
@@ -229,6 +239,24 @@ void tileRotate(EngineContext& engineCTX, Game& gameCTX, global::players player)
     glm::quat rotation = glm::angleAxis(angle, axis);
     tile->orientation = rotation * tile->orientation;
   } 
+}
+
+void unhoverLockSpaces(Game& gameCTX){
+  for (auto& lockSpace : gameCTX.handLockSpaces){
+    lockSpace->hovered = false;
+  }
+
+  for (auto& lockSpace : gameCTX.discardLockSpaces){
+    lockSpace->hovered = false;
+  }
+
+  for (auto& lockSpace : gameCTX.callLockSpaces){
+    lockSpace->hovered = false;
+  }
+
+  for (auto& lockSpace : gameCTX.yamaLockSpaces){
+    lockSpace->hovered = false;
+  }
 }
 
 }

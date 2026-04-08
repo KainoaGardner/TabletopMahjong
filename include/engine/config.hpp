@@ -31,6 +31,7 @@ const int handAmount = 4;
 const int handLockSpaceAmount = 56;
 const int discardLockSpaceAmount = 96;
 const int callLockSpaceAmount = 80;
+const int yamaLockSpaceAmount = 68;
 
 
 enum colors{

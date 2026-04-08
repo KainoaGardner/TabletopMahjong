@@ -14,6 +14,8 @@ namespace lock {
 class Shader;
 class Geometry;
 
+class Tile;
+
 class LockSpace {
 public:
   LockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
@@ -22,13 +24,24 @@ public:
   glm::quat orientation;
   glm::vec3 scale;
 
-  void draw(Shader* shader, Geometry* geo, const glm::mat4& view, const glm::mat4& projection) const;
+  Tile* tile;
+  bool hovered = false;
 
+  void draw(Shader* shader, Geometry* geo, const glm::mat4& view, const glm::mat4& projection) const;
+  virtual void assignTile(Tile* assignTile);
   glm::mat4 getModelMatrix() const;
 
 private:
 };
 
+class YamaLockSpace : public LockSpace {
+public:
+  YamaLockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
 
+  Tile* tiles[2];
+
+  void assignTile(Tile* assignTile) override;
+private:
+};
 
 #endif
