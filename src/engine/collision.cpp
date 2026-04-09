@@ -125,10 +125,15 @@ AABB createAABB(const glm::vec3& scale){
   return result;
 }
 
-AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model){
+AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model, bool size){
   AABB result;
 
   glm::vec3 halfSize = scale;
+  if (size){
+    halfSize *= 0.5f;
+  }
+
+  // glm::vec3 halfSize = scale * 0.5f;
   glm::vec3 localMin = -halfSize;
   glm::vec3 localMax =  halfSize;
 
@@ -274,7 +279,7 @@ bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vec
 }
 
 LockSpace* checkLockSpaceCollision(const Tile* tile, std::unique_ptr<LockSpace>* lockSpaces, size_t size){
-  AABB tileHitbox = createWorldAABB(tile->scale, tile->getModelMatrix());
+  AABB tileHitbox = createWorldAABB(tile->scale, tile->getModelMatrix(), false);
 
   LockSpace* result = nullptr;
   float closestDist = FLT_MAX;

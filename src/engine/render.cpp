@@ -83,7 +83,12 @@ void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view
 
   shader->use();
 
-  shader->setVec2f("uThickness", global::selectionBoxThickness);
+  // shader->setVec2f("uThickness", glm::vec2(lock::borderThickness));
+  shader->setVec2f("uThickness", glm::vec2(1.5f));
+  shader->setFloat("uMaxFov", camera::maxFov);
+
+  const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+  shader->setFloat("uFov", camera->fov);
 
   for (const auto& lockon : gameCTX.handLockSpaces){
     lockon->draw(shader, geo, view, projection);

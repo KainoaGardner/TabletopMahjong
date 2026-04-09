@@ -63,7 +63,7 @@ std::array<glm::vec3, 8> createFrustumPoints(const glm::mat4& inverseView, const
 Plane createPlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c, const glm::vec3& center);
 Frustum createFrustumPlanes(const std::array<glm::vec3, 8>& points);
 
-AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model);
+AABB createWorldAABB(const glm::vec3& scale, const glm::mat4& model, bool half = true);
 
 AABB createAABB(const glm::vec3& scale);
 

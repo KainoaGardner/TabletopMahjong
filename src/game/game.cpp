@@ -141,7 +141,7 @@ void Game::setupHandLockSpaces(int tileSet){
 
     // glm::quat o1 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    handLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    handLockSpaces[i] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 
   for (int i = 0; i < walls; i++){
@@ -163,7 +163,7 @@ void Game::setupHandLockSpaces(int tileSet){
     pos.z -= x * model::tileScale.x * xMove;
 
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    handLockSpaces[52 + z] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    handLockSpaces[52 + z] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 }
 
@@ -202,7 +202,7 @@ void Game::setupDiscardLockSpaces(int tileSet){
     pos.z += y * model::tileScale.z * zMove;
 
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    discardLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    discardLockSpaces[i] = std::make_unique<DiscardLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 }
 
@@ -237,7 +237,7 @@ void Game::setupCallLockSpaces(int tileSet){
     pos.z -= x * model::tileScale.x * xMove;
 
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    callLockSpaces[i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    callLockSpaces[i] = std::make_unique<CallLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 
 
@@ -264,7 +264,7 @@ void Game::setupCallLockSpaces(int tileSet){
     pos.z -= model::tileScale.z * zMove;
 
     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    callLockSpaces[16 * 4 + i] = std::make_unique<LockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    callLockSpaces[16 * 4 + i] = std::make_unique<CallLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
   }
 }
 

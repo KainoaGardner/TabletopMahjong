@@ -133,6 +133,7 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
 
   glm::vec2 currMousePos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
   float dist = glm::distance(engineCTX.input.mouse.mouseDownPos, currMousePos);
+  glm::vec2 vecDist = glm::abs(engineCTX.input.mouse.mouseDownPos - currMousePos);
 
   auto now = std::chrono::steady_clock::now();
   auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(now - engineCTX.input.mouse.mouseDownTime).count();
@@ -142,9 +143,14 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
       if (engineCTX.input.mouse.tileClicked){
         engineCTX.input.mouse.drag = true;
       }else{
-        engineCTX.input.mouse.selection = true;
+        if (vecDist.x > global::dragDistThreshold && vecDist.y > global::dragDistThreshold)
+          engineCTX.input.mouse.selection = true;
       }
     }
+  }
+
+  if (engineCTX.input.mouse.selection && !(vecDist.x > global::dragDistThreshold && vecDist.y > global::dragDistThreshold)){
+    engineCTX.input.mouse.selection = false;
   }
 
   //drag
@@ -184,12 +190,24 @@ void release(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseVi
     engineCTX.input.mouse.tileClicked &&
     engineCTX.input.mouse.reselectTile &&
     engineCTX.input.pressed(input::actions::shift)){
+
     engineCTX.input.mouse.tileClicked->selected = std::nullopt;
   }
 
   if (engineCTX.input.mouse.selection){
     glm::vec2 currMousePos = glm::vec2(engineCTX.input.mouse.x, engineCTX.input.mouse.y);
     bool selected = selectionBoxSelectTile(engineCTX, gameCTX,inverseView, inverseProjection, engineCTX.input.mouse.mouseDownPos, currMousePos, player);
+  }
+
+  if (engineCTX.input.mouse.drag && engineCTX.input.mouse.tileClicked){
+    LockSpace* hoveredLockSpace = collision::checkAllLockSpaceCollisions(engineCTX.input.mouse.tileClicked,
+      gameCTX.handLockSpaces,
+      gameCTX.discardLockSpaces,
+      gameCTX.callLockSpaces,
+      gameCTX.yamaLockSpaces);
+    if (hoveredLockSpace){
+      hoveredLockSpace->assignTile(engineCTX.input.mouse.tileClicked);
+    }
   }
 
   engineCTX.input.mouse.drag = false;

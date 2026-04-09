@@ -5,10 +5,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-
-
 namespace lock {
   const float spaceHeightFactor = 0.1f;
+  const float borderThickness = 0.01f;
 }
 
 class Shader;
@@ -34,11 +33,41 @@ public:
 private:
 };
 
+  // std::unique_ptr<LockSpace> handLockSpaces[global::handLockSpaceAmount];
+  // std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount];
+  // std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount];
+  // std::unique_ptr<LockSpace> yamaLockSpaces[global::yamaLockSpaceAmount];
+
+
+class HandLockSpace : public LockSpace {
+public:
+  HandLockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
+
+  void assignTile(Tile* assignTile) override;
+private:
+};
+
+class DiscardLockSpace : public LockSpace {
+public:
+  DiscardLockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
+
+  void assignTile(Tile* assignTile) override;
+private:
+};
+
+class CallLockSpace : public LockSpace {
+public:
+  CallLockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
+
+  void assignTile(Tile* assignTile) override;
+private:
+};
+
 class YamaLockSpace : public LockSpace {
 public:
   YamaLockSpace(glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
 
-  Tile* tiles[2];
+  Tile* tile[2];
 
   void assignTile(Tile* assignTile) override;
 private:

@@ -65,6 +65,7 @@ extern std::unordered_map<int, glm::vec2> tileUV;
 
 class Model;
 class Shader;
+class LockSpace;
 
 class Tile {
 public:
@@ -75,6 +76,8 @@ public:
   glm::vec3 scale;
 
   std::optional<global::players> selected;
+
+  LockSpace* lockSpace;
 
   void draw(Shader* shader) const;
   unsigned int tile;
