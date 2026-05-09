@@ -38,6 +38,9 @@ namespace render {
   void selectionBox(EngineContext& engineCTX, Game& gameCTX);
 
   void screen(EngineContext& engineCTX);
+
+  void renderText(EngineContext& engineCTX, const glm::mat4& projection, std::string text, float x, float y,
+                float scale, const glm::vec3& color);
 }
 
 #endif

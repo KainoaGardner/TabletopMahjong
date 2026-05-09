@@ -12,6 +12,7 @@
 #include "engine/model.hpp"
 #include "engine/shader.hpp"
 #include "engine/collision.hpp"
+#include "engine/text.hpp"
 
 #include "game/game.hpp"
 #include "game/gameState.hpp"
@@ -20,8 +21,9 @@
 #include "game/hand.hpp"
 #include "game/lockon.hpp"
 
-
 #include <iostream>
+
+
 
 namespace render {
 
@@ -62,7 +64,10 @@ void main(float a, EngineContext& engineCTX, Game& gameCTX){
 }
 
 void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& tiles, const glm::mat4& view, const glm::mat4& projection){
-  Shader* shader = engineCTX.getShader("model");
+  glEnable(GL_BLEND);
+  Shader* shader = engineCTX.getShader("tile");
+  Texture* numTexture = engineCTX.getTexture("tileNums");
+  
   shader->use();
   shader->setMatrix4fv("uView", view);
   shader->setMatrix4fv("uProjection", projection);
@@ -70,8 +75,10 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
   for (const auto& tile : tiles){
     glm::mat4 model = tile->getModelMatrix();
     shader->setMatrix4fv("uModel", model);
-    tile->draw(shader);
+    tile->draw(shader, numTexture, engineCTX.settings.tileNums);
   }
+
+  glDisable(GL_BLEND);
 }
 
 void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
@@ -151,6 +158,7 @@ void selectMaskSetup(EngineContext& engineCTX, const std::vector<std::unique_ptr
   }
 
   Shader* shader = engineCTX.getShader("black");
+  Texture* numTexture = engineCTX.getTexture("tileNums");
   shader->use();
   shader->setMatrix4fv("uView", view);
   shader->setMatrix4fv("uProjection", projection);
@@ -167,7 +175,7 @@ void selectMaskSetup(EngineContext& engineCTX, const std::vector<std::unique_ptr
 
     shader->setMatrix4fv("uModel", model);
 
-    tile->draw(shader);
+    tile->draw(shader, numTexture);
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, engineCTX.getFramebuffer("screen")->fbo);
@@ -476,6 +484,64 @@ void selectionBox(EngineContext& engineCTX, Game& gameCTX){
   glDisable(GL_BLEND);
 }
 
+void renderText(EngineContext& engineCTX, const glm::mat4& projection, std::string text, float x, float y,
+                float scale, const glm::vec3& color) {
+
+  Shader* shader = engineCTX.getShader("text");
+  Geometry* textGeo = engineCTX.getGeometry("text");
+
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glActiveTexture(GL_TEXTURE0);
+  glBindVertexArray(textGeo->vao);
+
+  shader->use();
+  shader->setMatrix4fv("uProjection", projection);
+  shader->setInt("uText", 0);
+  shader->setVec3f("uTextColor", color);
+
+  std::string::const_iterator c;
+
+  float totalX = 0.0f;
+  for (c = text.begin(); c != text.end(); c++) {
+    text::Character ch = text::characters[*c];
+    totalX += (ch.advance >> 6) * scale;
+  }
+
+  x -= totalX / 2.0f;
+
+  for (c = text.begin(); c != text.end(); c++) {
+    text::Character ch = text::characters[*c];
+    float xPos = x + ch.bearing.x * scale;
+    float yPos = y + (ch.size.y - ch.bearing.y) * scale;
+    float w = ch.size.x * scale;
+    float h = ch.size.y * scale;
+
+    float vertices[6][4] = {
+        {xPos, yPos + h, 0.0f, 0.0f},    {xPos, yPos, 0.0f, 1.0f},
+        {xPos + w, yPos, 1.0f, 1.0f},
+
+        {xPos, yPos + h, 0.0f, 0.0f},    {xPos + w, yPos, 1.0f, 1.0f},
+        {xPos + w, yPos + h, 1.0f, 0.0f}};
+
+    glBindTexture(GL_TEXTURE_2D, ch.textureId);
+
+    glBindBuffer(GL_ARRAY_BUFFER, textGeo->vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    x += (ch.advance >> 6) * scale;
+  }
+
+  glEnable(GL_DEPTH_TEST);
+  glBindVertexArray(0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glDisable(GL_BLEND);
+
+}
+
 
 void screen(EngineContext& engineCTX){
   Shader* shader = engineCTX.getShader("screen");
@@ -546,5 +612,7 @@ glm::mat4 getInterpCameraProj(float a, Game& gameCTX, EngineContext& engineCTX){
   glm::mat4 projection = camera::getProjectionMatrix(fovInterp, engineCTX.width, engineCTX.height);
   return projection;
 }
+
+
 
 }

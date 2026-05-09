@@ -58,6 +58,8 @@ void CallLockSpace::assignTile(Tile* assignTile){
 void YamaLockSpace::assignTile(Tile* assignTile){
   if (tile[0] == nullptr){
     tile[0] = assignTile;
+
+    assignTile->position = position;
   }else if (tile[1] == nullptr){
     tile[1] = assignTile;
   }

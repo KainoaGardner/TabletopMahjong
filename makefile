@@ -11,8 +11,8 @@ ASSETS_BIN_DIR := $(BIN_DIR)/assets
 
 
 CXX := em++
-CXXFLAGS := -O2 -std=c++17 -Wall -I$(INC_DIR) -I$(LIB_DIR)
-EMFLAGS := -s USE_WEBGL2=1 -s FULL_ES3=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy
+CXXFLAGS := -O2 -std=c++17 -Wall -I$(INC_DIR) -I$(LIB_DIR) -I/usr/include/freetype2
+EMFLAGS := -s USE_WEBGL2=1 -s FULL_ES3=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy -sUSE_FREETYPE=1
 
 SHELL_FILE := index.html
 # SRC_FILES   := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(LIB_DIR)/*.cpp)

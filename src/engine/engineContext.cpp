@@ -1,6 +1,7 @@
 #include "engine/engineContext.hpp"
 #include "engine/model.hpp"
 #include "engine/shader.hpp"
+#include "engine/text.hpp"
 
 EngineContext::EngineContext(){
 }
@@ -67,9 +68,14 @@ void EngineContext::setupConfig(engineContext::SetupConfig config){
   logicIntervalTime = 1000.0f / fps;
 }
 
+void EngineContext::setupSettings(settings::Settings settingsIn){
+  settings = settingsIn;
+}
+
 void EngineContext::setupTextures(){
   Texture matTexture = Texture{.texture = texture::createTexture("../assets/textures/table/mat1.jpg")};
   Texture woodTexture = Texture{.texture = texture::createTexture("../assets/textures/table/woodDiff.jpg")};
+  Texture tileNumTexture = Texture{.texture = texture::createTexture("../assets/textures/pai_numbers_img.png")};
 
   std::vector<std::string> sky4Textures = {
     "../assets/textures/cubemaps/sky4/posx.png",
@@ -84,6 +90,7 @@ void EngineContext::setupTextures(){
   addTexture("mat", std::make_unique<Texture>(std::move(matTexture)));
   addTexture("tableSide", std::make_unique<Texture>(std::move(woodTexture)));
   addTexture("sky4", std::make_unique<Texture>(std::move(sky4Texture)));
+  addTexture("tileNums", std::make_unique<Texture>(std::move(tileNumTexture)));
 }
 
 void EngineContext::setupFramebuffers(engineContext::SetupConfig config){
@@ -101,6 +108,7 @@ void EngineContext::setupGeometries(){
   auto screenGeometry = std::make_unique<Geometry>(geometry::createScreen());
   auto quadGeometry = std::make_unique<Geometry>(geometry::createQuad());
   auto lineGeometry = std::make_unique<Geometry>(geometry::createLine());
+  auto textGeometry = std::make_unique<Geometry>(geometry::createText());
 
   addGeometry("plane", std::move(planeGeometry));
   addGeometry("cube", std::move(cubeGeometry));
@@ -108,6 +116,7 @@ void EngineContext::setupGeometries(){
   addGeometry("screen", std::move(screenGeometry));
   addGeometry("quad", std::move(quadGeometry));
   addGeometry("line", std::move(lineGeometry));
+  addGeometry("text", std::move(textGeometry));
 }
 
 void EngineContext::setupShaders(){
@@ -116,22 +125,27 @@ void EngineContext::setupShaders(){
   auto blackShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/black.frag");
   auto screenShader = std::make_unique<Shader>("./assets/shaders/screen.vert", "./assets/shaders/screen.frag");
   auto modelShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/model.frag");
+  auto tileShader =  std::make_unique<Shader>("./assets/shaders/model.vert", "./assets/shaders/tile.frag");
   auto cubemapShader = std::make_unique<Shader>("./assets/shaders/cubemap.vert", "./assets/shaders/cubemap.frag");
 
   auto selectionBoxShader = std::make_unique<Shader>("./assets/shaders/selectionBox.vert", "./assets/shaders/selectionBox.frag");
   auto lineShader = std::make_unique<Shader>("./assets/shaders/line.vert", "./assets/shaders/line.frag");
   auto lockSpaceShader = std::make_unique<Shader>("./assets/shaders/vertex.vert", "./assets/shaders/lockSpace.frag");
 
+  auto textShader = std::make_unique<Shader>("./assets/shaders/text.vert", "./assets/shaders/text.frag");
+
   addShader("normal", std::move(normalShader));
   addShader("click", std::move(clickShader));
   addShader("black", std::move(blackShader));
   addShader("screen", std::move(screenShader));
   addShader("model", std::move(modelShader));
+  addShader("tile", std::move(tileShader));
   addShader("cubemap", std::move(cubemapShader));
 
   addShader("selectionBox", std::move(selectionBoxShader));
   addShader("lockSpace", std::move(lockSpaceShader));
   addShader("line", std::move(lineShader));
+  addShader("text", std::move(textShader));
 }
 
 void EngineContext::setupModels(){
@@ -142,9 +156,15 @@ void EngineContext::setupModels(){
   addModel("dice", std::move(diceModel));
 }
 
-void EngineContext::setup(engineContext::SetupConfig config){
+void EngineContext::setupFonts(){
+  text::getFont("./assets/fonts/Karla-Regular.ttf");
+}
+
+void EngineContext::setup(engineContext::SetupConfig config, settings::Settings settings){
   input.setup();
   setupConfig(config);
+  setupSettings(settings);
+  setupFonts();
   setupFramebuffers(config);
   setupGeometries();
   setupTextures();

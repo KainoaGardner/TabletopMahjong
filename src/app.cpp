@@ -32,8 +32,13 @@ void App::setup(){
     .fps = 60,
   };
 
+  settings::Settings settingsConfig = {
+    .tileNums = false,
+    // .tileNums = true,
+  };
 
-  engineCTX.setup(engineSetupConfig);
+
+  engineCTX.setup(engineSetupConfig, settingsConfig);
 
   game::SetupConfig gameSetupConfig = {
     .oya = 0,

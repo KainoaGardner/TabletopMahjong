@@ -1,7 +1,9 @@
 #include "engine/model.hpp"
 #include "engine/shader.hpp"
+#include "engine/texture.hpp"
 
 #include "game/tile.hpp"
+#include "engine/render.hpp"
 
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>
@@ -60,8 +62,18 @@ Tile::Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm:
   scale = scaleIn;
 }
 
-void Tile::draw(Shader* shader) const {
+void Tile::draw(Shader* shader, Texture* numTexture, bool label) const {
   if (model == nullptr) return;
+
+  if (label){
+    shader->setFloat("uNums", 1.0f);
+  }else{
+    shader->setFloat("uNums", 0.0f);
+  }
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, numTexture->texture);
+  shader->setInt("uNumTex", 1);
 
   for (int i = 0; i < model->meshes.size(); i++){
     const model::Mesh& mesh = model->meshes[i];

@@ -5,7 +5,7 @@
 #include <vector>
 #include <array>
 
-#include "../include/engine/config.hpp"
+#include "engine/config.hpp"
 
 class Tile;
 class LockSpace;
@@ -82,7 +82,10 @@ LockSpace* checkAllLockSpaceCollisions(const Tile* tile,
   std::unique_ptr<LockSpace> discardLockSpaces[global::discardLockSpaceAmount],
   std::unique_ptr<LockSpace> callLockSpaces[global::callLockSpaceAmount],
   std::unique_ptr<LockSpace> yamaLockSpaces[global::yamaLockSpaceAmount]);
-}
 
+
+glm::vec3 vec2ToWorldSpaceVec3(const glm::vec2& pos, int width, int height,
+                           const glm::mat4& inverseView, const glm::mat4& inverseProjection, const glm::vec3& cameraPos);
+}
 
 #endif

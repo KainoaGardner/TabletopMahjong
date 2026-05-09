@@ -23,7 +23,6 @@ const float dragTimeThreshold = 300.0f;
 
 const glm::vec2 selectionBoxThickness = glm::vec2(5.0f);
 
-
 const int diceAmount = 2;
 const int cameraAmount = 5;
 const int handAmount = 4;
@@ -32,7 +31,6 @@ const int handLockSpaceAmount = 56;
 const int discardLockSpaceAmount = 96;
 const int callLockSpaceAmount = 80;
 const int yamaLockSpaceAmount = 68;
-
 
 enum colors{
   red,
@@ -54,9 +52,7 @@ enum players{
   kamicha,
 };
 
-
   extern std::unordered_map<colors, glm::vec3> colorToVec3;
-
 } // namespace global
 
 #endif

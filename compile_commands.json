@@ -22,6 +22,7 @@
       "-Wall",
       "-Iinclude",
       "-Ilib",
+      "-I/usr/include/freetype2",
       "-c",
       "-oobj/src/engine/model.o",
       "src/engine/model.cpp"

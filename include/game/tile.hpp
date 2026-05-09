@@ -65,6 +65,7 @@ extern std::unordered_map<int, glm::vec2> tileUV;
 
 class Model;
 class Shader;
+class Texture;
 class LockSpace;
 
 class Tile {
@@ -72,6 +73,7 @@ public:
   Tile(unsigned int tileIn, const Model* modelIn, glm::vec3 positionIn, glm::quat orientationIn, glm::vec3 scaleIn);
 
   glm::vec3 position;
+  glm::vec3 dragStartPosition;
   glm::quat orientation;
   glm::vec3 scale;
 
@@ -79,7 +81,7 @@ public:
 
   LockSpace* lockSpace;
 
-  void draw(Shader* shader) const;
+  void draw(Shader* shader, Texture* numTexture, bool label=false) const;
   unsigned int tile;
 
   glm::mat4 getModelMatrix() const;

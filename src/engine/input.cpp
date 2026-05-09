@@ -1,5 +1,5 @@
-#include "../include/engine/input.hpp"
-#include "../include/util/emjs.hpp"
+#include "engine/input.hpp"
+#include "util/emjs.hpp"
 
 
 namespace input {
@@ -24,7 +24,7 @@ std::unordered_map<std::string, actions>keyToAction = {
     {"KeyZ", freeCam},
     {"MouseWheelUp", zoomIn},
     {"MouseWheelDown", zoomOut},
-    {"KeyC", revertCamera},
+    {"KeyR", revertCamera},
     {"KeyP", perspective},
     {"Digit1", mainCamera},
     {"Digit2", pointCamera},

@@ -1,9 +1,9 @@
-#include "../include/engine/config.hpp"
-#include "../include/engine/collision.hpp"
+#include "engine/config.hpp"
+#include "engine/collision.hpp"
 
-#include "../include/game/game.hpp"
-#include "../include/game/tile.hpp"
-#include "../include/game/lockon.hpp"
+#include "game/game.hpp"
+#include "game/tile.hpp"
+#include "game/lockon.hpp"
 
 namespace collision {
   void computeMouseRay(float mouseX, float mouseY, int width, int height,
@@ -217,7 +217,6 @@ Tile* pickTile(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const std::v
 }
 
 bool outsidePlane(const Plane& plane, const AABB& hitbox){
-
   glm::vec3 corners[8] = {
     {hitbox.min.x, hitbox.min.y, hitbox.min.z},
     {hitbox.max.x, hitbox.min.y, hitbox.min.z},
@@ -237,25 +236,11 @@ bool outsidePlane(const Plane& plane, const AABB& hitbox){
   }
 
   return outsideCount == 8;
-
-  // glm::vec3 positive = hitbox.min;
-  //
-  // if (plane.normal.x >= 0)
-  //   positive.x = hitbox.max.x;
-  //
-  // if (plane.normal.y >= 0)
-  //   positive.y = hitbox.max.y;
-  //
-  // if (plane.normal.z >= 0)
-  //   positive.z = hitbox.max.z;
-  //
-  // return glm::dot(plane.normal, positive) + plane.d < 0;
 }
 
 bool selectionBoxPickTile(const std::array<glm::vec3, 8>& points, const std::vector<std::unique_ptr<Tile>>& tiles, global::players player){
   bool selection = false; 
   Frustum frustum = createFrustumPlanes(points);
-
 
   for (const auto& tile : tiles){
     AABB hitbox = createWorldAABB(tile->scale, tile->getModelMatrix());
@@ -333,4 +318,13 @@ bool check2dAABBCollision(const AABB& a, const AABB& b){
   return true;
 }
 
+glm::vec3 vec2ToWorldSpaceVec3(const glm::vec2& pos, int width, int height,
+                           const glm::mat4& inverseView, const glm::mat4& inverseProjection, const glm::vec3& cameraPos){
+  glm::vec3 rayDir;
+  glm::vec3 rayOrigin;
+  collision::computeMouseRay(pos.x, pos.y, width, height, inverseView, inverseProjection, cameraPos, rayOrigin, rayDir);
+  float t = -rayOrigin.y / rayDir.y;
+  glm::vec3 mousePos = rayOrigin + t * rayDir;
+  return mousePos;
+}
 }

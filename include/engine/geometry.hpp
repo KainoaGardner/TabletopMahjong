@@ -28,6 +28,7 @@ namespace geometry {
   Geometry createScreen();
   Geometry createQuad();
   Geometry createLine();
+  Geometry createText();
 } 
 
 #endif

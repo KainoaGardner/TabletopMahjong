@@ -262,6 +262,26 @@ Geometry createLine() {
   return geometry;
 }
 
+Geometry createText() {
+  Geometry geometry;
+  glGenVertexArrays(1, &geometry.vao);
+  glBindVertexArray(geometry.vao);
+
+  glGenBuffers(1, &geometry.vbo);
+
+  glBindBuffer(GL_ARRAY_BUFFER, geometry.vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  return geometry;
+}
+
 }
 
 

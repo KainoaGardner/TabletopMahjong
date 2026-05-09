@@ -7,6 +7,7 @@
 #include "geometry.hpp"
 #include "framebuffer.hpp"
 #include "texture.hpp"
+#include "settings.hpp"
 #include "input.hpp"
 
 
@@ -35,6 +36,7 @@ public:
   double excessTime = 0.0;
 
   Input input;
+  settings::Settings settings;
 
   Framebuffer* addFrameBuffer(const std::string& name, std::unique_ptr<Framebuffer> framebuffer);
   Geometry* addGeometry(const std::string& name, std::unique_ptr<Geometry> geometry);
@@ -49,13 +51,15 @@ public:
   Model* getModel(const std::string& name);
 
   void setupConfig(engineContext::SetupConfig config);
+  void setupSettings(settings::Settings settings);
   void setupFramebuffers(engineContext::SetupConfig config);
   void setupGeometries();
   void setupTextures();
   void setupShaders();
   void setupModels();
+  void setupFonts();
 
-  void setup(engineContext::SetupConfig config);
+  void setup(engineContext::SetupConfig config, settings::Settings settings);
 
 private:
   std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;

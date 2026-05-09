@@ -17,7 +17,7 @@
 #include "game/hand.hpp"
 #include "game/lockon.hpp"
 
-
+#include <iostream>
 
 namespace update {
 
@@ -71,7 +71,6 @@ void updateHands(Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::p
 
 
 Tile* selectTile(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, bool& reselect, global::players player){
-
   Tile* tile = collision::pickTile(rayOrigin, rayDir, gameCTX.tiles);
   if (tile != nullptr){
     if (tile->selected == player){
@@ -127,7 +126,7 @@ void click(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 
   }
 }
 
-void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player){
+void hold(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView, const glm::mat4& inverseProjection, global::players player){
   if (!engineCTX.input.pressed(input::actions::click))
     return;
 
@@ -140,26 +139,30 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
 
   if (!engineCTX.input.mouse.drag && !engineCTX.input.mouse.selection){
     if (dist > global::dragDistThreshold || timePassed > global::dragTimeThreshold){
-      if (engineCTX.input.mouse.tileClicked){
+      if (engineCTX.input.mouse.tileClicked != nullptr){
         engineCTX.input.mouse.drag = true;
+        for (const auto& tile : gameCTX.tiles){
+          if (tile->selected == player){
+            tile->dragStartPosition = tile->position;
+          }
+        }
       }else{
-        if (vecDist.x > global::dragDistThreshold && vecDist.y > global::dragDistThreshold)
+        if (vecDist.x > global::dragDistThreshold || vecDist.y > global::dragDistThreshold)
           engineCTX.input.mouse.selection = true;
       }
     }
   }
 
-  if (engineCTX.input.mouse.selection && !(vecDist.x > global::dragDistThreshold && vecDist.y > global::dragDistThreshold)){
+  if (engineCTX.input.mouse.selection && !(vecDist.x > global::dragDistThreshold || vecDist.y > global::dragDistThreshold)){
     engineCTX.input.mouse.selection = false;
   }
 
   //drag
-  if (engineCTX.input.mouse.drag){
-    float t = -rayOrigin.y / rayDir.y;
-    glm::vec3 mousePos = rayOrigin + t * rayDir;
+  if (engineCTX.input.mouse.drag && engineCTX.input.mouse.tileClicked != nullptr){
+    const std::unique_ptr<Camera>& camera = gameCTX.cameras[gameCTX.currCamera];
+    glm::vec3 mousePos = collision::vec2ToWorldSpaceVec3(currMousePos, engineCTX.width, engineCTX.height, inverseView, inverseProjection, camera->position);
+    glm::vec3 clickPos = collision::vec2ToWorldSpaceVec3(engineCTX.input.mouse.mouseDownPos, engineCTX.width, engineCTX.height, inverseView, inverseProjection, camera->position);
 
-    //change to mousedown pos
-    glm::vec3 clickPos = engineCTX.input.mouse.tileClicked->position;
     LockSpace* hoveredLockSpace = collision::checkAllLockSpaceCollisions(engineCTX.input.mouse.tileClicked,
       gameCTX.handLockSpaces,
       gameCTX.discardLockSpaces,
@@ -170,21 +173,25 @@ void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 r
       hoveredLockSpace->hovered = true;
     }
 
+
+    collision::AABB hitbox = collision::createWorldAABB(engineCTX.input.mouse.tileClicked->scale, engineCTX.input.mouse.tileClicked->getModelMatrix());
+    float baseY = engineCTX.input.mouse.tileClicked->position.y;
+    float floorDist = hitbox.min.y;
+
     for (const auto& tile : gameCTX.tiles){
       if (tile->selected == player){
         glm::vec3 posDelta = mousePos - clickPos;
         posDelta.y = mousePos.y;
-        tile->position += posDelta;
+        tile->position = tile->dragStartPosition + posDelta;
+        tile->position.y = baseY - floorDist;
       }
     }
   }
-
 }
 
 void release(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView, const glm::mat4& inverseProjection, global::players player){
   if (!engineCTX.input.justReleased(input::actions::click))
     return;
-
 
   if (!engineCTX.input.mouse.drag &&
     engineCTX.input.mouse.tileClicked &&
@@ -221,7 +228,7 @@ void mouse(EngineContext& engineCTX, Game& gameCTX,
              const glm::mat4& inverseView, const glm::mat4& inverseProjection,
              glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player){
   click(engineCTX, gameCTX, rayDir, rayOrigin, player);
-  hold(engineCTX, gameCTX, rayDir, rayOrigin, player);
+  hold(engineCTX, gameCTX, inverseView, inverseProjection, player);
   release(engineCTX, gameCTX, inverseView, inverseProjection, player);
 }
 

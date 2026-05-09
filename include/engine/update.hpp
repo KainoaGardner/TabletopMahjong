@@ -16,7 +16,7 @@ namespace update {
              glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player);
 
   void click(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player);
-  void hold(EngineContext& engineCTX, Game& gameCTX, glm::vec3 rayDir, glm::vec3 rayOrigin, global::players player);
+  void hold(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView, const glm::mat4& inverseProjection, global::players player);
   void release(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView, const glm::mat4& inverseProjection, global::players player);
 
   void tileRotate(EngineContext& engineCTX, Game& gameCTX, global::players player);
