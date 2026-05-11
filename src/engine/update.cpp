@@ -174,16 +174,16 @@ void hold(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& inverseView,
     }
 
 
-    collision::AABB hitbox = collision::createWorldAABB(engineCTX.input.mouse.tileClicked->scale, engineCTX.input.mouse.tileClicked->getModelMatrix());
-    float baseY = engineCTX.input.mouse.tileClicked->position.y;
-    float floorDist = hitbox.min.y;
+    // collision::AABB hitbox = collision::createWorldAABB(engineCTX.input.mouse.tileClicked->scale, engineCTX.input.mouse.tileClicked->getModelMatrix());
+    // float baseY = engineCTX.input.mouse.tileClicked->position.y;
+    // float floorDist = hitbox.min.y;
 
     for (const auto& tile : gameCTX.tiles){
       if (tile->selected == player){
         glm::vec3 posDelta = mousePos - clickPos;
         posDelta.y = mousePos.y;
         tile->position = tile->dragStartPosition + posDelta;
-        tile->position.y = baseY - floorDist;
+        tile->position.y = collision::getTileY(tile.get());
       }
     }
   }
@@ -263,6 +263,7 @@ void tileRotate(EngineContext& engineCTX, Game& gameCTX, global::players player)
 
     glm::quat rotation = glm::angleAxis(angle, axis);
     tile->orientation = rotation * tile->orientation;
+    tile->position.y = collision::getTileY(tile.get());
   } 
 }
 

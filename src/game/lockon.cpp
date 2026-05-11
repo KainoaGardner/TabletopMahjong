@@ -1,5 +1,6 @@
 #include "engine/shader.hpp"
 #include "engine/geometry.hpp"
+#include "engine/collision.hpp"
 
 #include "game/lockon.hpp"
 #include "game/tile.hpp"
@@ -42,7 +43,7 @@ void LockSpace::assignTile(Tile* assignTile){
 
 void HandLockSpace::assignTile(Tile* assignTile){
   LockSpace::assignTile(assignTile);
-  std::cout << "hand" << std::endl;
+  assignTile->position.y = collision::getTileY(assignTile);
 }
 
 void DiscardLockSpace::assignTile(Tile* assignTile){
@@ -78,9 +79,9 @@ void LockSpace::draw(Shader* shader, Geometry* geo, const glm::mat4& view, const
 
 
   glm::vec4 color = glm::vec4(glm::vec3(0.6f), 0.75f);
-  glm::vec4 borderColor = glm::vec4(glm::vec3(1.0f), 0.75f);
+  glm::vec4 borderColor = glm::vec4(glm::vec3(1.0f), 0.5f);
   if (hovered){
-    color = color * glm::vec4(glm::vec3(0.5f), 1.0f);
+    color = color * glm::vec4(glm::vec3(0.5f), 0.75f);
     borderColor.w = 1.0f;
   }
 

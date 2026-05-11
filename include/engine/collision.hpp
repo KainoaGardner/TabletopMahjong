@@ -86,6 +86,9 @@ LockSpace* checkAllLockSpaceCollisions(const Tile* tile,
 
 glm::vec3 vec2ToWorldSpaceVec3(const glm::vec2& pos, int width, int height,
                            const glm::mat4& inverseView, const glm::mat4& inverseProjection, const glm::vec3& cameraPos);
+
+float getTileY(const Tile* tile);
 }
+
 
 #endif

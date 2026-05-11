@@ -102,6 +102,11 @@ void Tile::draw(Shader* shader, Texture* numTexture, bool label) const {
   glBindVertexArray(0);
 }
 
+void Tile::flipTile() {
+  glm::quat flipOri = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  orientation = flipOri;
+}
+
 glm::mat4 Tile::getModelMatrix() const{
   glm::mat4 model = glm::mat4(1.0f);
 
@@ -212,16 +217,10 @@ void shuffleTiles(std::vector<std::unique_ptr<Tile>>& tiles){
   std::shuffle(tiles.begin(), tiles.end(), gen);
 }
 
-void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles) {
-  glm::quat orientation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-  for (std::unique_ptr<Tile>& tile : tiles){
-    tile->orientation = orientation;
-  }
-}
 
 void makeWalls(int tileSet, std::vector<std::unique_ptr<Tile>>& tiles) {
-  flipTiles(tiles);
+  // flipTiles(tiles);
   shuffleTiles(tiles);
 
   int tileWidth;
@@ -460,8 +459,4 @@ void makeDeadWall(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Ti
   glm::quat orientation = glm::quat(glm::vec3(0.0f, glm::radians(90.0f * (wall + 1)), 0.0f));
   doraInd->orientation = orientation;
 }
-
-
-
-
 }

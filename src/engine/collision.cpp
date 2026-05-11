@@ -327,4 +327,12 @@ glm::vec3 vec2ToWorldSpaceVec3(const glm::vec2& pos, int width, int height,
   glm::vec3 mousePos = rayOrigin + t * rayDir;
   return mousePos;
 }
+
+float getTileY(const Tile* tile){
+  collision::AABB hitbox = collision::createWorldAABB(tile->scale, tile->getModelMatrix());
+  float baseY = tile->position.y;
+  float floorDist = hitbox.min.y;
+  return baseY - floorDist;
+}
+
 }

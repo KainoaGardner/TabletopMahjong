@@ -82,6 +82,8 @@ void tiles(EngineContext& engineCTX, const std::vector<std::unique_ptr<Tile>>& t
 }
 
 void lockonSpaces(EngineContext& engineCTX, Game& gameCTX, const glm::mat4& view, const glm::mat4& projection){
+  // if (!engineCTX.input.mouse.drag) return;
+
   glEnable(GL_BLEND);
 
   // Shader* shader = engineCTX.getShader("click");

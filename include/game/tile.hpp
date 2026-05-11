@@ -86,6 +86,8 @@ public:
 
   glm::mat4 getModelMatrix() const;
 
+  void flipTile();
+
 
 private:
   const Model* model;
@@ -98,7 +100,6 @@ void fourPSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileMode
 void threePSetup(std::vector<std::unique_ptr<Tile>>& tiles, const Model* tileModel);
 
 void shuffleTiles(std::vector<std::unique_ptr<Tile>>& tiles);
-void flipTiles(std::vector<std::unique_ptr<Tile>>& tiles);
 void makeWalls(int tileSet,std::vector<std::unique_ptr<Tile>>& tiles);
 void dealHands(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles);
 void makeDeadWall(int roll, int tileSet, int oya, std::vector<std::unique_ptr<Tile>>& tiles);

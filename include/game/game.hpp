@@ -21,6 +21,11 @@ namespace game {
     const Model* tileModel;
   };
 
+  enum TileSet {
+    FourP,
+    ThreeP,
+  };
+
   //TEST update
   glm::vec3 getPlayerColor(global::players player);
 };
@@ -65,11 +70,21 @@ private:
   void setupCameras(const game::SetupConfig& config);
   void setupDie();
   void setupHands(const game::SetupConfig& config);
+
+  //Tiles
+  void setupFourP(const Model* tileModel);
+  void setupFourPTiles(const Model* tileModel);
+  void setupThreeP(const Model* tileModel);
+  void setupThreePTiles(const Model* tileModel);
+
+  void shuffleTiles();
+  void makeWalls(int tileSet);
+
   void setupLockSpaces(int tileSet);
-  void setupHandLockSpaces(int tileSet);
+  // void setupHandLockSpaces(int tileSet);
   void setupDiscardLockSpaces(int tileSet);
   void setupCallLockSpaces(int tileSet);
-  void setupYamaLockSpaces(int tileSet);
+  // void setupYamaLockSpaces(int tileSet);
 };
 
 #endif

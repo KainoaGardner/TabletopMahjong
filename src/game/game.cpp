@@ -9,7 +9,7 @@
 #include "engine/input.hpp"
 #include "engine/config.hpp"
 
-
+#include <random>
 #include <iostream>
 
 namespace game {
@@ -103,69 +103,70 @@ void Game::setupDie(){
 void Game::setupLockSpaces(int tileSet){
   // glm::quat orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   // handLockSpaces[0] = std::make_unique<LockSpace>(glm::vec3(0.25f, model::tileScale.y / 2.0f, 0.0f), orientation, glm::vec3(model::tileScale));
-  setupHandLockSpaces(tileSet);
   setupDiscardLockSpaces(tileSet);
   setupCallLockSpaces(tileSet);
-  setupYamaLockSpaces(tileSet);
+
+  // setupHandLockSpaces(tileSet);
+  // setupYamaLockSpaces(tileSet);
 }
 
-void Game::setupHandLockSpaces(int tileSet){
-  int walls;
-  if (tileSet == tile::TileSet::ThreeP){
-    walls = 3;
-  }else {
-    walls = 4;
-  }
-
-  float r = model::handRadiusDistance;
-  float startY = 0.0;
-  float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
-
-  for (int i = 0; i < 13 * walls; i++){
-    int x = i % 13;
-    int z = (i / 13); 
-
-    glm::vec3 pos = glm::vec3(0.0f);
-    pos.y = startY;
-
-    int xMove = std::cos(glm::radians(90.0f * z));
-    int zMove = -std::sin(glm::radians(90.0f * z));
-    pos.x = r * xMove; 
-    pos.z = r * zMove;
-
-    pos.x += offset * zMove; 
-    pos.z += -offset * xMove;
-
-    pos.x += x * model::tileScale.x * zMove; 
-    pos.z -= x * model::tileScale.x * xMove;
-
-    // glm::quat o1 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    handLockSpaces[i] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
-  }
-
-  for (int i = 0; i < walls; i++){
-    float x = 13.5f;
-    int z = i; 
-
-    glm::vec3 pos = glm::vec3(0.0f);
-    pos.y = startY;
-
-    int xMove = std::cos(glm::radians(90.0f * z));
-    int zMove = -std::sin(glm::radians(90.0f * z));
-    pos.x = r * xMove; 
-    pos.z = r * zMove;
-
-    pos.x += offset * zMove; 
-    pos.z += -offset * xMove;
-
-    pos.x += x * model::tileScale.x * zMove; 
-    pos.z -= x * model::tileScale.x * xMove;
-
-    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    handLockSpaces[52 + z] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
-  }
-}
+// void Game::setupHandLockSpaces(int tileSet){
+//   int walls;
+//   if (tileSet == tile::TileSet::ThreeP){
+//     walls = 3;
+//   }else {
+//     walls = 4;
+//   }
+//
+//   float r = model::handRadiusDistance;
+//   float startY = 0.0;
+//   float offset = -model::tileScale.x * (13.0f / 2.0f - 0.5f);
+//
+//   for (int i = 0; i < 13 * walls; i++){
+//     int x = i % 13;
+//     int z = (i / 13); 
+//
+//     glm::vec3 pos = glm::vec3(0.0f);
+//     pos.y = startY;
+//
+//     int xMove = std::cos(glm::radians(90.0f * z));
+//     int zMove = -std::sin(glm::radians(90.0f * z));
+//     pos.x = r * xMove; 
+//     pos.z = r * zMove;
+//
+//     pos.x += offset * zMove; 
+//     pos.z += -offset * xMove;
+//
+//     pos.x += x * model::tileScale.x * zMove; 
+//     pos.z -= x * model::tileScale.x * xMove;
+//
+//     // glm::quat o1 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+//     handLockSpaces[i] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+//   }
+//
+//   for (int i = 0; i < walls; i++){
+//     float x = 13.5f;
+//     int z = i; 
+//
+//     glm::vec3 pos = glm::vec3(0.0f);
+//     pos.y = startY;
+//
+//     int xMove = std::cos(glm::radians(90.0f * z));
+//     int zMove = -std::sin(glm::radians(90.0f * z));
+//     pos.x = r * xMove; 
+//     pos.z = r * zMove;
+//
+//     pos.x += offset * zMove; 
+//     pos.z += -offset * xMove;
+//
+//     pos.x += x * model::tileScale.x * zMove; 
+//     pos.z -= x * model::tileScale.x * xMove;
+//
+//     glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
+//     handLockSpaces[52 + z] = std::make_unique<HandLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+//   }
+// }
 
 void Game::setupDiscardLockSpaces(int tileSet){
   int walls;
@@ -268,44 +269,6 @@ void Game::setupCallLockSpaces(int tileSet){
   }
 }
 
-void Game::setupYamaLockSpaces(int tileSet){
-  int tileWidth;
-  int wallCount;
-  if (tileSet == tile::TileSet::ThreeP){
-    tileWidth = 18;
-    wallCount = 3;
-  }else {
-    tileWidth = 17;
-    wallCount = 4;
-  }
-
-  float r = model::wallRadiusDistance;
-  float startY = 0.0;
-  float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
-
-  for (int i = 0; i < tileWidth * wallCount; i++){
-    int x = i % (tileWidth);
-    int z = i / (tileWidth);
-
-    glm::vec3 pos = glm::vec3(0.0f);
-    pos.y = startY;
-
-    int xMove = std::cos(glm::radians(90.0f * z));
-    int zMove = -std::sin(glm::radians(90.0f * z));
-    pos.x = r * xMove; 
-    pos.z = r * zMove;
-
-    pos.x += offset * zMove; 
-    pos.z += -offset * xMove;
-
-    pos.x += x * model::tileScale.x * zMove; 
-    pos.z -= x * model::tileScale.x * xMove;
-
-    glm::quat orientation = glm::angleAxis(glm::radians(90.0f * (z + 1)), glm::vec3(0.0f, 1.0f, 0.0f));
-    yamaLockSpaces[i] = std::make_unique<YamaLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
-  }
-}
-
 void Game::setupHands(const game::SetupConfig& config){
   hands[0] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::yellow]);
   hands[1] = std::make_unique<Hand>(glm::vec3(0.0f), global::colorToVec3[global::colors::blue]);
@@ -338,10 +301,150 @@ void Game::setupConfig(const game::SetupConfig& config){
   }
 }
 
+void Game::setupFourP(const Model* tileModel){
+  setupFourPTiles(tileModel);
+  setupLockSpaces(game::FourP);
+}
+
+void Game::setupThreeP(const Model* tileModel){
+  setupThreePTiles(tileModel);
+  setupLockSpaces(game::ThreeP);
+}
+
+
+void Game::setupFourPTiles(const Model* tileModel){
+  glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
+                                 model::tileScale.y / 2.0f,
+                                 -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+
+  glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+  for (int i = tile::Man1; i <= tile::Chun; ++i){
+    for (int j = 0; j < 4; ++j){
+      int c = (i * 4 + j) % 17;
+      int r = (i * 4 + j) / 17;
+
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      if (j == 3 && (i == tile::Man5 || i == tile::Sou5 || i == tile::Pin5)){
+        if (i == tile::Man5){
+          tiles.emplace_back(std::make_unique<Tile>(tile::Man5A, tileModel, pos, orientation, model::tileScale));
+        }else if (i == tile::Sou5){
+          tiles.emplace_back(std::make_unique<Tile>(tile::Sou5A, tileModel, pos, orientation, model::tileScale));
+        }else{
+          tiles.emplace_back(std::make_unique<Tile>(tile::Pin5A, tileModel, pos, orientation, model::tileScale));
+        }
+      }else{
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation, model::tileScale));
+      }
+    }
+  }
+}
+
+void Game::setupThreePTiles(const Model* tileModel){
+  glm::vec3 startPos = glm::vec3(-model::matScale.x / 2.0f + model::tileScale.x / 2.0f,
+                                 model::tileScale.y / 2.0f,
+                                 -model::matScale.z / 2.0f + model::tileScale.z / 2.0f);
+  glm::quat orientation = glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+  for (int i = 0; i < 4; ++i){
+      int c = (i) % 18;
+      int r = (i) / 18;
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      tiles.emplace_back(std::make_unique<Tile>(tile::Man1, tileModel, pos, orientation, model::tileScale));
+  }
+  for (int i = 0; i < 4; ++i){
+      int c = (4 + i) % 18;
+      int r = (4 + i) / 18;
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+      tiles.emplace_back(std::make_unique<Tile>(tile::Man9, tileModel, pos, orientation, model::tileScale));
+  }
+
+  for (int i = tile::Sou1; i <= tile::Chun; ++i){
+    for (int j = 0; j < 4; ++j){
+      int c = ((i) * 4 + j - 28) % 18;
+      int r = ((i) * 4 + j - 28) / 18;
+
+      glm::vec3 pos = glm::vec3(startPos.x + c * model::tileScale.x, startPos.y, startPos.z + r * model::tileScale.z);
+
+      if (j == 3 && (i == tile::Sou5 || i == tile::Pin5)){
+        if (i == tile::Sou5){
+          tiles.emplace_back(std::make_unique<Tile>(tile::Sou5A, tileModel, pos, orientation, model::tileScale));
+        }else{
+          tiles.emplace_back(std::make_unique<Tile>(tile::Pin5A, tileModel, pos, orientation, model::tileScale));
+        }
+      }else{
+        tiles.emplace_back(std::make_unique<Tile>(i, tileModel, pos, orientation, model::tileScale));
+      }
+    }
+  }
+}
+
+void Game::makeWalls(int tileSet){
+  shuffleTiles();
+
+  int tileWidth;
+  if (tileSet == tile::TileSet::ThreeP){
+    tileWidth = 18;
+  }else {
+    tileWidth = 17;
+  }
+
+  float r = model::wallRadiusDistance;
+  float startY = model::tileScale.y / 2.0f;
+  float offset = -model::tileScale.x * (tileWidth / 2.0f - 0.5f);
+
+  int i = 0;
+  for (std::unique_ptr<Tile>& tile : tiles){
+    int x = (i % (tileWidth * 2)) / 2;
+    int y = i % 2;
+    int z = i / (tileWidth * 2);
+    int w = i / 2;
+
+    glm::vec3 pos = glm::vec3(0.0f);
+    pos.y = startY + model::tileScale.y * y;
+
+    int xMove = std::cos(glm::radians(90.0f * z));
+    int zMove = -std::sin(glm::radians(90.0f * z));
+    pos.x = r * xMove; 
+    pos.z = r * zMove;
+
+    pos.x += offset * zMove; 
+    pos.z += -offset * xMove;
+
+    pos.x += x * model::tileScale.x * zMove; 
+    pos.z -= x * model::tileScale.x * xMove;
+
+    tile->position = pos;
+
+    glm::quat orientation = glm::quat(glm::vec3(glm::radians(180.0f), glm::radians(90.0f * (z + 1)), 0.0f));
+    tile->orientation = orientation;
+
+    if (y == 0){ 
+      yamaLockSpaces[w] = std::make_unique<YamaLockSpace>(pos, orientation, glm::vec3(model::tileScale.x, model::tileScale.y * lock::spaceHeightFactor, model::tileScale.z));
+    }
+      
+    if (yamaLockSpaces[w]){
+      yamaLockSpaces[w]->assignTile(tile.get());
+    }
+
+    i++;
+  }
+}
+
+void Game::shuffleTiles(){
+  std::random_device rand;
+  std::default_random_engine gen(rand());
+  std::shuffle(tiles.begin(), tiles.end(), gen);
+}
+
 void Game::setup(const game::SetupConfig& config){
   setupConfig(config);
   setupCameras(config);
-  tile::setup(config, tiles);
+  
+  // setupFourP(config.tileModel);
+  setupThreeP(config.tileModel);
+
+  makeWalls(config.tileSet);
   setupDie();
   setupLockSpaces(config.tileSet);
   setupHands(config);
